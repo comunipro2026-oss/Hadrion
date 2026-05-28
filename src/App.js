@@ -1,9 +1,9 @@
 import { useState } from "react";
 
 const C = {
-  terra:"#D4855A",terraL:"#F0C4AB",terraD:"#B5673E",terraF:"#FDF0E8",
-  cream:"#FAF8F5",sand:"#EDE5D8",sandD:"#D6C9B4",
-  sage:"#7A9E85",sageF:"#EBF5EE",forest:"#3D6B4F",
+  terra:"#9B7EBD",terraL:"#D4BCE8",terraD:"#7B5EA7",terraF:"#F5F0FA",
+  cream:"#FDF8FF",sand:"#EDE0F5",sandD:"#C9B8E8",
+  sage:"#E8719C",sageF:"#FDE8F0",forest:"#C0396B",
   charcoal:"#2C2C2C",gray:"#6B6560",grayL:"#9B9590",
   white:"#FFFFFF",danger:"#C0392B",dangerF:"#FDECEA",
   info:"#5B8DB8",infoF:"#EBF3FB",
@@ -15,7 +15,7 @@ const C = {
 const FONTS=`@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');`;
 
 const INIT_USERS=[
-  {id:1,name:"Jacqueline Marquez",email:"jacqueline@hadrion.cl",password:"admin123",role:"admin",specialty:"Fonoaudiologa",plan:"Pro",status:"active",createdAt:"01/01/2025",avatar:"JM",color:C.terra,lastLogin:"Hoy 08:30"},
+  {id:1,name:"Jacqueline Marquez",email:"comunipro12@gmail.com",password:"admin123",role:"admin",specialty:"Fonoaudiologa",plan:"Pro",status:"active",createdAt:"01/01/2025",avatar:"JM",color:C.terra,lastLogin:"Hoy 08:30"},
   {id:2,name:"Ana Garcia",email:"ana@clinica.cl",password:"123456",role:"profesional",specialty:"Psicopedagoga",plan:"Basico",status:"active",createdAt:"15/03/2025",avatar:"AG",color:C.sage,lastLogin:"Ayer 16:00"},
   {id:3,name:"Carlos Ruiz",email:"carlos@terapia.cl",password:"123456",role:"profesional",specialty:"Fonoaudiologo",plan:"Pro",status:"pending",createdAt:"20/05/2025",avatar:"CR",color:C.purple,lastLogin:"—"},
   {id:4,name:"Sofia Pinto",email:"sofia@neuro.cl",password:"123456",role:"profesional",specialty:"T.O.",plan:"Basico",status:"inactive",createdAt:"10/04/2025",avatar:"SP",color:C.info,lastLogin:"12/05/2025"},
@@ -42,12 +42,12 @@ const INIT_PAYMENTS=[
 ];
 
 const AREAS=[
-  {id:"fono",label:"Fonoaudiologia",icon:"🗣️",color:"#D4855A"},
+  {id:"fono",label:"Fonoaudiologia",icon:"🗣️",color:"#9B7EBD"},
   {id:"psico",label:"Psicologia",icon:"🧠",color:"#8B7BB5"},
   {id:"psicoped",label:"Psicopedagogia",icon:"📚",color:"#5B8DB8"},
   {id:"psicomotricidad",label:"Psicomotricidad",icon:"🤸",color:"#2ECC71"},
   {id:"fisio",label:"Fisioterapia",icon:"💪",color:"#E8A020"},
-  {id:"to",label:"Terapia Ocupacional",icon:"🖐️",color:"#7A9E85"},
+  {id:"to",label:"Terapia Ocupacional",icon:"🖐️",color:"#E8719C"},
   {id:"musico",label:"Musicoterapia",icon:"🎵",color:"#C0392B"},
   {id:"otro",label:"Otra area",icon:"➕",color:"#9B9590"},
 ];
@@ -82,11 +82,11 @@ const ANAMNESIS=[
 const CSS=`
 ${FONTS}
 *{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;background:#FAF8F5;}
-.app{font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh;background:#FAF8F5;display:flex;flex-direction:column;}
+html,body{height:100%;background:#FDF8FF;}
+.app{font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh;background:#FDF8FF;display:flex;flex-direction:column;}
 @media(min-width:900px){
   .app{flex-direction:row;}
-  .sidebar{display:flex!important;flex-direction:column;width:248px;min-height:100vh;background:white;border-right:1px solid #EDE5D8;padding:24px 0;position:sticky;top:0;height:100vh;overflow-y:auto;}
+  .sidebar{display:flex!important;flex-direction:column;width:248px;min-height:100vh;background:white;border-right:1px solid #EDE0F5;padding:24px 0;position:sticky;top:0;height:100vh;overflow-y:auto;}
   .bnav{display:none!important;}
   .mwrap{flex:1;overflow-y:auto;height:100vh;}
   .tbar{padding:18px 32px 0;}
@@ -99,39 +99,39 @@ html,body{height:100%;background:#FAF8F5;}
   .pbody{padding:10px 16px 84px;}
 }
 .slogo{display:flex;align-items:center;gap:10px;padding:0 20px 26px;}
-.slogoicon{width:40px;height:40px;background:#D4855A;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;}
+.slogoicon{width:40px;height:40px;background:#9B7EBD;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;}
 .slogoname{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:#2C2C2C;}
 .slogosub{font-size:10px;color:#9B9590;margin-top:-2px;}
 .ssec{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.3px;color:#9B9590;padding:12px 20px 4px;}
 .sitem{display:flex;align-items:center;gap:11px;padding:10px 20px;cursor:pointer;font-size:13px;font-weight:500;color:#6B6560;transition:all .15s;border-left:3px solid transparent;margin:1px 0;}
-.sitem:hover{background:#FDF0E8;color:#D4855A;}
-.sitem.active{background:#FDF0E8;color:#D4855A;border-left-color:#D4855A;font-weight:600;}
+.sitem:hover{background:#F5F0FA;color:#9B7EBD;}
+.sitem.active{background:#F5F0FA;color:#9B7EBD;border-left-color:#9B7EBD;font-weight:600;}
 .sicon{font-size:15px;width:20px;text-align:center;}
-.sbadge{margin-left:auto;background:#D4855A;color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;}
-.suser{padding:14px 20px;border-top:1px solid #EDE5D8;margin-top:auto;}
-.bnav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #EDE5D8;display:flex;z-index:50;box-shadow:0 -2px 10px rgba(0,0,0,.07);}
+.sbadge{margin-left:auto;background:#9B7EBD;color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;}
+.suser{padding:14px 20px;border-top:1px solid #EDE0F5;margin-top:auto;}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #EDE0F5;display:flex;z-index:50;box-shadow:0 -2px 10px rgba(0,0,0,.07);}
 .bn{flex:1;padding:10px 2px 8px;border:none;background:none;cursor:pointer;font-size:9px;font-family:'Plus Jakarta Sans',sans-serif;color:#9B9590;display:flex;flex-direction:column;align-items:center;gap:3px;font-weight:500;transition:color .14s;}
-.bn.active{color:#D4855A;}
+.bn.active{color:#9B7EBD;}
 .bnicon{font-size:19px;}
 .card{background:white;border-radius:16px;padding:16px;box-shadow:0 1px 8px rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.04);}
 .sgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px;}
 @media(min-width:600px){.sgrid{grid-template-columns:repeat(4,1fr);}}
 .sc2{background:white;border-radius:14px;padding:14px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.05);}
-.snum{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;color:#D4855A;}
+.snum{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;color:#9B7EBD;}
 .slbl{font-size:11px;color:#9B9590;font-weight:500;}
 .btn{border:none;border-radius:11px;padding:10px 17px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;}
-.btnp{background:#D4855A;color:white;}
-.btnp:hover{background:#B5673E;}
-.btno{background:transparent;border:1.5px solid #D4855A;color:#D4855A;}
-.btno:hover{background:#FDF0E8;}
-.btng{background:#EDE5D8;color:#2C2C2C;}
-.btng:hover{background:#D6C9B4;}
+.btnp{background:#9B7EBD;color:white;}
+.btnp:hover{background:#7B5EA7;}
+.btno{background:transparent;border:1.5px solid #9B7EBD;color:#9B7EBD;}
+.btno:hover{background:#F5F0FA;}
+.btng{background:#EDE0F5;color:#2C2C2C;}
+.btng:hover{background:#C9B8E8;}
 .btnd{background:#FDECEA;color:#C0392B;}
 .btngold{background:#FEF3E0;color:#E8A020;}
 .btnsm{padding:7px 12px;font-size:11px;border-radius:8px;}
 .btnfull{width:100%;justify-content:center;margin-top:8px;}
-.inp{width:100%;border:1.5px solid #EDE5D8;border-radius:10px;padding:10px 12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:#2C2C2C;background:white;outline:none;transition:border .15s;}
-.inp:focus{border-color:#D4855A;}
+.inp{width:100%;border:1.5px solid #EDE0F5;border-radius:10px;padding:10px 12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:#2C2C2C;background:white;outline:none;transition:border .15s;}
+.inp:focus{border-color:#9B7EBD;}
 textarea.inp{resize:vertical;min-height:74px;}
 .lbl{font-size:11px;font-weight:700;color:#9B9590;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px;}
 .fg{margin-bottom:12px;}
@@ -144,21 +144,21 @@ textarea.inp{resize:vertical;min-height:74px;}
 .pt{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:#2C2C2C;}
 .ps{font-size:13px;color:#9B9590;margin-top:2px;}
 .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
-.prog{background:#EDE5D8;border-radius:8px;height:7px;overflow:hidden;}
-.progf{height:100%;border-radius:8px;background:linear-gradient(90deg,#D4855A,#B5673E);transition:width .4s;}
-.sep{height:1px;background:#EDE5D8;margin:12px 0;}
+.prog{background:#EDE0F5;border-radius:8px;height:7px;overflow:hidden;}
+.progf{height:100%;border-radius:8px;background:linear-gradient(90deg,#9B7EBD,#7B5EA7);transition:width .4s;}
+.sep{height:1px;background:#EDE0F5;margin:12px 0;}
 .sc{background:white;border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07);margin-bottom:14px;}
-.sch{padding:14px 16px;border-bottom:1px solid #EDE5D8;display:flex;align-items:center;justify-content:space-between;}
+.sch{padding:14px 16px;border-bottom:1px solid #EDE0F5;display:flex;align-items:center;justify-content:space-between;}
 .scb{padding:14px 16px;}
-.hxf{background:#FAF8F5;border-radius:10px;padding:10px 12px;margin-bottom:7px;}
+.hxf{background:#FDF8FF;border-radius:10px;padding:10px 12px;margin-bottom:7px;}
 .hxl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#9B9590;margin-bottom:3px;}
 .hxv{font-size:13px;color:#2C2C2C;line-height:1.5;}
 .alert{border-radius:11px;padding:11px 13px;font-size:13px;margin-bottom:12px;}
 .alrti{background:#EBF3FB;color:#5B8DB8;}
-.alrts{background:#E8F8EF;color:#3D6B4F;}
+.alrts{background:#E8F8EF;color:#C0396B;}
 .alrtw{background:#FEF3E0;color:#E8A020;}
 .alrtd{background:#FDECEA;color:#C0392B;}
-.welcome{background:linear-gradient(135deg,#D4855A,#B5673E);border-radius:18px;padding:20px;color:white;margin-bottom:16px;position:relative;overflow:hidden;}
+.welcome{background:linear-gradient(135deg,#9B7EBD,#7B5EA7);border-radius:18px;padding:20px;color:white;margin-bottom:16px;position:relative;overflow:hidden;}
 .welcome::after{content:'';position:absolute;right:-24px;top:-24px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.09);}
 .wname{font-family:'Cormorant Garamond',serif;font-size:25px;font-weight:700;}
 .qg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
@@ -166,34 +166,34 @@ textarea.inp{resize:vertical;min-height:74px;}
 .qcard{background:white;border-radius:14px;padding:14px;text-align:center;cursor:pointer;transition:transform .15s;box-shadow:0 1px 6px rgba(0,0,0,.05);}
 .qcard:hover{transform:translateY(-2px);}
 .av{border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:700;color:white;flex-shrink:0;}
-.chip{padding:5px 11px;border-radius:20px;border:1.5px solid #EDE5D8;background:white;font-size:12px;font-weight:500;cursor:pointer;color:#6B6560;font-family:'Plus Jakarta Sans',sans-serif;transition:all .13s;}
-.chip.sel{background:#FDF0E8;border-color:#D4855A;color:#D4855A;font-weight:600;}
+.chip{padding:5px 11px;border-radius:20px;border:1.5px solid #EDE0F5;background:white;font-size:12px;font-weight:500;cursor:pointer;color:#6B6560;font-family:'Plus Jakarta Sans',sans-serif;transition:all .13s;}
+.chip.sel{background:#F5F0FA;border-color:#9B7EBD;color:#9B7EBD;font-weight:600;}
 .chiprow{display:flex;flex-wrap:wrap;gap:6px;margin:5px 0;}
 .filrow{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;}
 .filrow::-webkit-scrollbar{display:none;}
-.filbtn{padding:6px 12px;border-radius:20px;border:1.5px solid #EDE5D8;background:white;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;color:#6B6560;font-family:'Plus Jakarta Sans',sans-serif;flex-shrink:0;}
-.filbtn.active{background:#D4855A;color:white;border-color:#D4855A;}
+.filbtn{padding:6px 12px;border-radius:20px;border:1.5px solid #EDE0F5;background:white;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;color:#6B6560;font-family:'Plus Jakarta Sans',sans-serif;flex-shrink:0;}
+.filbtn.active{background:#9B7EBD;color:white;border-color:#9B7EBD;}
 .phgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:12px 0;}
 @media(min-width:500px){.phgrid{grid-template-columns:repeat(6,1fr);}}
-.phbtn{aspect-ratio:1;border-radius:12px;border:2px solid #EDE5D8;background:white;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;cursor:pointer;transition:all .17s;display:flex;align-items:center;justify-content:center;color:#2C2C2C;}
-.phbtn:hover{border-color:#D4855A;background:#FDF0E8;}
-.phbtn.sel{border-color:#D4855A;background:#D4855A;color:white;}
+.phbtn{aspect-ratio:1;border-radius:12px;border:2px solid #EDE0F5;background:white;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;cursor:pointer;transition:all .17s;display:flex;align-items:center;justify-content:center;color:#2C2C2C;}
+.phbtn:hover{border-color:#9B7EBD;background:#F5F0FA;}
+.phbtn.sel{border-color:#9B7EBD;background:#9B7EBD;color:white;}
 .roletag{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
 .radmin{background:#FEF3E0;color:#E8A020;}
 .rpro{background:#EBF3FB;color:#5B8DB8;}
 .dayl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#9B9590;margin:14px 0 6px;}
 .atab{flex:1;padding:8px 6px;border:none;background:transparent;border-radius:9px;font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;color:#6B6560;transition:all .15s;}
-.atab.active{background:white;color:#D4855A;box-shadow:0 1px 4px rgba(0,0,0,.1);}
-.atabrow{display:flex;gap:4px;background:#EDE5D8;border-radius:12px;padding:4px;margin-bottom:16px;}
-.qscard{background:white;border-radius:16px;padding:14px;box-shadow:0 1px 8px rgba(0,0,0,.06);margin-bottom:12px;display:flex;align-items:center;gap:12px;cursor:pointer;border:1.5px solid #EDE5D8;transition:border-color .15s;}
-.qscard:hover{border-color:#D4855A;}
+.atab.active{background:white;color:#9B7EBD;box-shadow:0 1px 4px rgba(0,0,0,.1);}
+.atabrow{display:flex;gap:4px;background:#EDE0F5;border-radius:12px;padding:4px;margin-bottom:16px;}
+.qscard{background:white;border-radius:16px;padding:14px;box-shadow:0 1px 8px rgba(0,0,0,.06);margin-bottom:12px;display:flex;align-items:center;gap:12px;cursor:pointer;border:1.5px solid #EDE0F5;transition:border-color .15s;}
+.qscard:hover{border-color:#9B7EBD;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(13px);}to{opacity:1;transform:translateY(0);}}
 .fu{animation:fadeUp .28s ease forwards;}
 @media print{.noprint{display:none!important;}body{background:white;}}
 `;
 
 const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
-const todayStr=()=>new Date().toLocaleDateString("es-CL",{weekday:"long",day:"numeric",month:"long"});
+const todayStr=()=>new Date().toLocaleDateString("es-UY",{weekday:"long",day:"numeric",month:"long"});
 
 function Modal({title,onClose,children}){
   return(
@@ -276,11 +276,11 @@ function Login({onLogin,users}){
         <div style={{textAlign:"center",marginBottom:26}}>
           <div style={{width:62,height:62,background:C.terra,borderRadius:18,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 13px",fontFamily:"'Cormorant Garamond',serif",fontSize:30,fontWeight:700,color:"white"}}>N</div>
           <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:28,fontWeight:700,color:C.charcoal}}>Hadrion</div>
-          <div style={{fontSize:13,color:C.grayL,marginTop:3}}>Plataforma clinica terapeutica</div>
+          <div style={{fontSize:13,color:C.grayL,marginTop:3}}>Plataforma terapeutica - Uruguay</div>
         </div>
         {!forgot?<>
           <div style={{fontSize:17,fontWeight:700,color:C.charcoal,marginBottom:14}}>Iniciar sesion</div>
-          <div className="fg"><label className="lbl">Correo electronico</label><input className="inp" type="email" placeholder="profesional@clinica.cl" value={f.email} onChange={e=>setF({...f,email:e.target.value})}/></div>
+          <div className="fg"><label className="lbl">Correo electronico</label><input className="inp" type="email" placeholder="comunipro12@gmail.com" value={f.email} onChange={e=>setF({...f,email:e.target.value})}/></div>
           <div className="fg"><label className="lbl">Contrasena</label>
             <div style={{position:"relative"}}>
               <input className="inp" type={f.show?"text":"password"} placeholder="••••••••" value={f.pass} onChange={e=>setF({...f,pass:e.target.value})} onKeyDown={e=>e.key==="Enter"&&login()} style={{paddingRight:44}}/>
@@ -290,10 +290,10 @@ function Login({onLogin,users}){
           {err&&<div className="alert alrtd">{err}</div>}
           <button className="btn btnp btnfull" style={{borderRadius:12}} onClick={login}>→ Ingresar</button>
           <div style={{textAlign:"center",marginTop:12,fontSize:12,color:C.grayL}}>Olvidaste tu contrasena? <span style={{color:C.terra,cursor:"pointer",fontWeight:600}} onClick={()=>setForgot(true)}>Recuperar acceso</span></div>
-          <div style={{marginTop:18,background:C.terraF,borderRadius:12,padding:"10px 13px",fontSize:11,color:C.terra,textAlign:"center"}}>🧠 Todo tu consultorio, en un solo lugar.</div>
+          <div style={{marginTop:18,background:C.terraF,borderRadius:12,padding:"10px 13px",fontSize:11,color:C.terra,textAlign:"center"}}>🧠 Tu consultorio digital, desde Uruguay para el mundo.</div>
           <div style={{marginTop:12,background:C.cream,borderRadius:10,padding:"10px 12px"}}>
             <div style={{fontSize:10,color:C.grayL,fontWeight:700,marginBottom:5,textTransform:"uppercase"}}>Accesos de prueba</div>
-            {[{e:"jacqueline@hadrion.cl",p:"admin123",r:"👑 Admin"},{e:"ana@clinica.cl",p:"123456",r:"Profesional"}].map(d=>(
+            {[{e:"comunipro12@gmail.com",p:"admin123",r:"👑 Admin"},{e:"ana@clinica.cl",p:"123456",r:"Profesional"}].map(d=>(
               <div key={d.e} style={{display:"flex",justifyContent:"space-between",padding:"4px 0",borderBottom:`1px solid ${C.sand}`,fontSize:11}}>
                 <span style={{color:C.charcoal}}>{d.e}</span><span style={{fontWeight:700,color:C.terra}}>{d.r}</span>
               </div>
@@ -303,7 +303,7 @@ function Login({onLogin,users}){
         </>:<>
           <div style={{fontSize:17,fontWeight:700,color:C.charcoal,marginBottom:6}}>Recuperar acceso</div>
           <div style={{fontSize:13,color:C.grayL,marginBottom:14}}>Ingresa tu email y te enviaremos un enlace de recuperacion.</div>
-          <div className="fg"><input className="inp" type="email" placeholder="profesional@clinica.cl" value={f.email} onChange={e=>setF({...f,email:e.target.value})}/></div>
+          <div className="fg"><input className="inp" type="email" placeholder="comunipro12@gmail.com" value={f.email} onChange={e=>setF({...f,email:e.target.value})}/></div>
           <div className="alert alrts">✉️ En produccion real se enviaria email de recuperacion.</div>
           <button className="btn btnp btnfull" onClick={()=>setForgot(false)}>← Volver</button>
         </>}
@@ -522,7 +522,7 @@ function Payments({patients,payments,setPayments}){
     setPayments([...payments,{id:Date.now(),patientId:parseInt(f.patientId),patient:p?.name||"",amount:parseInt(f.amount),type:f.type,date:f.date,method:f.method,status:"pagado"}]);
     setF({patientId:"",amount:"",type:"Particular",method:"Transferencia",date:new Date().toISOString().slice(0,10)});setShowNew(false);
   };
-  const month=cap(new Date().toLocaleDateString("es-CL",{month:"long",year:"numeric"}));
+  const month=cap(new Date().toLocaleDateString("es-UY",{month:"long",year:"numeric"}));
   return(
     <div className="fu">
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
@@ -532,7 +532,7 @@ function Payments({patients,payments,setPayments}){
       {[{l:"Total cobrado",v:total,n:payments.filter(p=>p.status==="pagado").length,ic:"📈",c:C.terra},{l:"Particular",v:particular,n:payments.filter(p=>p.type==="Particular").length,ic:"💰",c:C.purple},{l:"Obra social",v:obra,n:payments.filter(p=>p.type==="Obra social").length,ic:"🏥",c:C.info}].map(r=>(
         <div key={r.l} className="card" style={{marginBottom:10,display:"flex",alignItems:"center",gap:14}}>
           <div style={{width:46,height:46,borderRadius:13,background:r.c+"22",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>{r.ic}</div>
-          <div><div style={{fontSize:12,color:C.grayL}}>{r.l}</div><div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,fontWeight:700,color:C.charcoal}}>${r.v.toLocaleString("es-CL")}</div><div style={{fontSize:11,color:C.grayL}}>{r.n} pagos</div></div>
+          <div><div style={{fontSize:12,color:C.grayL}}>{r.l}</div><div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,fontWeight:700,color:C.charcoal}}>${r.v.toLocaleString("es-UY")}</div><div style={{fontSize:11,color:C.grayL}}>{r.n} pagos</div></div>
         </div>
       ))}
       <div className="sep"/>
@@ -540,7 +540,7 @@ function Payments({patients,payments,setPayments}){
         <div key={p.id} className="card" style={{marginBottom:8}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
             <div><div style={{fontWeight:600,fontSize:13,color:C.charcoal}}>{p.patient}</div><div style={{fontSize:11,color:C.grayL}}>{p.date} - {p.type} - {p.method}</div></div>
-            <div style={{textAlign:"right"}}><div style={{fontWeight:700,fontSize:16,color:C.charcoal}}>${p.amount.toLocaleString("es-CL")}</div><span className="badge" style={{background:p.status==="pagado"?C.greenF:C.goldF,color:p.status==="pagado"?C.forest:C.gold,fontSize:10}}>{p.status}</span></div>
+            <div style={{textAlign:"right"}}><div style={{fontWeight:700,fontSize:16,color:C.charcoal}}>${p.amount.toLocaleString("es-UY")}</div><span className="badge" style={{background:p.status==="pagado"?C.greenF:C.goldF,color:p.status==="pagado"?C.forest:C.gold,fontSize:10}}>{p.status}</span></div>
           </div>
         </div>
       ))}
@@ -586,7 +586,7 @@ function Sessions({patients,sessions,setSessions}){
   const save=()=>{
     if(!f.patientId||!f.note)return;
     const p=patients.find(x=>x.id===parseInt(f.patientId));
-    setSessions([{id:Date.now(),patientId:parseInt(f.patientId),patient:p?.name||"",date:new Date().toLocaleDateString("es-CL"),...f,activities:f.activities?f.activities.split(",").map(s=>s.trim()):[]},  ...sessions]);
+    setSessions([{id:Date.now(),patientId:parseInt(f.patientId),patient:p?.name||"",date:new Date().toLocaleDateString("es-UY"),...f,activities:f.activities?f.activities.split(",").map(s=>s.trim()):[]},  ...sessions]);
     setF({patientId:"",objective:"",note:"",progress:50,activities:"",homework:"",estado:"",atencion:"",participacion:"",sensorial:[]});setShowNew(false);
   };
   return(
@@ -721,7 +721,7 @@ function History({patients,sessions,selectedPatientId}){
                 <div className="sch" style={{background:C.terraF}}>
                   <div>
                     <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:19,fontWeight:700,color:C.charcoal}}>Hadrion - Plataforma Clinica</div>
-                    <div style={{fontSize:12,color:C.grayL}}>Informe Evolutivo — {new Date().toLocaleDateString("es-CL")}</div>
+                    <div style={{fontSize:12,color:C.grayL}}>Informe Evolutivo — {new Date().toLocaleDateString("es-UY")}</div>
                   </div>
                 </div>
                 <div className="scb">
@@ -798,7 +798,7 @@ function Phonology(){
   const [fil,setFil]=useState("Todas");
   const stages=["Escucha","Imagen","Letra","Silaba","Segmentacion","Fusion","Manipulacion"];
   const cats={Vocales:["A","E","I","O","U"],Consonantes:PHONEMES.filter(p=>!["A","E","I","O","U"].includes(p)),Todas:PHONEMES};
-  const speak=ph=>{if(window.speechSynthesis){const u=new SpeechSynthesisUtterance(ph.toLowerCase());u.lang="es-AR";u.rate=0.7;window.speechSynthesis.speak(u);}};
+  const speak=ph=>{if(window.speechSynthesis){const u=new SpeechSynthesisUtterance(ph.toLowerCase());u.lang="es-UY";u.rate=0.7;window.speechSynthesis.speak(u);}};
   const handle=ph=>{setSel(ph);speak(ph);setScore(s=>s+1);};
   return(
     <div className="fu">
@@ -1074,7 +1074,7 @@ function Admin({users,setUsers}){
     if(!f.name||!f.email||!f.password)return;
     const init=f.name.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
     const cols=[C.terra,C.sage,C.purple,C.info,C.gold];
-    setUsers([...users,{id:Date.now(),name:f.name,email:f.email,password:f.password,role:f.role,specialty:f.specialty,plan:f.plan,status:"active",createdAt:new Date().toLocaleDateString("es-CL"),avatar:init,color:cols[users.length%cols.length],lastLogin:"—"}]);
+    setUsers([...users,{id:Date.now(),name:f.name,email:f.email,password:f.password,role:f.role,specialty:f.specialty,plan:f.plan,status:"active",createdAt:new Date().toLocaleDateString("es-UY"),avatar:init,color:cols[users.length%cols.length],lastLogin:"—"}]);
     setF({name:"",email:"",password:"",role:"profesional",specialty:"",plan:"Basico"});setShowNew(false);
   };
   const chgStatus=(id,s)=>setUsers(users.map(u=>u.id===id?{...u,status:s}:u));
@@ -1175,7 +1175,7 @@ function Admin({users,setUsers}){
       )}
       {tab==="config"&&(
         <SC title="⚙️ Configuracion">
-          {[["Nombre","Hadrion"],["Plan","Pro — Ilimitado"],["Region","Argentina / Chile"],["Idioma","Espanol"],["Zona horaria","GMT-3"]].map(([l,v])=>(
+          {[["Nombre","Hadrion"],["Plan","Pro — Ilimitado"],["Region","Uruguay"],["Idioma","Espanol"],["Zona horaria","GMT-3"]].map(([l,v])=>(
             <div key={l} style={{display:"flex",justifyContent:"space-between",padding:"10px 0",borderBottom:`1px solid ${C.sand}`}}>
               <span style={{fontSize:13,color:C.gray}}>{l}</span>
               <span style={{fontSize:13,fontWeight:600,color:C.charcoal}}>{v}</span>
@@ -1258,7 +1258,7 @@ export default function HadrionApp(){
   const saveQS=()=>{
     if(!qsF.patientId||!qsF.note)return;
     const p=patients.find(x=>x.id===parseInt(qsF.patientId));
-    setSessions([{id:Date.now(),patientId:parseInt(qsF.patientId),patient:p?.name||"",date:new Date().toLocaleDateString("es-CL"),objective:"Sesion rapida",note:qsF.note,progress:50,activities:[],homework:"",estado:"",atencion:"",participacion:"",sensorial:[]},...sessions]);
+    setSessions([{id:Date.now(),patientId:parseInt(qsF.patientId),patient:p?.name||"",date:new Date().toLocaleDateString("es-UY"),objective:"Sesion rapida",note:qsF.note,progress:50,activities:[],homework:"",estado:"",atencion:"",participacion:"",sensorial:[]},...sessions]);
     setQsF({patientId:"",note:""});setShowQS(false);
   };
   const pages={
