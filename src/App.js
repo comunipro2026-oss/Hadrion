@@ -447,8 +447,10 @@ function Login({onLogin,users,onRegisterRequest}){
             <span style={{fontSize:12,color:C.grayL}}>No tenes cuenta? </span>
             <span style={{fontSize:12,color:C.terra,cursor:"pointer",fontWeight:700}} onClick={()=>setRegister(true)}>Solicitar acceso gratis →</span>
           </div>
-        </>}
-        {forgot&&<>
+            </>
+)}
+{forgot && (
+  <>
           <div style={{fontSize:17,fontWeight:700,color:C.charcoal,marginBottom:6}}>Recuperar acceso</div>
           <div style={{fontSize:13,color:C.grayL,marginBottom:14}}>Ingresa tu email y te enviaremos un enlace de recuperacion.</div>
           <div className="fg"><input className="inp" type="email" placeholder="comunipro12@gmail.com" value={f.email} onChange={e=>setF({...f,email:e.target.value})}/></div>
