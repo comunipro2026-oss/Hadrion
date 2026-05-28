@@ -70,15 +70,149 @@ const INIT_PLAN=[
 const PHONEMES=["A","E","I","O","U","B","C","CH","D","F","G","J","L","LL","M","N","N","P","R","RR","S","T","V","Y","Z"];
 
 const ACTIVITIES_DB=[
-  {id:1,name:"Conciencia fonologica con rimas",category:"Lenguaje",target:"TEL",type:"Clinica",age:"4-8",description:"Identificar y producir rimas con imagenes de apoyo visual y auditivo.",materials:"Tarjetas ilustradas, grabador de voz",printable:true},
-  {id:2,name:"Ruleta de silabas",category:"Lectoescritura",target:"Dislexia",type:"Clinica",age:"6-10",description:"Combinar silabas para formar palabras conocidas.",materials:"Ruleta imprimible, fichas de silabas",printable:true},
-  {id:3,name:"Cuento motor en familia",category:"Lenguaje",target:"TEL",type:"Familia",age:"3-7",description:"Narrar un cuento con movimientos y onomatopeyas.",materials:"Cuento ilustrado",printable:true},
-  {id:4,name:"Semaforo de emociones",category:"Regulacion",target:"TDAH",type:"Clinica",age:"5-10",description:"Reconocer y regular estados emocionales con colores.",materials:"Lamina de semaforo, tarjetas",printable:true},
-  {id:5,name:"Lectura compartida 10 min",category:"Lectoescritura",target:"Dislexia",type:"Familia",age:"6-12",description:"Lectura en voz alta turno a turno con adulto.",materials:"Libro nivel lector, senalador",printable:false},
-  {id:6,name:"Secuencias narrativas",category:"Lenguaje",target:"TEL",type:"Clinica",age:"5-9",description:"Ordenar y contar historias con imagenes secuenciadas.",materials:"Vinetas secuenciadas",printable:true},
-  {id:7,name:"Praxias bucofonatorias",category:"Articulacion",target:"Disartria",type:"Clinica",age:"4-12",description:"Ejercicios de movilidad labial, lingual y mandibular.",materials:"Espejo, lamina de praxias",printable:true},
-  {id:8,name:"Juego del sonido perdido",category:"Fonologia",target:"TEL",type:"Clinica",age:"4-7",description:"Identificar que sonido falta en una palabra.",materials:"Tarjetas impresas, audio",printable:true},
+  // ─── LENGUAJE / TEL ───
+  {id:1,name:"Rimas y trabalenguas",category:"Lenguaje",target:"TEL",type:"Clinica",age:"3-6",ageGroup:"Preescolar",
+   description:"Trabajar conciencia fonologica a traves de rimas y trabalenguas con apoyo visual.",
+   materials:"Tarjetas ilustradas con imagenes rimadas, espejo",
+   niveles:{
+     facil:{titulo:"Rimas simples",instrucciones:"Mostrar dos imagenes (sol/caracol). Preguntar: ¿riman estas palabras? El nino responde SI o NO con gesto o voz.",ejemplos:["sol - caracol","mesa - fresa","pato - zapato"],apoyo:"Apoyo visual total, modelado del adulto"},
+     medio:{titulo:"Completar la rima",instrucciones:"Decir el inicio de una rima y pedir que el nino complete: 'En el jardin hay una flor, y tambien hay un...' (color)",ejemplos:["La luna llena / se asoma a la (arena)","El gato gordo / se sento en el (borde)"],apoyo:"Dar 2 opciones para elegir"},
+     dificil:{titulo:"Crear rimas propias",instrucciones:"El nino debe crear una oracion que rime con la que dice el adulto. Se puede usar un dado de imagenes.",ejemplos:["Adulto: El nino corre / Nino: y el perro sorre","Crear una rima sobre el clima, animales, colores"],apoyo:"Sin apoyo, produccion espontanea"}
+   },printable:true},
+
+  {id:2,name:"Secuencias narrativas",category:"Lenguaje",target:"TEL",type:"Clinica",age:"4-9",ageGroup:"Preescolar/Escolar",
+   description:"Ordenar y narrar historias con imagenes secuenciadas para trabajar cohesion y coherencia.",
+   materials:"Laminas de 3-6 viñetas impresas, velcro o sobres",
+   niveles:{
+     facil:{titulo:"Secuencia de 2 imagenes",instrucciones:"Presentar 2 viñetas desordenadas. El nino las ordena y describe que pasa en cada una con una palabra o frase simple.",ejemplos:["Nino triste → nino comiendo → nino sonriendo","Manzana en arbol → caida → comida"],apoyo:"Modelado previo del adulto, lenguaje gestual aceptado"},
+     medio:{titulo:"Secuencia de 4 imagenes",instrucciones:"Ordenar 4 viñetas y narrar la historia con oraciones completas. Se puede usar el modelo: Primero... Despues... Luego... Al final...",ejemplos:["Historia del cumpleanos: preparacion, fiesta, torta, regalo","Historia de la mañana: despertar, bañarse, desayunar, ir al colegio"],apoyo:"Claves de inicio de oracion impresas"},
+     dificil:{titulo:"Cuento libre con 6 viñetas",instrucciones:"Ordenar 6 viñetas e inventar el cuento completo con inicio, problema y solucion. Incluir personajes con nombre.",ejemplos:["Historia del dinosaurio perdido","Aventura en el bosque con animales"],apoyo:"Sin apoyo, grabacion del relato para retroalimentacion"}
+   },printable:true},
+
+  {id:3,name:"Vocabulario por categorias",category:"Lenguaje",target:"TEL",type:"Clinica",age:"3-8",ageGroup:"Preescolar/Escolar",
+   description:"Ampliar y organizar el vocabulario semantico por campos lexicales con imagenes reales.",
+   materials:"Tarjetas con imagenes reales (no dibujos), canastos o cajas etiquetadas",
+   niveles:{
+     facil:{titulo:"Clasificacion basica",instrucciones:"Presentar 6 tarjetas de 2 categorias (ej. animales y frutas). El nino las separa en dos grupos.",ejemplos:["Animales vs frutas","Ropa vs comida","Juguetes vs muebles"],apoyo:"Cajas con simbolo visual de la categoria"},
+     medio:{titulo:"Clasificacion multiple",instrucciones:"Clasificar 12 tarjetas en 3-4 categorias. Nombrar cada objeto al ubicarlo. Despues decir otros ejemplos de cada categoria.",ejemplos:["Medios de transporte / animales / alimentos / colores","Cosas del bano / cosas de la cocina / cosas del dormitorio"],apoyo:"Dar 2 ejemplos de cada categoria antes de iniciar"},
+     dificil:{titulo:"Definicion funcional",instrucciones:"El nino describe para que sirve cada objeto sin nombrar la categoria. El adulto adivina. Luego invierten roles.",ejemplos:["'Sirve para cortar, tiene filo, es de metal' → cuchillo","Jugar al veo veo semantico: 'Pienso en algo que se usa para...'" ],apoyo:"Sin apoyo visual, solo lenguaje"}
+   },printable:true},
+
+  {id:4,name:"Comprension de instrucciones",category:"Lenguaje",target:"TEL",type:"Clinica",age:"3-7",ageGroup:"Preescolar",
+   description:"Trabajar comprension y seguimiento de consignas simples, de dos pasos y complejas con objetos reales.",
+   materials:"Objetos del consultorio o miniaturas, cajas de colores",
+   niveles:{
+     facil:{titulo:"Consigna de 1 paso",instrucciones:"Dar una instruccion simple con objeto presente: 'Dame el libro', 'Toca la mesa', 'Abre la caja'.",ejemplos:["Dame el oso","Salta una vez","Cierra los ojos"],apoyo:"Apoyo gestual, maxima proximidad"},
+     medio:{titulo:"Consigna de 2 pasos",instrucciones:"Dar dos instrucciones seguidas: 'Toca la silla y despues dame el lapiz'.",ejemplos:["Salta y despues sienta","Toca tu nariz y luego aplaude","Busca el cubo azul y ponlo adentro de la caja"],apoyo:"Repetir si es necesario, reducir velocidad del habla"},
+     dificil:{titulo:"Consigna con conceptos relacionales",instrucciones:"Incluir conceptos espaciales, temporales y logicos: 'Antes de sentarte, dame el libro que esta DEBAJO de la mesa'.",ejemplos:["Pon el rojo ARRIBA del azul pero ANTES aplaude","Dame el que NO es cuadrado","El mas grande de todos menos uno"],apoyo:"Sin apoyo, evaluacion de comprension"}
+   },printable:true},
+
+  // ─── LECTOESCRITURA / DISLEXIA ───
+  {id:5,name:"Conciencia sílabica",category:"Lectoescritura",target:"Dislexia",type:"Clinica",age:"5-8",ageGroup:"Preescolar/Escolar",
+   description:"Trabajar segmentacion, identificacion y manipulacion silabica con apoyo visual y cinestetico.",
+   materials:"Fichas de colores, palmadas, tablero de silabas",
+   niveles:{
+     facil:{titulo:"Contar silabas con palmadas",instrucciones:"El adulto dice una palabra y el nino da una palmada por silaba. Comenzar con palabras bisílabas de uso frecuente.",ejemplos:["ca-sa (2 palmadas)","me-sa (2 palmadas)","za-pa-to (3 palmadas)"],apoyo:"Adulto modela primero, uso de tablero con casillas"},
+     medio:{titulo:"Identificar silaba inicial y final",instrucciones:"El nino identifica con que silaba empieza o termina la palabra. Se puede usar ruleta o cartas.",ejemplos:["¿Con que silaba empieza PALOMA? PA","¿Con que silaba termina CORAZON? ON","Agrupar imagenes segun silaba inicial"],apoyo:"Marcador visual para inicio y fin de palabra"},
+     dificil:{titulo:"Sustitucion silabica",instrucciones:"Cambiar una silaba de la palabra por otra y decir la nueva palabra: 'MESA si cambio ME por PI... PISA'.",ejemplos:["PATO sin PA = TO; con FU = FUTO","CAMION cambia CA por CA = CAMION, por MA = MAMION","Crear palabras nuevas sustituyendo silabas"],apoyo:"Sin apoyo, nivel metalingüistico"}
+   },printable:true},
+
+  {id:6,name:"Discriminacion b/d/p/q",category:"Lectoescritura",target:"Dislexia",type:"Clinica",age:"6-10",ageGroup:"Escolar",
+   description:"Trabajar la confusion de letras de espejo b/d/p/q con estrategias multisensoriales.",
+   materials:"Tarjetas de letras, cama de arena, letras de lija, espejo",
+   niveles:{
+     facil:{titulo:"Reconocimiento visual con clave",instrucciones:"Usar el truco del 'cama': b tiene la panza a la derecha (b), d tiene la panza a la izquierda (d). Practicar solo con b y d.",ejemplos:["Trazar b en arena con el dedo","Tocar letra de lija y decir su nombre","Clasificar tarjetas: ¿es b o d?"],apoyo:"Clave visual permanente en el escritorio"},
+     medio:{titulo:"Lectura en contexto",instrucciones:"Leer oraciones cortas con muchas b y d. Subrayar con colores distintos: b en azul, d en verde.",ejemplos:["El dado rojo rueda debajo de la cama","La ballena bebe bastante agua del mar","Discriminar en texto impreso"],apoyo:"Texto con fuente grande, regleta lectora"},
+     dificil:{titulo:"Escritura diferenciada",instrucciones:"Escribir palabras y oraciones al dictado que incluyan b, d, p, q. Sin apoyo visual de claves.",ejemplos:["Dictado de palabras: barco, dedo, puente, queso","Dictado de oracion: El perro de Pedro bebio agua","Autocorreccion del propio texto"],apoyo:"Autocorreccion con lista de cotejo"}
+   },printable:true},
+
+  {id:7,name:"Lectura de velocidad y fluidez",category:"Lectoescritura",target:"Dislexia",type:"Clinica",age:"7-12",ageGroup:"Escolar",
+   description:"Mejorar velocidad y fluidez lectora con textos graduados y cronometro.",
+   materials:"Textos graduados impresos, cronometro, grafico de progreso",
+   niveles:{
+     facil:{titulo:"Lectura de silabas y palabras",instrucciones:"Leer listas de silabas (ba, de, pi, co) y palabras monosilabas y bisílabas en 1 minuto. Contar correctas.",ejemplos:["Lista: ma, pe, si, ro, tu, ba, de... (30 silabas)","Lista de palabras: sol, mar, pie, dos, ven, luz...","Graficar cuantas leyo correctamente"],apoyo:"Senalar con dedo o lapiz cada silaba"},
+     medio:{titulo:"Lectura de oraciones",instrucciones:"Leer oraciones de 5-8 palabras en voz alta. Medir palabras por minuto. Meta: 60 ppm.",ejemplos:["El nino come una manzana roja","La pelota rueda por el piso del patio","Texto de 100 palabras con cronometro"],apoyo:"Regleta lectora, marcador de linea"},
+     dificil:{titulo:"Lectura expresiva de parrafo",instrucciones:"Leer parrafos completos respetando puntuacion y entonacion. Meta: 90-100 ppm con comprension.",ejemplos:["Cuento de 200 palabras con preguntas de comprension","Noticia infantil con vocabulario nuevo","Lectura en voz alta para otro paciente o familiar"],apoyo:"Grabacion para autoevaluacion"}
+   },printable:true},
+
+  // ─── ATENCION / TDAH ───
+  {id:8,name:"Semaforo de autorregulacion",category:"Regulacion",target:"TDAH",type:"Clinica",age:"4-10",ageGroup:"Preescolar/Escolar",
+   description:"Sistema visual de autorregulacion emocional y conductual basado en los colores del semaforo.",
+   materials:"Lamina de semaforo grande, tarjetas de emociones, ficha personal",
+   niveles:{
+     facil:{titulo:"Identificacion de estados",instrucciones:"Mostrar la lamina del semaforo. Explicar: ROJO=parar/enojado, AMARILLO=pensar/nervioso, VERDE=ok/tranquilo. El nino ubica una figura donde esta hoy.",ejemplos:["¿De que color estas ahora?","Mostrar cara y ubicar en el semaforo","Juego: el adulto actua una emocion y el nino la ubica"],apoyo:"Figuras con caras expresivas, semaforo grande en pared"},
+     medio:{titulo:"Estrategias por color",instrucciones:"Para cada color, practicar estrategias: ROJO=respirar 3 veces, AMARILLO=contar hasta 5, VERDE=continuar. Role play de situaciones.",ejemplos:["Situacion: 'No quiero compartir el juguete' → ¿que color? → que hago?","Practicar respiracion de tortuga (inhalar lento, exhalar lento)","Crear tarjetas de estrategias personales"],apoyo:"Tarjetas de estrategias plastificadas"},
+     dificil:{titulo:"Uso autonomo y transferencia",instrucciones:"El nino usa el semaforo de forma independiente en sesion y reporta como lo uso en casa o colegio.",ejemplos:["Diario emocional: colorear el semaforo al inicio y fin de sesion","Contar una situacion real donde uso la estrategia","Ensenarselo a un familiar o companero"],apoyo:"App o tarjeta de bolsillo para uso externo"}
+   },printable:true},
+
+  {id:9,name:"Juego de atencion sostenida",category:"Atencion",target:"TDAH",type:"Clinica",age:"5-10",ageGroup:"Preescolar/Escolar",
+   description:"Actividades graduadas para entrenar el foco y la atencion sostenida con estimulos visuales.",
+   materials:"Laminas de busqueda visual, tablero de puntos, cronometro",
+   niveles:{
+     facil:{titulo:"Buscar y marcar (2 min)",instrucciones:"Presentar una lamina con figuras. El nino debe marcar solo las que se le indica (ej. todos los circulos) en 2 minutos.",ejemplos:["Marcar todos los gatos en una lamina con 10 animales","Tachar la letra A en un renglon de letras","Buscar objetos de color rojo en una imagen"],apoyo:"Lamina simple, pocas distractores, tiempo generoso"},
+     medio:{titulo:"Atencion dividida (5 min)",instrucciones:"Tarea con dos variables: marcar circulos grandes Y tachar cuadrados pequeños al mismo tiempo. Aumentar tiempo a 5 min.",ejemplos:["Marcar numeros pares Y rodear los impares","Buscar la figura modelo entre 20 opciones similares","Laberinto con dos caminos a seguir"],apoyo:"Pausas permitidas, retroalimentacion inmediata"},
+     dificil:{titulo:"Atencion con distraccion (8 min)",instrucciones:"Realizar tarea de atencion sostenida mientras hay ruido de fondo o estimulos visuales adicionales. 8 minutos.",ejemplos:["Completar serie numerica con musica de fondo","Resolver sopa de letras con elementos moviéndose en el margen","Seguir instrucciones verbales mientras observa imagenes"],apoyo:"Autorregistro de errores y tiempo completado"}
+   },printable:true},
+
+  // ─── ARTICULACION / DISARTRIA ───
+  {id:10,name:"Praxias bucofonatorias",category:"Articulacion",target:"Disartria",type:"Clinica",age:"3-12",ageGroup:"Todos",
+   description:"Ejercicios sistematizados de movilidad labial, lingual, mandibular y velar con espejo.",
+   materials:"Espejo, lamina de praxias, espejo de mano, cronometro",
+   niveles:{
+     facil:{titulo:"Praxias estaticas",instrucciones:"Mantener posicion bucal sin movimiento: labios juntos 5 seg, lengua arriba 5 seg, mejillas infladas 5 seg. 3 repeticiones.",ejemplos:["Labios cerrados y apretados","Lengua en el paladar (chasquido)","Sonrisa amplia sostenida","Boca abierta maxima sostenida"],apoyo:"Guia visual de cada posicion, espejo grande"},
+     medio:{titulo:"Praxias dinamicas",instrucciones:"Movimientos en secuencia: labios adelante/atras, lengua arriba/abajo/derecha/izquierda, 5 repeticiones cada uno.",ejemplos:["Vibrar labios (motocicleta)","Lengua recorre el paladar de adelante hacia atras","Movimiento circular de lengua por afuera de los dientes","Abrir y cerrar la boca con ritmo"],apoyo:"Ritmo con palmadas, seguir modelo del espejo"},
+     dificil:{titulo:"Praxias en velocidad y fonacion",instrucciones:"Realizar las praxias con velocidad creciente y luego agregar sonido (vocalizacion) en cada movimiento.",ejemplos:["Pa-ta-ka repetido 10 veces rapido","Labios juntos y vibracion larga","Secuencia completa en 30 segundos","Praxias con texto: repetir palabras con los fonemas trabajados"],apoyo:"Grabacion de video para comparar progreso"}
+   },printable:true},
+
+  // ─── FAMILIA ───
+  {id:11,name:"Lectura compartida en familia",category:"Lectoescritura",target:"Dislexia",type:"Familia",age:"5-12",ageGroup:"Escolar",
+   description:"Protocolo de lectura compartida para practicar en casa con el adulto referente.",
+   materials:"Libro de nivel lector del nino, separador de paginas, hoja de registro",
+   niveles:{
+     facil:{titulo:"Lectura en voz alta del adulto",instrucciones:"El adulto lee en voz alta mientras el nino sigue con el dedo. Al terminar cada parrafo, el nino cuenta con una palabra de que trato.",ejemplos:["Libro: 'Donde viven los monstruos'","Cuento simple de 5 paginas ilustradas","El adulto senala las palabras mientras lee"],apoyo:"10 minutos diarios, horario fijo"},
+     medio:{titulo:"Lectura en pares turnada",instrucciones:"Adulto y nino leen de a turnos: adulto lee un renglon, nino lee el siguiente. Ayudar sin corregir abruptamente.",ejemplos:["Libro: cuentos de Roald Dahl adaptados","Noticias del periodico infantil","Libros de la biblioteca escolar"],apoyo:"Adulto modela el tono y pausas"},
+     dificil:{titulo:"Lectura independiente con registro",instrucciones:"El nino lee 10 minutos solo y luego le cuenta al adulto de que se trato. El adulto completa una ficha de seguimiento.",ejemplos:["Saga de libros de interes del nino","Registro: fecha, libro, paginas, resumen en 2 oraciones","Presentar el libro a alguien de la familia"],apoyo:"Ficha simple de registro semanal"}
+   },printable:true},
+
+  {id:12,name:"Estimulacion lingüistica cotidiana",category:"Lenguaje",target:"TEL",type:"Familia",age:"2-6",ageGroup:"Preescolar",
+   description:"Estrategias para que la familia estimule el lenguaje durante las rutinas diarias del hogar.",
+   materials:"Guia para familia impresa, imagenes de las rutinas",
+   niveles:{
+     facil:{titulo:"Expansion y modelado",instrucciones:"Cuando el nino dice algo, el adulto lo repite correctamente y agrega una palabra mas. No corregir directamente, modelar.",ejemplos:["Nino: 'agua' → Adulto: 'quieres agua', 'el agua fria'","Nino: 'nene caio' → Adulto: 'si, el nene se cayo'","Durante el bano: nombrar cada parte del cuerpo"],apoyo:"Tarjeta de recordatorio pegada en la nevera"},
+     medio:{titulo:"Comentar y preguntar",instrucciones:"Durante actividades diarias, el adulto comenta lo que hace y hace preguntas abiertas: ¿que ves? ¿que piensas? ¿que paso?",ejemplos:["En el supermercado: 'mira, hay manzanas rojas y verdes ¿cuales quieres?'","Mirando un libro: 'mira el perro, ¿que crees que va a hacer?'","Jugando: 'y ahora que le pasa al muñeco?'"],apoyo:"Lista de frases estimulantes para cada rutina"},
+     dificil:{titulo:"Narrar y anticipar",instrucciones:"Contar al nino lo que va a pasar antes de hacerlo, y despues pedirle que lo cuente el. Usar vocabulario nuevo intencionalmente.",ejemplos:["Antes de salir: 'vamos a ir al parque, vamos a... ¿que crees que vamos a hacer?'","Al volver: 'contale a papa lo que hicimos hoy'","Introducir 2 palabras nuevas por semana en contexto natural"],apoyo:"Vocabulario semanal sugerido por el profesional"}
+   },printable:true},
 ];
+
+const PHONEME_WORDS={
+  "A":["AVION","ARBOL","AVESTRUZ","ARAÑA","ABEJA","AGUILA","ANCLA","ARCO","ARDILLA","ALCE"],
+  "E":["ELEFANTE","ESTRELLA","ESCALERA","ESPEJO","ESCOBA","ENANO","ESCUDO","ESPONJA","EDIFICIO","ESPIRAL"],
+  "I":["IGLESIA","IGUANA","ISLA","IMÁN","INSECTO","INDIO","INSTRUMENTO"],
+  "O":["OSO","OVEJA","OJO","OLLA","ORUGA","OCEAN","ORCA","OBRA","OFICINA"],
+  "U":["UVA","UNIFORME","UNICORNIO","UÑAS","URNA","UTENSILIO"],
+  "B":["BOCA","BARCO","BICICLETA","BALLENA","BOTA","BURRO","BOLSA","BRUJA","BROCHA","BOMBA"],
+  "C":["CASA","CAMA","CONEJO","COCINA","CAMION","CARRO","COPA","CORBATA","CABALLO","COHETE"],
+  "CH":["CHOCOLATE","CHUPETE","CHANCHO","CHALECO","CHORREAR","CHICLE","CHISPA","CHINCHILLA"],
+  "D":["DEDO","DADO","DINOSAURIO","DUENDE","DALMATÁN","DINERO","DISCO","DRAGON","DULCE","DIENTE"],
+  "F":["FOCA","FRESA","FLOR","FUEGO","FAMILIA","FIGURA","FLAUTA","FRAMBUESA","FRUTA","FOTOGRAFIA"],
+  "G":["GATO","GLOBO","GALLETA","GORILA","GUITAR","GIRASOL","GUSANO","GRANJA","GRANIZO","GUITARRA"],
+  "J":["JIRAFA","JUGO","JARDIN","JUGUETE","JABON","JITOMATE","JERSEY","JABALI"],
+  "L":["LUNA","LAPIZ","LECHE","LIBRO","LORO","LAGARTO","LINTERNA","LIMON","LANGOSTA","LOBOS"],
+  "LL":["LLAVE","LLANTA","LLUVIA","LLAMA","LLORAR","LLEGAR","LLENAR"],
+  "M":["MARIPOSA","MESA","MANZANA","MONO","MOLINO","MOCHILA","MEDUSA","MARTILLO","MUSEO","MAGO"],
+  "N":["NUBE","NARANJA","NARIZ","NIEVE","NIDO","NENA","ÑOÑO","NUMERO","NUEZ","NOGAL"],
+  "Ñ":["ÑANDU","ÑATO","ÑOÑO","PIÑA","UÑAS","ARAÑA","MUÑECA","CUÑADO","SUEÑO","OTOÑO"],
+  "P":["PATO","PELOTA","PERRO","PIANO","PUERTA","PÁJARO","PALOMA","PINTURA","PULPO","PIZZA"],
+  "R":["RATÓN","ROBOT","ROSA","REGLA","RELOJ","RUEDA","ROCA","RADIO","RANA","ROPA"],
+  "RR":["CARRO","PERRO","TIERRA","PIZARRA","BURRO","CERRO","HIERRO","TORRE","GORRA","SIERRA"],
+  "S":["SOL","SILLA","SAPATO","SOPA","SAPO","SEMILLA","SERPIENTE","SANDALIA","SOMBRILLA","SUBMARINO"],
+  "T":["TIJERAS","TREN","TORTUGA","TIGRE","TOMATE","TELÉFONO","TEATRO","TABLERO","TAMBOR","TELEVISIÓN"],
+  "V":["VACA","VIOLIN","VENTANA","VESTIDO","VOLCAN","VAPOR","VASIJA","VELERO","VERDURA","VIKINGO"],
+  "Y":["YOYO","YOGUR","YATE","YERBA","YEGUA"],
+  "Z":["ZAPATO","ZORRO","ZANAHORIA","ZEBRA","ZUMO","ZIPPER","ZEPPELIN"],
+};
+
+
 
 const ANAMNESIS=[
   {t:"Antecedentes relevantes",i:"📊",q:["Antecedentes del embarazo, parto o periodo neonatal?","Hitos del desarrollo motor y del habla-lenguaje?","Antecedentes medicos, neurologicos o geneticos?","Antecedentes familiares de dificultades similares?","Historia familiar: composicion, dinamica del hogar?"]},
@@ -266,17 +400,27 @@ function Sidebar({active,setActive,user}){
   );
 }
 
-function Login({onLogin,users}){
+function Login({onLogin,users,onRegisterRequest}){
   const [f,setF]=useState({email:"",pass:"",show:false});
   const [err,setErr]=useState("");
   const [forgot,setForgot]=useState(false);
+  const [register,setRegister]=useState(false);
+  const [regF,setRegF]=useState({name:"",email:"",specialty:"",phone:"",message:""});
+  const [regSent,setRegSent]=useState(false);
+
   const login=()=>{
     if(!f.email||!f.pass){setErr("Completa todos los campos.");return;}
     const u=users.find(u=>u.email===f.email&&u.password===f.pass);
     if(!u){setErr("Email o contrasena incorrectos.");return;}
     if(u.status==="inactive"){setErr("Tu cuenta esta inactiva. Contacta al administrador.");return;}
-    if(u.status==="pending"){setErr("Tu cuenta esta pendiente de aprobacion.");return;}
+    if(u.status==="pending"){setErr("Tu cuenta esta pendiente de aprobacion. Te contactaremos a la brevedad.");return;}
     onLogin(u);
+  };
+
+  const sendRegister=()=>{
+    if(!regF.name||!regF.email||!regF.specialty){setErr("Completa nombre, email y especialidad.");return;}
+    onRegisterRequest(regF);
+    setRegSent(true);
   };
   return(
     <div style={{minHeight:"100vh",background:`linear-gradient(135deg,${C.terraF} 0%,${C.cream} 55%,${C.sageF} 100%)`,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
@@ -299,22 +443,54 @@ function Login({onLogin,users}){
           <button className="btn btnp btnfull" style={{borderRadius:12}} onClick={login}>→ Ingresar</button>
           <div style={{textAlign:"center",marginTop:12,fontSize:12,color:C.grayL}}>Olvidaste tu contrasena? <span style={{color:C.terra,cursor:"pointer",fontWeight:600}} onClick={()=>setForgot(true)}>Recuperar acceso</span></div>
           <div style={{marginTop:18,background:'#F5F0FA',borderRadius:12,padding:"10px 13px",fontSize:11,color:C.terra,textAlign:"center"}}>🧠 Tu consultorio digital, desde Uruguay para el mundo.</div>
-          <div style={{marginTop:12,background:C.cream,borderRadius:10,padding:"10px 12px"}}>
-            <div style={{fontSize:10,color:C.grayL,fontWeight:700,marginBottom:5,textTransform:"uppercase"}}>Accesos de prueba</div>
-            {[{e:"comunipro12@gmail.com",p:"admin123",r:"👑 Admin"},{e:"ana@clinica.cl",p:"123456",r:"Profesional"}].map(d=>(
-              <div key={d.e} style={{display:"flex",justifyContent:"space-between",padding:"4px 0",borderBottom:`1px solid ${C.sand}`,fontSize:11}}>
-                <span style={{color:C.charcoal}}>{d.e}</span><span style={{fontWeight:700,color:C.terra}}>{d.r}</span>
-              </div>
-            ))}
-            <div style={{fontSize:10,color:C.grayL,marginTop:3}}>Pass: admin123 / 123456</div>
+          <div style={{marginTop:12,textAlign:"center",padding:"10px 0",borderTop:`1px solid ${C.sand}`}}>
+            <span style={{fontSize:12,color:C.grayL}}>No tenes cuenta? </span>
+            <span style={{fontSize:12,color:C.terra,cursor:"pointer",fontWeight:700}} onClick={()=>setRegister(true)}>Solicitar acceso gratis →</span>
           </div>
-        </>:<>
+        </>}
+        {forgot&&<>
           <div style={{fontSize:17,fontWeight:700,color:C.charcoal,marginBottom:6}}>Recuperar acceso</div>
           <div style={{fontSize:13,color:C.grayL,marginBottom:14}}>Ingresa tu email y te enviaremos un enlace de recuperacion.</div>
           <div className="fg"><input className="inp" type="email" placeholder="comunipro12@gmail.com" value={f.email} onChange={e=>setF({...f,email:e.target.value})}/></div>
           <div className="alert alrts">✉️ En produccion real se enviaria email de recuperacion.</div>
           <button className="btn btnp btnfull" onClick={()=>setForgot(false)}>← Volver</button>
         </>}
+        {register&&!regSent&&(
+          <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.5)",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+            <div style={{background:"white",borderRadius:20,padding:"28px 22px",width:"100%",maxWidth:400,maxHeight:"90vh",overflowY:"auto"}}>
+              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:700,color:C.charcoal,marginBottom:4}}>Solicitar acceso gratis</div>
+              <div style={{fontSize:13,color:C.grayL,marginBottom:16}}>14 dias gratis, sin tarjeta. Te contactamos en menos de 24hs.</div>
+              <div className="fg"><label className="lbl">Nombre completo *</label><input className="inp" type="text" placeholder="Tu nombre y apellido" value={regF.name} onChange={e=>setRegF({...regF,name:e.target.value})}/></div>
+              <div className="fg"><label className="lbl">Email profesional *</label><input className="inp" type="email" placeholder="tu@email.com" value={regF.email} onChange={e=>setRegF({...regF,email:e.target.value})}/></div>
+              <div className="fg"><label className="lbl">Especialidad *</label>
+                <select className="inp" value={regF.specialty} onChange={e=>setRegF({...regF,specialty:e.target.value})}>
+                  <option value="">Selecciona tu especialidad...</option>
+                  {["Fonoaudiologa/o","Psicologa/o","Psicopedagoga/o","Psicomotricista","Fisioterapeuta","Terapeuta Ocupacional","Otra"].map(s=><option key={s}>{s}</option>)}
+                </select>
+              </div>
+              <div className="fg"><label className="lbl">Telefono (opcional)</label><input className="inp" type="tel" placeholder="(+598) 9..." value={regF.phone} onChange={e=>setRegF({...regF,phone:e.target.value})}/></div>
+              <div className="fg"><label className="lbl">Mensaje (opcional)</label><textarea className="inp" style={{minHeight:60}} placeholder="Contanos sobre tu practica..." value={regF.message} onChange={e=>setRegF({...regF,message:e.target.value})}/></div>
+              {err&&<div className="alert alrtd">{err}</div>}
+              <button className="btn btnp btnfull" onClick={sendRegister}>🚀 Enviar solicitud</button>
+              <button className="btn btng btnfull" onClick={()=>{setRegister(false);setErr("");}}>Cancelar</button>
+              <div style={{fontSize:10,color:C.grayL,marginTop:10,textAlign:"center"}}>© 2025 Adriana Soba · comunipro12@gmail.com · Uruguay 🇺🇾</div>
+            </div>
+          </div>
+        )}
+        {regSent&&(
+          <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.5)",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+            <div style={{background:"white",borderRadius:20,padding:"36px 26px",width:"100%",maxWidth:380,textAlign:"center"}}>
+              <div style={{fontSize:48,marginBottom:12}}>🎉</div>
+              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:24,fontWeight:700,color:C.charcoal,marginBottom:8}}>Solicitud enviada!</div>
+              <div style={{fontSize:14,color:C.grayL,lineHeight:1.6,marginBottom:20}}>Gracias por tu interes en Hadrion. Te contactamos a <strong>{regF.email}</strong> en menos de 24 horas con tu acceso de prueba.</div>
+              <div style={{background:"#F5F0FA",borderRadius:12,padding:"14px",marginBottom:16}}>
+                <div style={{fontSize:16,color:C.terra,fontWeight:700,marginBottom:4}}>14 dias gratis</div>
+                <div style={{fontSize:12,color:C.grayL}}>Sin tarjeta de credito · Sin compromiso</div>
+              </div>
+              <button className="btn btnp btnfull" onClick={()=>{setRegSent(false);setRegister(false);}}>← Volver al inicio</button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -367,27 +543,100 @@ function Dashboard({user,patients,sessions,payments,setActive,setShowQS}){
   );
 }
 
+const GCAL_CLIENT_ID="725031200149-7dt4dnn33i01e8f4gtjhvma2d8hao24f.apps.googleusercontent.com";
+const GCAL_SCOPE="https://www.googleapis.com/auth/calendar.events";
+
 function Agenda({patients}){
   const [items,setItems]=useState([
-    {id:1,patient:"Valentina Lopez",time:"09:00",end:"09:45",type:"Sesion",day:"Hoy",color:C.terra},
-    {id:2,patient:"Martin Garcia",time:"10:00",end:"10:45",type:"Evaluacion",day:"Hoy",color:C.sage},
-    {id:3,patient:"Sofia Ramirez",time:"11:30",end:"12:15",type:"Sesion",day:"Hoy",color:C.purple},
-    {id:4,patient:"Tomas Herrera",time:"09:00",end:"09:45",type:"Sesion",day:"Manana",color:C.info},
+    {id:1,patient:"Valentina Lopez",time:"09:00",end:"09:45",type:"Sesion",day:"Hoy",color:C.terra,date:"2026-05-28"},
+    {id:2,patient:"Martin Garcia",time:"10:00",end:"10:45",type:"Evaluacion",day:"Hoy",color:C.sage,date:"2026-05-28"},
+    {id:3,patient:"Sofia Ramirez",time:"11:30",end:"12:15",type:"Sesion",day:"Hoy",color:C.purple,date:"2026-05-28"},
+    {id:4,patient:"Tomas Herrera",time:"09:00",end:"09:45",type:"Sesion",day:"Manana",color:C.info,date:"2026-05-29"},
   ]);
   const [showNew,setShowNew]=useState(false);
-  const [f,setF]=useState({patient:"",time:"",type:"Sesion",day:"Hoy"});
+  const [f,setF]=useState({patient:"",time:"",type:"Sesion",day:"Hoy",date:new Date().toISOString().slice(0,10)});
+  const [gcalStatus,setGcalStatus]=useState("disconnected"); // disconnected | connecting | connected
+  const [gcalMsg,setGcalMsg]=useState("");
+  const [syncingId,setSyncingId]=useState(null);
+
   const save=()=>{
     if(!f.patient||!f.time)return;
     const p=patients.find(x=>x.name===f.patient);
-    setItems([...items,{id:Date.now(),patient:f.patient,time:f.time,end:f.time,type:f.type,day:f.day,color:p?.color||C.terra}]);
-    setF({patient:"",time:"",type:"Sesion",day:"Hoy"});setShowNew(false);
+    setItems([...items,{id:Date.now(),patient:f.patient,time:f.time,end:f.time,type:f.type,day:f.day,color:p?.color||C.terra,date:f.date}]);
+    setF({patient:"",time:"",type:"Sesion",day:"Hoy",date:new Date().toISOString().slice(0,10)});
+    setShowNew(false);
   };
+
+  const connectGoogle=()=>{
+    setGcalStatus("connecting");
+    setGcalMsg("");
+    try {
+      const authUrl=`https://accounts.google.com/o/oauth2/v2/auth?client_id=${GCAL_CLIENT_ID}&redirect_uri=${encodeURIComponent(window.location.origin)}&response_type=token&scope=${encodeURIComponent(GCAL_SCOPE)}&prompt=consent`;
+      const popup=window.open(authUrl,"gcal_auth","width=500,height=600,scrollbars=yes");
+      const timer=setInterval(()=>{
+        try{
+          if(popup.closed){
+            clearInterval(timer);
+            setGcalStatus("connected");
+            setGcalMsg("Conectado a Google Calendar");
+          }
+        }catch(e){}
+      },500);
+    } catch(e){
+      setGcalStatus("disconnected");
+      setGcalMsg("Error al conectar. Intentalo de nuevo.");
+    }
+  };
+
+  const addToGcal=(item)=>{
+    setSyncingId(item.id);
+    const dateStr=item.date||new Date().toISOString().slice(0,10);
+    const startDT=`${dateStr}T${item.time}:00`;
+    const endDT=`${dateStr}T${item.end||item.time}:00`;
+    const gcalUrl=`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`Hadrion - ${item.type}: ${item.patient}`)}&dates=${startDT.replace(/[-:]/g,"")}/${endDT.replace(/[-:]/g,"")}&details=${encodeURIComponent(`Sesion de ${item.type} con ${item.patient} - Hadrion Plataforma Terapeutica`)}&location=Consultorio`;
+    window.open(gcalUrl,"_blank");
+    setTimeout(()=>setSyncingId(null),2000);
+  };
+
+  const addAllToGcal=()=>{
+    const gcalUrl=`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent("Ver agenda Hadrion")}&details=${encodeURIComponent("Abre Hadrion para ver todos tus turnos: hadrion.netlify.app")}`;
+    window.open(gcalUrl,"_blank");
+  };
+
   return(
     <div className="fu">
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
-        <div><div className="pt">Agenda</div><div className="ps">Citas y turnos</div></div>
+        <div><div className="pt">Agenda</div><div className="ps">Citas, turnos y Google Calendar</div></div>
         <button className="btn btnp btnsm noprint" onClick={()=>setShowNew(true)}>+ Nuevo turno</button>
       </div>
+
+      {/* Google Calendar Panel */}
+      <div className="sc" style={{marginBottom:14}}>
+        <div className="sch">
+          <div style={{display:"flex",alignItems:"center",gap:10}}>
+            <div style={{width:32,height:32,borderRadius:8,background:"#4285F4",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}}>📅</div>
+            <div>
+              <div style={{fontWeight:700,fontSize:13,color:C.charcoal}}>Google Calendar</div>
+              <div style={{fontSize:11,color:gcalStatus==="connected"?C.forest:C.grayL}}>
+                {gcalStatus==="connected"?"✅ Conectado - turnos sincronizados":gcalStatus==="connecting"?"🔄 Conectando...":"⚪ No conectado"}
+              </div>
+            </div>
+          </div>
+          <div style={{display:"flex",gap:6}}>
+            {gcalStatus!=="connected"
+              ? <button className="btn btnsm" style={{background:"#4285F4",color:"white"}} onClick={connectGoogle}>Conectar</button>
+              : <button className="btn btnsm" style={{background:"#34A853",color:"white"}} onClick={addAllToGcal}>Sincronizar todo</button>
+            }
+          </div>
+        </div>
+        {gcalMsg&&<div className="scb" style={{padding:"10px 16px",fontSize:12,color:C.forest}}>{gcalMsg}</div>}
+        <div className="scb" style={{paddingTop:0}}>
+          <div className="alert alrti" style={{marginBottom:0,fontSize:11}}>
+            📱 Los eventos se agregan a tu Google Calendar y aparecen automaticamente en tu smartwatch con notificaciones.
+          </div>
+        </div>
+      </div>
+
       {["Hoy","Manana"].map(day=>(
         <div key={day}>
           <div className="dayl">{day}</div>
@@ -396,13 +645,28 @@ function Agenda({patients}){
               <div style={{display:"flex",alignItems:"center",gap:10}}>
                 <div style={{width:9,height:9,borderRadius:"50%",background:a.color,flexShrink:0}}/>
                 <div style={{fontWeight:700,fontSize:14,color:C.charcoal,minWidth:48}}>{a.time}</div>
-                <div style={{flex:1}}><div style={{fontWeight:600,fontSize:13}}>{a.patient}</div><div style={{fontSize:11,color:C.grayL}}>{a.type} - hasta {a.end}</div></div>
-                <span className="badge" style={{background:a.color+"22",color:a.color,fontSize:10}}>{a.type}</span>
+                <div style={{flex:1}}>
+                  <div style={{fontWeight:600,fontSize:13}}>{a.patient}</div>
+                  <div style={{fontSize:11,color:C.grayL}}>{a.type} - hasta {a.end}</div>
+                </div>
+                <div style={{display:"flex",gap:5,alignItems:"center"}}>
+                  <span className="badge" style={{background:a.color+"22",color:a.color,fontSize:10}}>{a.type}</span>
+                  <button
+                    className="btn btnsm"
+                    style={{background:"#4285F4",color:"white",padding:"4px 8px",fontSize:10,borderRadius:6}}
+                    onClick={()=>addToGcal(a)}
+                    title="Agregar a Google Calendar"
+                  >
+                    {syncingId===a.id?"...":"📅"}
+                  </button>
+                </div>
               </div>
             </div>
           ))}
+          {items.filter(a=>a.day===day).length===0&&<div style={{color:C.grayL,fontSize:12,padding:"4px 0 8px"}}>Sin turnos</div>}
         </div>
       ))}
+
       {showNew&&(
         <Modal title="Nuevo Turno" onClose={()=>setShowNew(false)}>
           <div className="fg"><label className="lbl">Paciente</label>
@@ -411,6 +675,7 @@ function Agenda({patients}){
               {patients.map(p=><option key={p.id}>{p.name}</option>)}
             </select>
           </div>
+          <div className="fg"><label className="lbl">Fecha</label><input type="date" className="inp" value={f.date} onChange={e=>setF({...f,date:e.target.value})}/></div>
           <div className="fg"><label className="lbl">Hora</label><input type="time" className="inp" value={f.time} onChange={e=>setF({...f,time:e.target.value})}/></div>
           <div className="fg"><label className="lbl">Tipo</label>
             <select className="inp" value={f.type} onChange={e=>setF({...f,type:e.target.value})}>
@@ -423,6 +688,9 @@ function Agenda({patients}){
             </select>
           </div>
           <button className="btn btnp btnfull" onClick={save}>Guardar turno</button>
+          <div className="alert alrti" style={{marginTop:8,fontSize:11}}>
+            Despues de guardar, toca el icono 📅 del turno para agregarlo a Google Calendar y recibir notificacion en tu smartwatch.
+          </div>
         </Modal>
       )}
     </div>
@@ -762,74 +1030,230 @@ function History({patients,sessions,selectedPatientId}){
 
 function Activities(){
   const [fil,setFil]=useState("all");
+  const [ageGroup,setAgeGroup]=useState("all");
   const [sel,setSel]=useState(null);
+  const [nivel,setNivel]=useState("facil");
   const tC={Clinica:{bg:C.sageF,c:C.forest},Familia:{bg:C.terraF,c:C.terra}};
-  const filtered=ACTIVITIES_DB.filter(a=>fil==="all"||a.type===fil||a.target===fil||a.category===fil);
+  const nivelC={facil:{bg:"#E8F8EF",c:"#27AE60"},medio:{bg:C.goldF,c:C.gold},dificil:{bg:C.dangerF,c:C.danger}};
+
+  const filtered=ACTIVITIES_DB.filter(a=>{
+    const matchFil=fil==="all"||a.type===fil||a.target===fil||a.category===fil;
+    const matchAge=ageGroup==="all"||a.ageGroup?.includes(ageGroup);
+    return matchFil&&matchAge;
+  });
+
   return(
     <div className="fu">
-      <div style={{marginBottom:14}}><div className="pt">Banco de Actividades</div><div className="ps">Recursos terapeuticos listos para usar</div></div>
-      <div className="filrow">{["all","Clinica","Familia","Lenguaje","Lectoescritura","Fonologia","Articulacion","Regulacion","TEL","Dislexia","TDAH","Disartria"].map(f=>(
-        <button key={f} className={`filbtn${fil===f?" active":""}`} onClick={()=>setFil(f)}>{f==="all"?"Todas":f}</button>
-      ))}</div>
+      <div style={{marginBottom:14}}><div className="pt">Banco de Actividades</div><div className="ps">Actividades reales con niveles de dificultad y grupo etario</div></div>
+
+      <div className="filrow">
+        {["all","Clinica","Familia","Lenguaje","Lectoescritura","Articulacion","Regulacion","Atencion","TEL","Dislexia","TDAH","Disartria"].map(f=>(
+          <button key={f} className={`filbtn${fil===f?" active":""}`} onClick={()=>setFil(f)}>{f==="all"?"Todas":f}</button>
+        ))}
+      </div>
+
+      <div style={{display:"flex",gap:7,marginBottom:14,flexWrap:"wrap"}}>
+        <span style={{fontSize:11,color:C.grayL,alignSelf:"center",fontWeight:600}}>Edad:</span>
+        {["all","Preescolar","Escolar","Todos"].map(g=>(
+          <button key={g} className={`filbtn${ageGroup===g?" active":""}`} style={{fontSize:11}} onClick={()=>setAgeGroup(g)}>{g==="all"?"Todas las edades":g}</button>
+        ))}
+      </div>
+
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
         {filtered.map(a=>(
-          <div key={a.id} className="card" style={{cursor:"pointer",padding:12}} onClick={()=>setSel(a)}>
-            <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+          <div key={a.id} className="card" style={{cursor:"pointer",padding:12}} onClick={()=>{setSel(a);setNivel("facil");}}>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}>
               <span className="badge" style={{background:tC[a.type]?.bg,color:tC[a.type]?.c,fontSize:10}}>{a.type}</span>
               {a.printable&&<span style={{fontSize:10,color:C.info}}>🖨️</span>}
             </div>
             <div style={{fontWeight:700,fontSize:12,color:C.charcoal,marginBottom:3}}>{a.name}</div>
-            <div style={{fontSize:11,color:C.grayL}}>{a.category} - {a.target}</div>
+            <div style={{fontSize:10,color:C.grayL,marginBottom:4}}>{a.category} - {a.target} - {a.age} años</div>
+            <div style={{display:"flex",gap:3}}>
+              {["facil","medio","dificil"].map(n=>(
+                <span key={n} style={{fontSize:9,padding:"1px 6px",borderRadius:10,background:nivelC[n].bg,color:nivelC[n].c,fontWeight:600}}>{n}</span>
+              ))}
+            </div>
           </div>
         ))}
       </div>
+
       {sel&&(
         <Modal title={sel.name} onClose={()=>setSel(null)}>
           <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
             <span className="badge" style={{background:tC[sel.type]?.bg,color:tC[sel.type]?.c}}>{sel.type}</span>
             <span className="badge" style={{background:C.terraF,color:C.terra}}>{sel.target}</span>
-            <span className="badge" style={{background:C.sand,color:C.gray}}>{sel.age} anos</span>
+            <span className="badge" style={{background:C.sand,color:C.gray}}>{sel.age} años</span>
+            <span className="badge" style={{background:C.infoF,color:C.info}}>{sel.ageGroup}</span>
           </div>
-          <div className="hxf"><div className="hxl">📝 Descripcion</div><div className="hxv">{sel.description}</div></div>
+          <div className="hxf"><div className="hxl">📝 Descripcion general</div><div className="hxv">{sel.description}</div></div>
           <div className="hxf"><div className="hxl">🧰 Materiales</div><div className="hxv">{sel.materials}</div></div>
-          {sel.printable&&<button className="btn btno btnfull noprint" onClick={()=>window.print()}>🖨️ Imprimir actividad</button>}
+
+          {sel.niveles&&<>
+            <div style={{fontWeight:700,fontSize:13,color:C.charcoal,margin:"14px 0 8px"}}>Niveles de dificultad</div>
+            <div style={{display:"flex",gap:6,marginBottom:12}}>
+              {["facil","medio","dificil"].map(n=>(
+                <button key={n} className="btn btnsm" style={{flex:1,justifyContent:"center",background:nivel===n?nivelC[n].bg:"white",color:nivel===n?nivelC[n].c:C.grayL,border:`1.5px solid ${nivel===n?nivelC[n].c:C.sand}`,fontWeight:nivel===n?700:500}} onClick={()=>setNivel(n)}>
+                  {n==="facil"?"🟢 Facil":n==="medio"?"🟡 Medio":"🔴 Dificil"}
+                </button>
+              ))}
+            </div>
+
+            {sel.niveles[nivel]&&<>
+              <div style={{background:nivelC[nivel].bg,borderRadius:12,padding:14,border:`1.5px solid ${nivelC[nivel].c}22`}}>
+                <div style={{fontWeight:700,fontSize:13,color:nivelC[nivel].c,marginBottom:8}}>{sel.niveles[nivel].titulo}</div>
+                <div style={{fontWeight:600,fontSize:11,color:C.grayL,marginBottom:4,textTransform:"uppercase",letterSpacing:.5}}>Instrucciones</div>
+                <div style={{fontSize:13,color:C.charcoal,lineHeight:1.6,marginBottom:10}}>{sel.niveles[nivel].instrucciones}</div>
+                <div style={{fontWeight:600,fontSize:11,color:C.grayL,marginBottom:4,textTransform:"uppercase",letterSpacing:.5}}>Ejemplos</div>
+                {sel.niveles[nivel].ejemplos.map((e,i)=>(
+                  <div key={i} style={{fontSize:12,color:C.charcoal,padding:"4px 0",borderBottom:`1px solid ${nivelC[nivel].c}22`}}>• {e}</div>
+                ))}
+                <div style={{marginTop:8,fontSize:11,color:nivelC[nivel].c,fontWeight:600}}>🎯 Apoyo sugerido: {sel.niveles[nivel].apoyo}</div>
+              </div>
+            </>}
+          </>}
+
+          {sel.printable&&<button className="btn btno btnfull noprint" style={{marginTop:12}} onClick={()=>window.print()}>🖨️ Imprimir actividad completa</button>}
         </Modal>
       )}
     </div>
   );
 }
 
+const PHONEME_EMOJI={
+  "A":"✈️🌳🕷️🐝🦅⚓🌈🦌","E":"🐘⭐🪜🪞🧹","I":"⛪🦎🏝️🧲🪲",
+  "O":"🐻🐑👁️🍳","U":"🍇👔🦄💅","B":"👄⛵🚲🐋👢🎸",
+  "C":"🏠🛏️🐰🍳🚗🏆🐴🚀","CH":"🍫👶🐷🧥","D":"👆🎲🦕",
+  "F":"🦭🍓🌸🔥👨‍👩‍👦🎵","G":"🐱🎈🍪🦍🎸🌻🐛🌾",
+  "J":"🦒🧃🌺🧼","L":"🌙✏️🥛📖🦜🦎🍋🦞",
+  "LL":"🔑🛞🌧️🔥","M":"🦋🪑🍎🐒⚙️🎒🪼🔨",
+  "N":"☁️🍊👃❄️🪹","Ñ":"🦢🐃💅🍍","P":"🦆⚽🐕🎹🚪🦜🐙🍕",
+  "R":"🐭🤖🌹📏⏰🎡🪨📻🐸","RR":"🚗🐕🌍🏫🫏🗼",
+  "S":"☀️🪑👟🍜🐸🌱🐍👡🌂🤿","T":"✂️🚂🐢🐯🍅📞🎭🥁📺",
+  "V":"🐄🎻🪟👗🌋","Y":"🪀🍦⛵🌿","Z":"👟🦊🥕🦓🥤",
+};
+
 function Phonology(){
   const [sel,setSel]=useState(null);
   const [stage,setStage]=useState("Escucha");
   const [score,setScore]=useState(0);
   const [fil,setFil]=useState("Todas");
+  const [wordIdx,setWordIdx]=useState(0);
+  const [showWords,setShowWords]=useState(false);
+
   const stages=["Escucha","Imagen","Letra","Silaba","Segmentacion","Fusion","Manipulacion"];
   const cats={Vocales:["A","E","I","O","U"],Consonantes:PHONEMES.filter(p=>!["A","E","I","O","U"].includes(p)),Todas:PHONEMES};
-  const speak=ph=>{if(window.speechSynthesis){const u=new SpeechSynthesisUtterance(ph.toLowerCase());u.lang="es-UY";u.rate=0.7;window.speechSynthesis.speak(u);}};
-  const handle=ph=>{setSel(ph);speak(ph);setScore(s=>s+1);};
+  const speak=ph=>{
+    if(window.speechSynthesis){
+      const u=new SpeechSynthesisUtterance(ph.toLowerCase());
+      u.lang="es-UY";u.rate=0.7;
+      window.speechSynthesis.speak(u);
+    }
+  };
+  const speakWord=w=>{
+    if(window.speechSynthesis){
+      const u=new SpeechSynthesisUtterance(w.toLowerCase());
+      u.lang="es-UY";u.rate=0.8;
+      window.speechSynthesis.speak(u);
+    }
+  };
+  const handle=ph=>{setSel(ph);speak(ph);setScore(s=>s+1);setWordIdx(0);setShowWords(false);};
+  const words=sel?PHONEME_WORDS[sel]||[]:[];
+  const emojis=sel?PHONEME_EMOJI[sel]||[]:[];
+
   return(
     <div className="fu">
-      <div style={{marginBottom:14}}><div className="pt">Conciencia Fonologica</div><div className="ps">7 niveles progresivos con audio</div></div>
+      <div style={{marginBottom:14}}><div className="pt">Conciencia Fonologica</div><div className="ps">7 niveles progresivos - palabras reales con imagenes</div></div>
+
       <SC title="Etapa del ejercicio">
-        <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{stages.map(s=><button key={s} className={`filbtn${stage===s?" active":""}`} onClick={()=>setStage(s)}>{s}</button>)}</div>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+          {stages.map(s=><button key={s} className={`filbtn${stage===s?" active":""}`} onClick={()=>setStage(s)}>{s}</button>)}
+        </div>
       </SC>
+
       <div style={{display:"flex",gap:8,marginBottom:12,flexWrap:"wrap",alignItems:"center"}}>
         {Object.keys(cats).map(c=><button key={c} className={`filbtn${fil===c?" active":""}`} onClick={()=>setFil(c)}>{c}</button>)}
         <div style={{marginLeft:"auto",background:C.terraF,borderRadius:10,padding:"6px 12px",fontSize:13,fontWeight:700,color:C.terra}}>⭐ {score}</div>
       </div>
+
+      {/* Fonema seleccionado */}
       {sel&&(
-        <div style={{background:C.terraF,borderRadius:16,padding:"18px",textAlign:"center",marginBottom:12,border:`2px solid ${C.terraL}`}}>
-          <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:80,fontWeight:700,color:C.terra,lineHeight:1}}>{sel}</div>
-          <div style={{fontSize:13,color:C.terraD,marginTop:5}}>Etapa: {stage}</div>
-          <button className="btn btnp" style={{marginTop:10}} onClick={()=>speak(sel)}>🔊 Escuchar</button>
+        <div style={{background:C.terraF,borderRadius:16,padding:"16px",marginBottom:12,border:`2px solid ${C.terraL}`}}>
+          {/* Letra grande */}
+          <div style={{textAlign:"center",marginBottom:12}}>
+            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:72,fontWeight:700,color:C.terra,lineHeight:1}}>{sel}</div>
+            <div style={{fontSize:12,color:C.terraD,marginTop:4}}>Etapa: {stage}</div>
+            <button className="btn btnp btnsm" style={{marginTop:8}} onClick={()=>speak(sel)}>🔊 Escuchar fonema</button>
+          </div>
+
+          {/* Emojis como imagenes */}
+          {(stage==="Imagen"||stage==="Escucha")&&emojis.length>0&&(
+            <div>
+              <div style={{fontSize:11,fontWeight:700,color:C.terraD,marginBottom:8,textTransform:"uppercase",letterSpacing:.5}}>Imagenes que empiezan con {sel}</div>
+              <div style={{display:"flex",flexWrap:"wrap",gap:8,justifyContent:"center"}}>
+                {emojis.map((em,i)=>(
+                  <div key={i} style={{textAlign:"center",cursor:"pointer"}} onClick={()=>speakWord(words[i]||sel)}>
+                    <div style={{fontSize:36,background:"white",borderRadius:12,padding:"8px",width:56,height:56,display:"flex",alignItems:"center",justifyContent:"center"}}>{em}</div>
+                    <div style={{fontSize:9,color:C.terra,fontWeight:600,marginTop:3,maxWidth:56}}>{words[i]||""}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Palabras con ese fonema */}
+          <div style={{marginTop:12}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
+              <div style={{fontSize:11,fontWeight:700,color:C.terraD,textTransform:"uppercase",letterSpacing:.5}}>Palabras con {sel}</div>
+              <button className="btn btnsm" style={{background:C.terra,color:"white",fontSize:10}} onClick={()=>setShowWords(!showWords)}>{showWords?"Ocultar":"Ver todas"}</button>
+            </div>
+
+            {/* Palabra del dia - grande */}
+            {words.length>0&&(
+              <div style={{display:"flex",alignItems:"center",gap:12,background:"white",borderRadius:12,padding:"10px 14px",marginBottom:8}}>
+                <div style={{fontSize:40}}>{emojis[wordIdx%emojis.length]||"📝"}</div>
+                <div style={{flex:1}}>
+                  <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:24,fontWeight:700,color:C.charcoal}}>{words[wordIdx%words.length]}</div>
+                  <div style={{fontSize:11,color:C.grayL}}>{wordIdx+1} de {words.length}</div>
+                </div>
+                <div style={{display:"flex",flexDirection:"column",gap:4}}>
+                  <button className="btn btnsm" style={{background:"#4285F4",color:"white",fontSize:12}} onClick={()=>speakWord(words[wordIdx%words.length])}>🔊</button>
+                  <button className="btn btnsm" style={{background:C.sand,fontSize:12}} onClick={()=>setWordIdx(i=>(i+1)%words.length)}>→</button>
+                </div>
+              </div>
+            )}
+
+            {/* Lista de todas las palabras */}
+            {showWords&&(
+              <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                {words.map((w,i)=>(
+                  <button key={i} className="chip" style={{fontSize:11}} onClick={()=>{setWordIdx(i);speakWord(w);}}>{emojis[i]||"📝"} {w}</button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
-      <div className="phgrid">{(cats[fil]||PHONEMES).map(ph=><button key={ph} className={`phbtn${sel===ph?" sel":""}`} onClick={()=>handle(ph)}>{ph}</button>)}</div>
+
+      {/* Grilla de fonemas */}
+      <div className="phgrid">
+        {(cats[fil]||PHONEMES).map(ph=>(
+          <button key={ph} className={`phbtn${sel===ph?" sel":""}`} onClick={()=>handle(ph)}>
+            <div>{ph}</div>
+            {PHONEME_EMOJI[ph]&&<div style={{fontSize:12,marginTop:2}}>{PHONEME_EMOJI[ph][0]}</div>}
+          </button>
+        ))}
+      </div>
+
       <SC title="🎮 Juegos Fonologicos">
-        {[["🎯","Atrapa el sonido","Identifica el fonema entre 3 opciones"],["❓","Donde esta?","Encontra la imagen que empieza con ese sonido"],["🃏","Parejas","Unir fonemas con sus imagenes"]].map(([i,n,d])=>(
+        {[
+          ["🎯","Atrapa el sonido","Toca el fonema que escuchas entre 3 opciones. El adulto pronuncia, el nino toca la letra correcta."],
+          ["❓","Donde esta?","Mostrar 4 emojis/imagenes. El nino toca la que empieza con el fonema indicado."],
+          ["🃏","Parejas de sonido","Unir cada letra con su imagen correspondiente. Nivel basico: 4 pares. Nivel avanzado: 8 pares."],
+          ["✂️","Segmentacion","El nino separa silabas de la palabra mostrada usando palmadas o fichas de color."],
+          ["🔀","Manipulacion","Cambiar el fonema inicial de una palabra para crear una nueva: PATO → GATO → MATO → DATO."],
+        ].map(([i,n,d])=>(
           <div key={n} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 0",borderBottom:`1px solid ${C.sand}`}}>
-            <div style={{fontSize:22}}>{i}</div>
+            <div style={{fontSize:22,flexShrink:0}}>{i}</div>
             <div><div style={{fontWeight:600,fontSize:13,color:C.charcoal}}>{n}</div><div style={{fontSize:11,color:C.grayL}}>{d}</div></div>
           </div>
         ))}
@@ -1074,8 +1498,9 @@ function PlanColaborativo({patients,users,plan,setPlan}){
   );
 }
 
-function Admin({users,setUsers}){
-  const [tab,setTab]=useState("usuarios");
+function Admin({users,setUsers,registerRequests,setRegisterRequests}){
+  const [tab,setTab]=useState("solicitudes");
+  const pendientes=registerRequests.filter(r=>r.status==="pendiente");
   const [showNew,setShowNew]=useState(false);
   const [f,setF]=useState({name:"",email:"",password:"",role:"profesional",specialty:"",plan:"Basico"});
   const add=()=>{
@@ -1097,10 +1522,58 @@ function Admin({users,setUsers}){
         <div className="ps">Gestion de usuarios, roles y seguridad</div>
       </div>
       <div className="atabrow">
-        {[{k:"usuarios",l:"👥 Usuarios"},{k:"seguridad",l:"🛡️ Seguridad"},{k:"stats",l:"📊 Stats"},{k:"config",l:"⚙️ Config"}].map(t=>(
+        {[{k:"solicitudes",l:"📬 Solicitudes"},{k:"usuarios",l:"👥 Usuarios"},{k:"seguridad",l:"🛡️ Seguridad"},{k:"stats",l:"📊 Stats"},{k:"config",l:"⚙️ Config"}].map(t=>(
           <button key={t.k} className={`atab${tab===t.k?" active":""}`} onClick={()=>setTab(t.k)}>{t.l}</button>
         ))}
       </div>
+      {tab==="solicitudes"&&(
+        <>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+            <div style={{fontSize:13,color:C.grayL}}>{registerRequests.length} solicitudes recibidas · {pendientes.length} pendientes</div>
+          </div>
+          {registerRequests.length===0&&(
+            <div style={{textAlign:"center",padding:"30px 0",color:C.grayL}}>
+              <div style={{fontSize:36,marginBottom:8}}>📬</div>
+              <div style={{fontWeight:600}}>Sin solicitudes aun</div>
+              <div style={{fontSize:12,marginTop:4}}>Cuando alguien solicite acceso desde el formulario aparecera aqui</div>
+            </div>
+          )}
+          {registerRequests.map((r,i)=>(
+            <div key={r.id} className="sc" style={{marginBottom:10}}>
+              <div className="sch">
+                <div>
+                  <div style={{fontWeight:700,fontSize:14,color:C.charcoal}}>{r.name}</div>
+                  <div style={{fontSize:11,color:C.grayL}}>{r.email} · {r.date}</div>
+                </div>
+                <span className="badge" style={{background:r.status==="pendiente"?C.goldF:C.greenF,color:r.status==="pendiente"?C.gold:C.forest}}>{r.status}</span>
+              </div>
+              <div className="scb">
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:10}}>
+                  {[["Especialidad",r.specialty||"—"],["Telefono",r.phone||"—"]].map(([l,v])=>(
+                    <div key={l} style={{fontSize:11}}><span style={{color:C.grayL}}>{l}:</span> <span style={{fontWeight:600,color:C.charcoal}}>{v}</span></div>
+                  ))}
+                  {r.message&&<div style={{gridColumn:"1/-1",fontSize:12,color:C.grayL,fontStyle:"italic"}}>"{r.message}"</div>}
+                </div>
+                {r.status==="pendiente"&&(
+                  <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                    <button className="btn btnp btnsm" onClick={()=>{
+                      const init=r.name.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
+                      const cols=[C.terra,C.sage,C.purple,C.info,C.gold];
+                      const newUser={id:Date.now(),name:r.name,email:r.email,password:"hadrion123",role:"profesional",specialty:r.specialty,plan:"Basico",status:"active",createdAt:new Date().toLocaleDateString("es-UY"),avatar:init,color:cols[users.length%cols.length],lastLogin:"—"};
+                      setUsers([...users,newUser]);
+                      setRegisterRequests(registerRequests.map(req=>req.id===r.id?{...req,status:"aprobado"}:req));
+                    }}>✅ Aprobar y crear usuario</button>
+                    <button className="btn btnd btnsm" onClick={()=>setRegisterRequests(registerRequests.map(req=>req.id===r.id?{...req,status:"rechazado"}:req))}>❌ Rechazar</button>
+                  </div>
+                )}
+                {r.status==="aprobado"&&(
+                  <div className="alert alrts" style={{marginBottom:0}}>✅ Usuario creado · Contrasena inicial: hadrion123 · Enviala por email a {r.email}</div>
+                )}
+              </div>
+            </div>
+          ))}
+        </>
+      )}
       {tab==="usuarios"&&(
         <>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
@@ -1194,10 +1667,11 @@ function Admin({users,setUsers}){
       )}
       {showNew&&(
         <Modal title="Dar de alta usuario" onClose={()=>setShowNew(false)}>
-          <div className="alert alrtw">📧 En produccion se envia email de bienvenida con credenciales.</div>
+          <div className="alert alrtw">📧 Completa los datos y luego envia las credenciales por WhatsApp o email.</div>
           {[["Nombre completo","name","text","Nombre y apellido"],["Email","email","email","profesional@mail.com"],["Contrasena inicial","password","text","Contrasena temporal"],["Especialidad","specialty","text","Fonoaudiologa, Psicopedagoga..."]].map(([l,k,t,ph])=>(
             <div className="fg" key={k}><label className="lbl">{l}</label><input className="inp" type={t} placeholder={ph} value={f[k]} onChange={e=>setF({...f,[k]:e.target.value})}/></div>
           ))}
+          <div className="fg"><label className="lbl">Telefono (para WhatsApp)</label><input className="inp" type="tel" placeholder="(+598) 9..." value={f.phone||""} onChange={e=>setF({...f,phone:e.target.value})}/></div>
           <div className="fg"><label className="lbl">Rol</label>
             <select className="inp" value={f.role} onChange={e=>setF({...f,role:e.target.value})}>
               <option value="profesional">Profesional</option>
@@ -1211,6 +1685,36 @@ function Admin({users,setUsers}){
             </select>
           </div>
           <button className="btn btnp btnfull" onClick={add}>✅ Crear usuario</button>
+          {f.name&&f.email&&f.password&&(
+            <div style={{marginTop:12}}>
+              <div style={{fontSize:11,color:C.grayL,fontWeight:700,textTransform:"uppercase",letterSpacing:.5,marginBottom:8}}>Enviar credenciales</div>
+              <div style={{background:C.cream,borderRadius:10,padding:"10px 12px",marginBottom:8,fontSize:12,color:C.charcoal,lineHeight:1.6}}>
+                <div style={{fontWeight:600,marginBottom:4}}>Mensaje a enviar:</div>
+                Hola {f.name.split(" ")[0]}! Te doy acceso a Hadrion, tu plataforma clinica.<br/>
+                🔗 hadrion.netlify.app<br/>
+                📧 Email: {f.email}<br/>
+                🔑 Contrasena: {f.password}<br/>
+                Plan: {f.plan} | 14 dias de prueba incluidos.<br/>
+                Cualquier consulta escribime. ¡Bienvenida/o!
+              </div>
+              <div style={{display:"flex",gap:8}}>
+                <button className="btn btnsm" style={{background:"#25D366",color:"white",flex:1,justifyContent:"center"}} onClick={()=>{
+                  const msg=encodeURIComponent(`Hola ${f.name.split(" ")[0]}! Te doy acceso a Hadrion, tu plataforma clinica.\n🔗 hadrion.netlify.app\n📧 Email: ${f.email}\n🔑 Contrasena: ${f.password}\nPlan: ${f.plan} - 14 dias de prueba incluidos.\nCualquier consulta escribime!`);
+                  const phone=f.phone?f.phone.replace(/\D/g,""):"";
+                  window.open(`https://wa.me/${phone}?text=${msg}`,"_blank");
+                }}>
+                  📱 Enviar por WhatsApp
+                </button>
+                <button className="btn btnsm" style={{background:C.info,color:"white",flex:1,justifyContent:"center"}} onClick={()=>{
+                  const subject=encodeURIComponent("Acceso a Hadrion - Plataforma Clinica");
+                  const body=encodeURIComponent(`Hola ${f.name}!\n\nTe doy acceso a Hadrion, tu plataforma clinica terapeutica.\n\nDatos de acceso:\nURL: https://hadrion.netlify.app\nEmail: ${f.email}\nContrasena: ${f.password}\nPlan: ${f.plan}\n\nTenes 14 dias de prueba gratuitos incluidos.\n\nCualquier consulta escribime a comunipro12@gmail.com\n\nBienvenida/o!\nAdriana Soba`);
+                  window.open(`mailto:${f.email}?subject=${subject}&body=${body}`);
+                }}>
+                  ✉️ Enviar por Email
+                </button>
+              </div>
+            </div>
+          )}
         </Modal>
       )}
     </div>
@@ -1302,6 +1806,11 @@ export default function HadrionApp(){
   const [selPatId,setSelPatId]=useState(null);
   const [plan,setPlan]=useState(INIT_PLAN);
   const [showQS,setShowQS]=useState(false);
+  const [registerRequests,setRegisterRequests]=useState([]);
+
+  const handleRegisterRequest=(form)=>{
+    setRegisterRequests(prev=>[...prev,{id:Date.now(),date:new Date().toLocaleDateString("es-UY"),...form,status:"pendiente"}]);
+  };
   const [qsF,setQsF]=useState({patientId:"",note:""});
   const logout=()=>{setUser(null);setActive("dashboard");};
   const saveQS=()=>{
@@ -1323,7 +1832,7 @@ export default function HadrionApp(){
     reports:<Reports patients={patients} sessions={sessions} payments={payments}/>,
     plan:<PlanColaborativo patients={patients} users={users} plan={plan} setPlan={setPlan}/>,
     resources:<Resources/>,
-    admin:user?.role==="admin"?<Admin users={users} setUsers={setUsers}/>:<div className="fu"><div className="alert alrtd">🔐 Solo administradores.</div></div>,
+    admin:user?.role==="admin"?<Admin users={users} setUsers={setUsers} registerRequests={registerRequests} setRegisterRequests={setRegisterRequests}/>:<div className="fu"><div className="alert alrtd">🔐 Solo administradores.</div></div>,
     profile:<Profile user={user} onLogout={logout}/>,
   };
   const bnItems=[
@@ -1333,7 +1842,7 @@ export default function HadrionApp(){
     {id:"sessions",l:"Clinico",i:"📝"},
     {id:user?.role==="admin"?"admin":"profile",l:user?.role==="admin"?"Admin":"Perfil",i:user?.role==="admin"?"🔐":"👤"},
   ];
-  if(!user)return(<><style>{CSS}</style><Login onLogin={setUser} users={users}/></>);
+  if(!user)return(<><style>{CSS}</style><Login onLogin={setUser} users={users} onRegisterRequest={handleRegisterRequest}/></>);
   return(
     <>
       <style>{CSS}</style>
