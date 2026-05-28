@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hadrion — Laminas Terapeuticas Imprimibles</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --lila:#9B7EBD;--lilaD:#7B5EA7;--lilaL:#D4BCE8;--lilaF:#F5F0FA;
+  --rosa:#E8719C;--rosaL:#FDE8F0;
+  --verde:#27AE60;--verdeL:#E8F8EF;
+  --naranja:#E8A020;--naranjaL:#FEF3E0;
+  --azul:#5B8DB8;--azulL:#EBF3FB;
+  --gris:#6B6560;--grisL:#9B9590;
+  --blanco:#FFFFFF;--fondo:#FDF8FF;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:var(--fondo);color:#2C2C2C;}
+
+/* NAV */
+.nav{background:var(--lilaD);color:white;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.15);}
+.nav-logo{font-family:'Fredoka One',cursive;font-size:22px;letter-spacing:1px;}
+.nav-sub{font-size:11px;opacity:.75;margin-top:1px;}
+.print-all-btn{background:var(--rosa);color:white;border:none;border-radius:10px;padding:9px 18px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;}
+
+/* FILTROS */
+.filters{padding:16px 24px;display:flex;gap:8px;flex-wrap:wrap;background:white;border-bottom:1px solid var(--lilaL);}
+.filter-btn{padding:6px 14px;border-radius:20px;border:2px solid var(--lilaL);background:white;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;color:var(--gris);transition:all .15s;}
+.filter-btn.active{background:var(--lilaD);color:white;border-color:var(--lilaD);}
+
+/* GRID */
+.sheets-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px;padding:24px;}
+
+/* LAMINA CARD */
+.sheet-card{background:white;border-radius:16px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.08);border:2px solid transparent;transition:border .15s;}
+.sheet-card:hover{border-color:var(--lilaL);}
+.sheet-header{padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--lilaL);}
+.sheet-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.sheet-title{font-size:14px;font-weight:800;color:#2C2C2C;}
+.sheet-meta{font-size:11px;color:var(--grisL);margin-top:2px;}
+.sheet-body{padding:14px 16px;}
+.sheet-preview{margin-bottom:12px;}
+.sheet-footer{display:flex;gap:8px;padding-top:10px;border-top:1px solid var(--lilaL);}
+.btn-print{flex:1;background:var(--lilaD);color:white;border:none;border-radius:9px;padding:9px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;}
+.btn-preview{background:var(--lilaF);color:var(--lilaD);border:none;border-radius:9px;padding:9px 14px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;}
+
+/* BADGES */
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:800;}
+.badge-clinica{background:var(--verdeL);color:var(--verde);}
+.badge-familia{background:var(--rosaL);color:var(--rosa);}
+.badge-facil{background:var(--verdeL);color:var(--verde);}
+.badge-medio{background:var(--naranjaL);color:var(--naranja);}
+.badge-dificil{background:#FDECEA;color:#C0392B;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:white;border-radius:20px;width:100%;max-width:700px;max-height:90vh;overflow-y:auto;}
+.modal-head{padding:16px 20px;border-bottom:1px solid var(--lilaL);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:white;}
+.modal-title{font-size:18px;font-weight:800;color:#2C2C2C;}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--grisL);}
+.modal-body{padding:20px;}
+
+/* ════════════════════════════════
+   LAMINAS IMPRIMIBLES (print area)
+════════════════════════════════ */
+.printable{display:none;}
+
+@media print{
+  .nav,.filters,.sheets-grid,.modal-overlay{display:none!important;}
+  .printable{display:block!important;}
+  body{background:white;}
+  .print-page{page-break-after:always;padding:20px;}
+}
+
+/* Estilos para las laminas */
+.lamina{font-family:'Nunito',sans-serif;max-width:720px;margin:0 auto;}
+.lamina-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:12px;margin-bottom:16px;}
+.lamina-title{font-family:'Fredoka One',cursive;font-size:22px;}
+.lamina-brand{font-size:10px;opacity:.6;}
+
+/* Fonemas */
+.ph-big{font-family:'Fredoka One',cursive;font-size:120px;text-align:center;line-height:1;margin:10px 0;}
+.ph-words-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0;}
+.ph-word-card{border:2px solid;border-radius:14px;padding:12px 8px;text-align:center;}
+.ph-emoji{font-size:36px;margin-bottom:6px;}
+.ph-word{font-weight:800;font-size:13px;}
+.ph-syllables{font-size:11px;opacity:.7;margin-top:3px;}
+
+/* Rimas */
+.rima-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:12px 0;}
+.rima-card{border:2px dashed;border-radius:14px;padding:16px;text-align:center;}
+.rima-emoji{font-size:48px;margin-bottom:8px;}
+.rima-word{font-size:18px;font-weight:800;}
+.rima-blank{border-bottom:3px solid;margin:8px auto;width:80px;height:2px;}
+
+/* Secuencias */
+.seq-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0;}
+.seq-card{border:2px solid;border-radius:12px;padding:12px;text-align:center;}
+.seq-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;margin:0 auto 8px;color:white;}
+.seq-emoji{font-size:40px;margin-bottom:8px;}
+.seq-blank{height:32px;border:2px dashed;border-radius:8px;margin-top:8px;}
+
+/* Silabas */
+.sil-word{font-family:'Fredoka One',cursive;font-size:48px;text-align:center;letter-spacing:8px;margin:10px 0;}
+.sil-boxes{display:flex;gap:8px;justify-content:center;margin:12px 0;}
+.sil-box{width:60px;height:60px;border:3px solid;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;}
+.sil-box.empty{background:white;}
+
+/* Semaforo */
+.semaforo{display:flex;gap:16px;justify-content:center;margin:16px 0;flex-wrap:wrap;}
+.sem-circle{width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:40px;box-shadow:0 4px 12px rgba(0,0,0,.15);}
+.sem-label{text-align:center;font-weight:800;margin-top:8px;font-size:13px;}
+
+/* Vocabulario */
+.vocab-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0;}
+.vocab-card{border:2px solid;border-radius:14px;padding:14px;text-align:center;}
+.vocab-emoji{font-size:40px;margin-bottom:8px;}
+.vocab-name{font-size:13px;font-weight:800;}
+.vocab-cat{font-size:10px;margin-top:3px;opacity:.7;}
+
+/* Atencion - buscar y marcar */
+.buscar-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:12px 0;}
+.buscar-item{width:44px;height:44px;border:2px solid;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;}
+
+/* Praxias */
+.praxia-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0;}
+.praxia-card{border:2px solid;border-radius:14px;padding:14px;}
+.praxia-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:white;margin-bottom:8px;}
+.praxia-icon{font-size:32px;margin-bottom:6px;}
+.praxia-name{font-size:12px;font-weight:800;}
+.praxia-desc{font-size:11px;opacity:.7;margin-top:3px;}
+.rep-boxes{display:flex;gap:4px;margin-top:8px;}
+.rep-box{width:20px;height:20px;border:2px solid;border-radius:4px;}
+
+/* Instrucciones nivel */
+.nivel-section{border-radius:12px;padding:14px;margin:10px 0;}
+.nivel-title{font-size:14px;font-weight:800;margin-bottom:8px;}
+.nivel-step{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start;}
+.nivel-step-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:white;flex-shrink:0;margin-top:1px;}
+.nivel-step-text{font-size:12px;line-height:1.5;}
+
+/* Registro al pie */
+.registro{border:1px solid;border-radius:10px;padding:10px 14px;margin-top:14px;display:flex;gap:20px;align-items:center;}
+.reg-field{flex:1;}
+.reg-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;opacity:.6;margin-bottom:3px;}
+.reg-line{border-bottom:1px solid;height:20px;}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="nav">
+  <div>
+    <div class="nav-logo">Hadrion 🧠</div>
+    <div class="nav-sub">Laminas Terapeuticas Imprimibles</div>
+  </div>
+  <button class="print-all-btn" onclick="window.print()">🖨️ Imprimir seleccionada</button>
+</div>
+
+<!-- FILTROS -->
+<div class="filters">
+  <button class="filter-btn active" onclick="filtrar('all',this)">Todas</button>
+  <button class="filter-btn" onclick="filtrar('fonologia',this)">Fonologia</button>
+  <button class="filter-btn" onclick="filtrar('lenguaje',this)">Lenguaje</button>
+  <button class="filter-btn" onclick="filtrar('lectura',this)">Lectura</button>
+  <button class="filter-btn" onclick="filtrar('atencion',this)">Atencion</button>
+  <button class="filter-btn" onclick="filtrar('articulacion',this)">Articulacion</button>
+  <button class="filter-btn" onclick="filtrar('familia',this)">Para familia</button>
+</div>
+
+<!-- GRID DE LAMINAS -->
+<div class="sheets-grid">
+
+  <!-- 1. FONEMA A -->
+  <div class="sheet-card" data-cat="fonologia">
+    <div class="sheet-header">
+      <div class="sheet-icon" style="background:#F5F0FA;color:#9B7EBD;">🔤</div>
+      <div>
+        <div class="sheet-title">Lamina Fonema /A/</div>
+        <div class="sheet-meta">Fonologia · Preescolar/Escolar · 3-10 anos</div>
+      </div>
+    </div>
+    <div class="sheet-body">
+      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+        <span class="badge badge-clinica">Clinica</span>
+        <span class="badge badge-facil">Facil</span><span class="badge badge-medio">Medio</span>
+      </div>
+      <div class="sheet-preview">
+        <div style="text-align:center;font-family:'Fredoka One',cursive;font-size:48px;color:#9B7EBD;">A a</div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;font-size:24px;">✈️🌳🕷️🐝🦅</div>
+        <div style="font-size:11px;color:#9B9590;text-align:center;margin-top:4px;">AVION · ARBOL · ARAÑA · ABEJA · AGUILA</div>
+      </div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn-preview" onclick="verPreview('fonema-a')">👁 Ver</button>
+      <button class="btn-print" onclick="imprimirLamina('fonema-a')">🖨️ Imprimir</button>
+    </div>
+  </div>
+
+  <!-- 2. FONEMA S -->
+  <div class="sheet-card" data-cat="fonologia">
+    <div class="sheet-header">
+      <div class="sheet-icon" style="background:#F5F0FA;color:#9B7EBD;">🔤</div>
+      <div>
+        <div class="sheet-title">Lamina Fonema /S/</div>
+        <div class="sheet-meta">Fonologia · Escolar · 5-10 anos</div>
+      </div>
+    </div>
+    <div class="sheet-body">
+      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+        <span class="badge badge-clinica">Clinica</span>
+        <span class="badge badge-medio">Medio</span><span class="badge badge-dificil">Dificil</span>
+      </div>
+      <div class="sheet-preview">
+        <div style="text-align:center;font-family:'Fredoka One',cursive;font-size:48px;color:#9B7EBD;">S s</div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;font-size:24px;">☀️🪑👟🍜🐸</div>
+        <div style="font-size:11px;color:#9B9590;text-align:center;margin-top:4px;">SOL · SILLA · SAPATO · SOPA · SAPO</div>
+      </div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn-preview" onclick="verPreview('fonema-s')">👁 Ver</button>
+      <button class="btn-print" onclick="imprimirLamina('fonema-s')">🖨️ Imprimir</button>
+    </div>
+  </div>
+
+  <!-- 3. RIMAS -->
+  <div class="sheet-card" data-cat="lenguaje">
+    <div class="sheet-header">
+      <div class="sheet-icon" style="background:#FDE8F0;color:#E8719C;">🎵</div>
+      <div>
+        <div class="sheet-title">Rimas — Parejas que riman</div>
+        <div class="sheet-meta">Lenguaje · TEL · Preescolar · 3-7 anos</div>
+      </div>
+    </div>
+    <div class="sheet-body">
+      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+        <span class="badge badge-clinica">Clinica</span>
+        <span class="badge badge-facil">Facil</span>
+      </div>
+      <div class="sheet-preview">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div style="border:2px dashed #E8719C;border-radius:12px;padding:10px;text-align:center;">
+            <div style="font-size:28px;">🌞</div>
+            <div style="font-weight:800;font-size:13px;">SOL</div>
+          </div>
+          <div style="border:2px dashed #E8719C;border-radius:12px;padding:10px;text-align:center;">
+            <div style="font-size:28px;">🐌</div>
+            <div style="font-weight:800;font-size:13px;">CARACOL</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn-preview" onclick="verPreview('rimas')">👁 Ver</button>
+      <button class="btn-print" onclick="imprimirLamina('rimas')">🖨️ Imprimir</button>
+    </div>
+  </div>
+
+  <!-- 4. SILABAS -->
+  <div class="sheet-card" data-cat="lectura">
+    <div class="sheet-header">
+      <div class="sheet-icon" style="background:#EBF3FB;color:#5B8DB8;">✂️</div>
+      <div>
+        <div class="sheet-title">Segmentacion Silabica</div>
+        <div class="sheet-meta">Lectoescritura · Dislexia · Escolar · 5-9 anos</div>
+      </div>
+    </div>
+    <div class="sheet-body">
+      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+        <span class="badge badge-clinica">Clinica</span>
+        <span class="badge badge-facil">Facil</span><span class="badge badge-medio">Medio</span>
+      </div>
+      <div class="sheet-preview">
+        <div style="font-family:'Fredoka One',cursive;font-size:28px;text-align:center;color:#5B8DB8;letter-spacing:4px;">MA-RI-PO-SA</div>
+        <div style="display:flex;gap:6px;justify-content:center;margin-top:8px;">
+          <div style="width:44px;height:44px;border:2px solid #5B8DB8;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;">MA</div>
+          <div style="width:44px;height:44px;border:2px solid #5B8DB8;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;">RI</div>
+          <div style="width:44px;height:44px;border:2px solid #5B8DB8;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;">PO</div>
+          <div style="width:44px;height:44px;border:2px solid #5B8DB8;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;">SA</div>
+        </div>
+      </div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn-preview" onclick="verPreview('silabas')">👁 Ver</button>
+      <button class="btn-print" onclick="imprimirLamina('silabas')">🖨️ Imprimir</button>
+    </div>
+  </div>
+
+  <!-- 5. SEMAFORO -->
+  <div class="sheet-card" data-cat="atencion">
+    <div class="sheet-header">
+      <div class="sheet-icon" style="background:#FEF3E0;color:#E8A020;">🚦</div>
+      <div>
+        <div class="sheet-title">Semaforo de Autorregulacion</div>
+        <div class="sheet-meta">Regulacion · TDAH · Todos · 4-12 anos</div>
+      </div>
+    </div>
+    <div class="sheet-body">
+      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+        <span class="badge badge-clinica">Clinica</span>
+        <span class="badge" style="background:#FEF3E0;color:#E8A020;">Para familia</span>
+      </div>
+      <div class="sheet-preview" style="display:flex;justify-content:center;gap:10px;">
+        <div style="text-align:center;"><div style="width:40px;height:40px;border-radius:50%;background:#E74C3C;display:flex;align-items:center;justify-content:center;font-size:18px;margin:0 auto 4px;">😡</div><div style="font-size:10px;font-weight:800;">PARAR</div></div>
+        <div style="text-align:center;"><div style="width:40px;height:40px;border-radius:50%;background:#F39C12;display:flex;align-items:center;justify-content:center;font-size:18px;margin:0 auto 4px;">😰</div><div style="font-size:10px;font-weight:800;">PENSAR</div></div>
+        <div style="text-align:center;"><div style="width:40px;height:40px;border-radius:50%;background:#27AE60;display:flex;align-items:center;justify-content:center;font-size:18px;margin:0 auto 4px;">😊</div><div style="font-size:10px;font-weight:800;">SEGUIR</div></div>
+      </div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn-preview" onclick="verPreview('semaforo')">👁 Ver</button>
+      <button class="btn-print" onclick="imprimirLamina('semaforo')">🖨️ Imprimir</button>
+    </div>
+  </div>
+
+  <!-- 6. PRAXIAS -->
+  <div class="sheet-card" data-cat="articulacion">
+    <div class="sheet-header">
+      <div class="sheet-icon" style="background:#E8F8EF;color:#27AE60;">👄</div>
+      <div>
+        <div class="sheet-title">Praxias Bucofonatorias</div>
+        <div class="sheet-meta">Articulacion · Disartria · Todos · 3-12 anos</div>
+      </div>
+    </div>
+    <div class="sheet-body">
+      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+        <span class="badge badge-clinica">Clinica</span>
+        <span class="badge badge-facil">Facil</span><span class="badge badge-medio">Medio</span><span class="badge badge-dificil">Dificil</span>
+      </div>
+      <div class="sheet-preview">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;">
+          <div style="border:1px solid #27AE60;border-radius:8px;padding:7px;text-align:center;"><div style="font-size:20px;">😮</div>Boca abierta</div>
+          <div style="border:1px solid #27AE60;border-radius:8px;padding:7px;text-align:center;"><div style="font-size:20px;">😗</div>Labios juntos</div>
+          <div style="border:1px solid #27AE60;border-radius:8px;padding:7px;text-align:center;"><div style="font-size:20px;">😜</div>Lengua arriba</div>
+          <div style="border:1px solid #27AE60;border-radius:8px;padding:7px;text-align:center;"><div style="font-size:20px;">😁</div>Sonrisa amplia</div>
+        </div>
+      </div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn-preview" onclick="verPreview('praxias')">👁 Ver</button>
+      <button class="btn-print" onclick="imprimirLamina('praxias')">🖨️ Imprimir</button>
+    </div>
+  </div>
+
+  <!-- 7. VOCABULARIO CATEGORIAS -->
+  <div class="sheet-card" data-cat="lenguaje">
+    <div class="sheet-header">
+      <div class="sheet-icon" style="background:#FDE8F0;color:#E8719C;">📦</div>
+      <div>
+        <div class="sheet-title">Vocabulario por Categorias</div>
+        <div class="sheet-meta">Lenguaje · TEL · Preescolar/Escolar · 3-8 anos</div>
+      </div>
+    </div>
+    <div class="sheet-body">
+      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+        <span class="badge badge-clinica">Clinica</span>
+        <span class="badge badge-facil">Facil</span><span class="badge badge-medio">Medio</span>
+      </div>
+      <div class="sheet-preview">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+          <div style="border:2px solid #E8719C;border-radius:10px;padding:8px;text-align:center;"><div style="font-size:22px;">🐶</div><div style="font-size:10px;font-weight:800;">perro</div><div style="font-size:9px;color:#9B9590;">Animal</div></div>
+          <div style="border:2px solid #E8719C;border-radius:10px;padding:8px;text-align:center;"><div style="font-size:22px;">🍎</div><div style="font-size:10px;font-weight:800;">manzana</div><div style="font-size:9px;color:#9B9590;">Fruta</div></div>
+          <div style="border:2px solid #9B7EBD;border-radius:10px;padding:8px;text-align:center;"><div style="font-size:22px;">🚗</div><div style="font-size:10px;font-weight:800;">auto</div><div style="font-size:9px;color:#9B9590;">Transporte</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn-preview" onclick="verPreview('vocabulario')">👁 Ver</button>
+      <button class="btn-print" onclick="imprimirLamina('vocabulario')">🖨️ Imprimir</button>
+    </div>
+  </div>
+
+  <!-- 8. PARA FAMILIA -->
+  <div class="sheet-card" data-cat="familia">
+    <div class="sheet-header">
+      <div class="sheet-icon" style="background:#FDE8F0;color:#E8719C;">👨‍👩‍👧</div>
+      <div>
+        <div class="sheet-title">Guia de Estimulacion en Casa</div>
+        <div class="sheet-meta">Familia · Lenguaje · Preescolar · 2-6 anos</div>
+      </div>
+    </div>
+    <div class="sheet-body">
+      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+        <span class="badge badge-familia">Para familia</span>
+        <span class="badge badge-facil">Facil</span>
+      </div>
+      <div class="sheet-preview">
+        <div style="font-size:12px;color:#6B6560;line-height:1.6;">
+          ✅ Hablar mientras bañamos<br>
+          ✅ Nombrar objetos al cocinar<br>
+          ✅ Cantar canciones con gestos<br>
+          ✅ Leer juntos 10 min al dia
+        </div>
+      </div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn-preview" onclick="verPreview('familia')">👁 Ver</button>
+      <button class="btn-print" onclick="imprimirLamina('familia')">🖨️ Imprimir</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL PREVIEW -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-title">Vista previa</div>
+      <button class="modal-close" onclick="cerrarModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-content"></div>
+    <div style="padding:14px 20px;border-top:1px solid #EDE0F5;display:flex;gap:8px;">
+      <button class="btn-print" style="flex:1;padding:11px;" onclick="window.print()">🖨️ Imprimir esta lamina</button>
+      <button class="btn-preview" onclick="cerrarModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- AREA IMPRIMIBLE (oculta, solo aparece al imprimir) -->
+<div class="printable" id="print-area"></div>
+
+<script>
+// ── Datos de las laminas ──
+const LAMINAS = {
+
+"fonema-a": {
+  titulo:"Lamina Fonema /A/ — Hadrion",
+  color:"#9B7EBD", colorLight:"#F5F0FA",
+  html:`
+  <div class="lamina">
+    <div class="lamina-header" style="background:#F5F0FA;">
+      <div><div class="lamina-title" style="color:#7B5EA7;">Fonema /A/ — A a</div><div style="font-size:12px;color:#9B9590;">Conciencia Fonologica · Preescolar/Escolar</div></div>
+      <div class="lamina-brand">Hadrion 🧠</div>
+    </div>
+    <div class="ph-big" style="color:#9B7EBD;">A a</div>
+    <div class="ph-words-grid">
+      ${[["✈️","AVION","A-VION"],["🌳","ARBOL","AR-BOL"],["🕷️","ARAÑA","A-RA-ÑA"],["🐝","ABEJA","A-BE-JA"],["🦅","AGUILA","A-GUI-LA"],["⚓","ANCLA","AN-CLA"],["🌈","ARCO","AR-CO"],["🦌","ALCE","AL-CE"]].map(([e,w,s])=>
+        `<div class="ph-word-card" style="border-color:#D4BCE8;background:#F5F0FA;">
+          <div class="ph-emoji">${e}</div>
+          <div class="ph-word" style="color:#7B5EA7;">${w}</div>
+          <div class="ph-syllables">${s}</div>
+        </div>`).join("")}
+    </div>
+    <div style="background:#F5F0FA;border-radius:12px;padding:12px;margin-top:12px;">
+      <div style="font-weight:800;font-size:13px;color:#7B5EA7;margin-bottom:6px;">Actividades sugeridas</div>
+      <div style="font-size:12px;color:#6B6560;line-height:1.8;">
+        🟢 <b>Facil:</b> Tocar cada imagen y repetir el nombre. Escuchar el sonido /A/ al inicio.<br>
+        🟡 <b>Medio:</b> Separar silabas con palmadas. Contar cuantas silabas tiene cada palabra.<br>
+        🔴 <b>Dificil:</b> Crear oraciones con cada palabra. Pensar 3 palabras mas que empiecen con /A/.
+      </div>
+    </div>
+    <div class="registro" style="border-color:#D4BCE8;margin-top:14px;">
+      <div class="reg-field"><div class="reg-label">Paciente</div><div class="reg-line" style="border-color:#D4BCE8;"></div></div>
+      <div class="reg-field"><div class="reg-label">Fecha</div><div class="reg-line" style="border-color:#D4BCE8;"></div></div>
+      <div class="reg-field"><div class="reg-label">Aciertos</div><div class="reg-line" style="border-color:#D4BCE8;"></div></div>
+      <div style="font-size:9px;color:#9B9590;">Hadrion · hadrion.netlify.app</div>
+    </div>
+  </div>`
+},
+
+"fonema-s": {
+  titulo:"Lamina Fonema /S/ — Hadrion",
+  color:"#5B8DB8", colorLight:"#EBF3FB",
+  html:`
+  <div class="lamina">
+    <div class="lamina-header" style="background:#EBF3FB;">
+      <div><div class="lamina-title" style="color:#5B8DB8;">Fonema /S/ — S s</div><div style="font-size:12px;color:#9B9590;">Conciencia Fonologica · Escolar</div></div>
+      <div class="lamina-brand">Hadrion 🧠</div>
+    </div>
+    <div class="ph-big" style="color:#5B8DB8;">S s</div>
+    <div class="ph-words-grid">
+      ${[["☀️","SOL","SOL"],["🪑","SILLA","SI-LLA"],["👟","ZAPATO","ZA-PA-TO"],["🍜","SOPA","SO-PA"],["🐸","SAPO","SA-PO"],["🌱","SEMILLA","SE-MI-LLA"],["🐍","SERPIENTE","SER-PIEN-TE"],["🌂","SOMBRILLA","SOM-BRI-LLA"]].map(([e,w,s])=>
+        `<div class="ph-word-card" style="border-color:#B3CDE0;background:#EBF3FB;">
+          <div class="ph-emoji">${e}</div>
+          <div class="ph-word" style="color:#5B8DB8;">${w}</div>
+          <div class="ph-syllables">${s}</div>
+        </div>`).join("")}
+    </div>
+    <div style="background:#EBF3FB;border-radius:12px;padding:12px;margin-top:12px;">
+      <div style="font-weight:800;font-size:13px;color:#5B8DB8;margin-bottom:6px;">Actividades sugeridas</div>
+      <div style="font-size:12px;color:#6B6560;line-height:1.8;">
+        🟢 <b>Facil:</b> Escuchar el sonido /S/ y repetirlo. Identificar las imagenes que empiezan con /S/.<br>
+        🟡 <b>Medio:</b> Leer las palabras en voz alta. Inventar una oracion con cada una.<br>
+        🔴 <b>Dificil:</b> Escribir las palabras al dictado. Crear un trabalenguas con palabras con /S/.
+      </div>
+    </div>
+    <div class="registro" style="border-color:#B3CDE0;">
+      <div class="reg-field"><div class="reg-label">Paciente</div><div class="reg-line" style="border-color:#B3CDE0;"></div></div>
+      <div class="reg-field"><div class="reg-label">Fecha</div><div class="reg-line" style="border-color:#B3CDE0;"></div></div>
+      <div class="reg-field"><div class="reg-label">Aciertos</div><div class="reg-line" style="border-color:#B3CDE0;"></div></div>
+      <div style="font-size:9px;color:#9B9590;">Hadrion · hadrion.netlify.app</div>
+    </div>
+  </div>`
+},
+
+"rimas": {
+  titulo:"Rimas — Parejas que riman — Hadrion",
+  color:"#E8719C", colorLight:"#FDE8F0",
+  html:`
+  <div class="lamina">
+    <div class="lamina-header" style="background:#FDE8F0;">
+      <div><div class="lamina-title" style="color:#E8719C;">Rimas — Parejas que riman</div><div style="font-size:12px;color:#9B9590;">Lenguaje · TEL · 3-7 anos</div></div>
+      <div class="lamina-brand">Hadrion 🧠</div>
+    </div>
+    <div style="font-size:11px;color:#E8719C;font-weight:700;margin:8px 0 12px;text-align:center;">Une con una flecha las palabras que riman</div>
+    <div class="rima-grid">
+      ${[["🌞","SOL","🐌","CARACOL"],["🏠","CASA","🍓","FRESA"],["🐱","GATO","🛁","ZAPATO"],["🌙","LUNA","🦁","LAGUNA"],["🌺","FLOR","❤️","COLOR"],["🐟","PEZ","🔢","DIEZ"]].map(([e1,w1,e2,w2])=>`
+      <div style="display:flex;align-items:center;gap:8px;border:2px dashed #F9C8DC;border-radius:14px;padding:12px;">
+        <div style="text-align:center;flex:1;"><div style="font-size:36px;">${e1}</div><div style="font-weight:800;font-size:14px;color:#E8719C;">${w1}</div></div>
+        <div style="width:40px;border-bottom:2px dashed #F9C8DC;"></div>
+        <div style="text-align:center;flex:1;"><div style="font-size:36px;">${e2}</div><div style="font-weight:800;font-size:14px;color:#E8719C;">${w2}</div></div>
+      </div>`).join("")}
+    </div>
+    <div class="registro" style="border-color:#F9C8DC;">
+      <div class="reg-field"><div class="reg-label">Paciente</div><div class="reg-line" style="border-color:#F9C8DC;"></div></div>
+      <div class="reg-field"><div class="reg-label">Fecha</div><div class="reg-line" style="border-color:#F9C8DC;"></div></div>
+      <div class="reg-field"><div class="reg-label">Puntaje /6</div><div class="reg-line" style="border-color:#F9C8DC;"></div></div>
+      <div style="font-size:9px;color:#9B9590;">Hadrion · hadrion.netlify.app</div>
+    </div>
+  </div>`
+},
+
+"silabas": {
+  titulo:"Segmentacion Silabica — Hadrion",
+  color:"#5B8DB8", colorLight:"#EBF3FB",
+  html:`
+  <div class="lamina">
+    <div class="lamina-header" style="background:#EBF3FB;">
+      <div><div class="lamina-title" style="color:#5B8DB8;">Segmentacion Silabica</div><div style="font-size:12px;color:#9B9590;">Lectoescritura · Dislexia · 5-9 anos</div></div>
+      <div class="lamina-brand">Hadrion 🧠</div>
+    </div>
+    <div style="font-size:11px;color:#5B8DB8;font-weight:700;margin:8px 0;text-align:center;">Separa las silabas y escribe una en cada casilla</div>
+    ${[["🦋","MARIPOSA",["MA","RI","PO","SA"]],["🐊","COCODRILO",["CO","CO","DRI","LO"]],["🌻","GIRASOL",["GI","RA","SOL",""]],["🚂","LOCOMOTORA",["LO","CO","MO","TO","RA",""]],["🐬","DELFIN",["DEL","FIN","",""]],["🌺","MARAVILLA",["MA","RA","VI","LLA"]]].map(([emoji,word,syls])=>`
+    <div style="display:flex;align-items:center;gap:12px;margin:10px 0;padding:10px;background:#F0F7FF;border-radius:12px;">
+      <div style="font-size:32px;flex-shrink:0;">${emoji}</div>
+      <div style="flex:1;">
+        <div style="font-weight:800;font-size:13px;color:#5B8DB8;margin-bottom:6px;">${word}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          ${syls.map(s=>s?`<div style="min-width:44px;height:36px;border:2px solid #5B8DB8;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#5B8DB8;background:white;">${s}</div>`:`<div style="min-width:44px;height:36px;border:2px dashed #B3CDE0;border-radius:8px;background:white;"></div>`).join("")}
+        </div>
+      </div>
+    </div>`).join("")}
+    <div class="registro" style="border-color:#B3CDE0;margin-top:12px;">
+      <div class="reg-field"><div class="reg-label">Paciente</div><div class="reg-line" style="border-color:#B3CDE0;"></div></div>
+      <div class="reg-field"><div class="reg-label">Fecha</div><div class="reg-line" style="border-color:#B3CDE0;"></div></div>
+      <div class="reg-field"><div class="reg-label">Puntaje /6</div><div class="reg-line" style="border-color:#B3CDE0;"></div></div>
+      <div style="font-size:9px;color:#9B9590;">Hadrion · hadrion.netlify.app</div>
+    </div>
+  </div>`
+},
+
+"semaforo": {
+  titulo:"Semaforo de Autorregulacion — Hadrion",
+  color:"#E8A020", colorLight:"#FEF3E0",
+  html:`
+  <div class="lamina">
+    <div class="lamina-header" style="background:#FEF3E0;">
+      <div><div class="lamina-title" style="color:#E8A020;">Semaforo de Autorregulacion</div><div style="font-size:12px;color:#9B9590;">Regulacion · TDAH · 4-12 anos</div></div>
+      <div class="lamina-brand">Hadrion 🧠</div>
+    </div>
+    <div class="semaforo">
+      <div>
+        <div class="sem-circle" style="background:#E74C3C;">😡</div>
+        <div class="sem-label" style="color:#E74C3C;">ROJO<br>PARAR</div>
+        <div style="background:#FDECEA;border-radius:10px;padding:10px;margin-top:8px;max-width:140px;">
+          <div style="font-weight:800;font-size:11px;color:#E74C3C;margin-bottom:4px;">Que hago?</div>
+          <div style="font-size:11px;line-height:1.6;color:#6B6560;">🌬️ Respiro 3 veces<br>✋ Paro lo que hago<br>💭 Cuento hasta 5</div>
+        </div>
+      </div>
+      <div>
+        <div class="sem-circle" style="background:#F39C12;">😰</div>
+        <div class="sem-label" style="color:#E8A020;">AMARILLO<br>PENSAR</div>
+        <div style="background:#FEF3E0;border-radius:10px;padding:10px;margin-top:8px;max-width:140px;">
+          <div style="font-weight:800;font-size:11px;color:#E8A020;margin-bottom:4px;">Que hago?</div>
+          <div style="font-size:11px;line-height:1.6;color:#6B6560;">🤔 Pienso opciones<br>💬 Pido ayuda<br>📝 Busco solucion</div>
+        </div>
+      </div>
+      <div>
+        <div class="sem-circle" style="background:#27AE60;">😊</div>
+        <div class="sem-label" style="color:#27AE60;">VERDE<br>SEGUIR</div>
+        <div style="background:#E8F8EF;border-radius:10px;padding:10px;margin-top:8px;max-width:140px;">
+          <div style="font-weight:800;font-size:11px;color:#27AE60;margin-bottom:4px;">Que hago?</div>
+          <div style="font-size:11px;line-height:1.6;color:#6B6560;">✅ Puedo continuar<br>🤝 Trabajo en equipo<br>🌟 Me felicito</div>
+        </div>
+      </div>
+    </div>
+    <div style="background:#FEF3E0;border-radius:12px;padding:12px;margin-top:8px;">
+      <div style="font-weight:800;font-size:12px;color:#E8A020;margin-bottom:6px;">Hoy estoy en...</div>
+      <div style="display:flex;gap:10px;">
+        <div style="flex:1;height:40px;border:2px solid #E74C3C;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">😡</div>
+        <div style="flex:1;height:40px;border:2px solid #F39C12;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">😰</div>
+        <div style="flex:1;height:40px;border:2px solid #27AE60;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">😊</div>
+      </div>
+    </div>
+    <div class="registro" style="border-color:#F5D9A8;">
+      <div class="reg-field"><div class="reg-label">Paciente</div><div class="reg-line" style="border-color:#F5D9A8;"></div></div>
+      <div class="reg-field"><div class="reg-label">Fecha</div><div class="reg-line" style="border-color:#F5D9A8;"></div></div>
+      <div style="font-size:9px;color:#9B9590;">Hadrion · hadrion.netlify.app</div>
+    </div>
+  </div>`
+},
+
+"praxias": {
+  titulo:"Praxias Bucofonatorias — Hadrion",
+  color:"#27AE60", colorLight:"#E8F8EF",
+  html:`
+  <div class="lamina">
+    <div class="lamina-header" style="background:#E8F8EF;">
+      <div><div class="lamina-title" style="color:#27AE60;">Praxias Bucofonatorias</div><div style="font-size:12px;color:#9B9590;">Articulacion · Disartria · 3-12 anos</div></div>
+      <div class="lamina-brand">Hadrion 🧠</div>
+    </div>
+    <div style="font-size:11px;color:#27AE60;font-weight:700;margin:8px 0 12px;text-align:center;">Realiza cada ejercicio frente al espejo. Marca cuantas repeticiones hiciste.</div>
+    <div class="praxia-grid">
+      ${[
+        ["😮","Boca abierta","Abre la boca lo mas posible. Mantener 5 seg.",5],
+        ["😗","Labios juntos","Aprieta los labios firmemente. Mantener 5 seg.",5],
+        ["😜","Lengua arriba","Toca el paladar con la punta de la lengua.",8],
+        ["👅","Lengua abajo","Saca la lengua hacia abajo lo mas que puedas.",8],
+        ["😁","Sonrisa amplia","Sonrie mostrando todos los dientes. Mantener.",5],
+        ["😮","Labios adelante","Lleva los labios hacia adelante como un beso.",8],
+        ["💨","Vibrar labios","Cierra los labios y vibra como una motocicleta.",5],
+        ["😐","Inflar mejillas","Infla las mejillas con aire. Mantener 5 seg.",5]
+      ].map(([emoji,name,desc,reps],i)=>`
+      <div class="praxia-card" style="border-color:${i%2===0?"#82C9A0":"#B2DFDB"}">
+        <div class="praxia-num" style="background:${i%2===0?"#27AE60":"#5B8DB8"}">${i+1}</div>
+        <div class="praxia-icon">${emoji}</div>
+        <div class="praxia-name">${name}</div>
+        <div class="praxia-desc">${desc}</div>
+        <div style="font-size:10px;color:#9B9590;margin-top:4px;">Repeticiones: ${reps}x</div>
+        <div class="rep-boxes">${Array(reps).fill(0).map(()=>`<div class="rep-box" style="border-color:${i%2===0?"#27AE60":"#5B8DB8"}"></div>`).join("")}</div>
+      </div>`).join("")}
+    </div>
+    <div class="registro" style="border-color:#82C9A0;">
+      <div class="reg-field"><div class="reg-label">Paciente</div><div class="reg-line" style="border-color:#82C9A0;"></div></div>
+      <div class="reg-field"><div class="reg-label">Fecha</div><div class="reg-line" style="border-color:#82C9A0;"></div></div>
+      <div class="reg-field"><div class="reg-label">Observaciones</div><div class="reg-line" style="border-color:#82C9A0;"></div></div>
+      <div style="font-size:9px;color:#9B9590;">Hadrion · hadrion.netlify.app</div>
+    </div>
+  </div>`
+},
+
+"vocabulario": {
+  titulo:"Vocabulario por Categorias — Hadrion",
+  color:"#E8719C", colorLight:"#FDE8F0",
+  html:`
+  <div class="lamina">
+    <div class="lamina-header" style="background:#FDE8F0;">
+      <div><div class="lamina-title" style="color:#E8719C;">Vocabulario por Categorias</div><div style="font-size:12px;color:#9B9590;">Lenguaje · TEL · 3-8 anos</div></div>
+      <div class="lamina-brand">Hadrion 🧠</div>
+    </div>
+    <div style="font-size:11px;color:#E8719C;font-weight:700;margin:8px 0 12px;text-align:center;">Clasifica cada imagen en su categoria correcta</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;">
+      ${[["🐾","ANIMALES","#E8719C","#FDE8F0"],["🍎","FRUTAS","#27AE60","#E8F8EF"],["🚗","TRANSPORTES","#5B8DB8","#EBF3FB"]].map(([e,cat,c,bg])=>`
+      <div style="border:3px solid ${c};border-radius:14px;padding:12px;text-align:center;background:${bg};">
+        <div style="font-size:28px;margin-bottom:6px;">${e}</div>
+        <div style="font-weight:800;font-size:12px;color:${c};">${cat}</div>
+        <div style="height:60px;border:2px dashed ${c};border-radius:8px;margin-top:8px;"></div>
+      </div>`).join("")}
+    </div>
+    <div class="vocab-grid">
+      ${[["🐶","perro","Animal"],["🍌","banana","Fruta"],["✈️","avion","Transporte"],["🐱","gato","Animal"],["🍊","naranja","Fruta"],["🚂","tren","Transporte"],["🐘","elefante","Animal"],["🍓","frutilla","Fruta"],["🚢","barco","Transporte"]].map(([e,n,c])=>`
+      <div class="vocab-card" style="border-color:#F9C8DC;">
+        <div class="vocab-emoji">${e}</div>
+        <div class="vocab-name">${n}</div>
+        <div class="vocab-cat">${c}</div>
+      </div>`).join("")}
+    </div>
+    <div class="registro" style="border-color:#F9C8DC;">
+      <div class="reg-field"><div class="reg-label">Paciente</div><div class="reg-line" style="border-color:#F9C8DC;"></div></div>
+      <div class="reg-field"><div class="reg-label">Fecha</div><div class="reg-line" style="border-color:#F9C8DC;"></div></div>
+      <div class="reg-field"><div class="reg-label">Puntaje /9</div><div class="reg-line" style="border-color:#F9C8DC;"></div></div>
+      <div style="font-size:9px;color:#9B9590;">Hadrion · hadrion.netlify.app</div>
+    </div>
+  </div>`
+},
+
+"familia": {
+  titulo:"Guia de Estimulacion en Casa — Hadrion",
+  color:"#9B7EBD", colorLight:"#F5F0FA",
+  html:`
+  <div class="lamina">
+    <div class="lamina-header" style="background:#F5F0FA;">
+      <div><div class="lamina-title" style="color:#7B5EA7;">Guia de Estimulacion en Casa</div><div style="font-size:12px;color:#9B9590;">Para familias · Lenguaje · 2-6 anos</div></div>
+      <div class="lamina-brand">Hadrion 🧠</div>
+    </div>
+    <div style="background:#FDE8F0;border-radius:12px;padding:12px;margin:10px 0;">
+      <div style="font-weight:800;font-size:13px;color:#E8719C;margin-bottom:4px;">📌 Para la familia</div>
+      <div style="font-size:12px;color:#6B6560;line-height:1.6;">Estas actividades son para hacer en casa, en momentos del dia cotidiano. No son tareas, son juegos de lenguaje!</div>
+    </div>
+    ${[["🛁","Durante el bano","Nombrar cada parte del cuerpo mientras bañamos al nino. Preguntar: ¿donde esta la nariz? ¿y los pies?","#F5F0FA","#7B5EA7"],
+       ["🍳","En la cocina","Nombrar los ingredientes. Describir lo que hacemos: 'estoy cortando la zanahoria, es naranja y crujiente'","#E8F8EF","#27AE60"],
+       ["🚗","En el auto","Buscar objetos de un color, letras en carteles, contar semaforos. Cantar canciones juntos.","#EBF3FB","#5B8DB8"],
+       ["📚","Antes de dormir","Leer un cuento de 5 minutos. Preguntar: ¿que paso? ¿como termino? ¿que le gusto al personaje?","#FEF3E0","#E8A020"],
+       ["🌳","En el parque","Nombrar lo que ven: arboles, flores, pajaritos. Comparar: grande/chico, alto/bajo.","#FDE8F0","#E8719C"]].map(([e,t,d,bg,c])=>`
+    <div style="background:${bg};border-radius:12px;padding:12px;margin:8px 0;display:flex;gap:12px;align-items:flex-start;">
+      <div style="font-size:28px;flex-shrink:0;">${e}</div>
+      <div><div style="font-weight:800;font-size:13px;color:${c};margin-bottom:4px;">${t}</div><div style="font-size:12px;color:#6B6560;line-height:1.5;">${d}</div></div>
+    </div>`).join("")}
+    <div class="registro" style="border-color:#D4BCE8;margin-top:12px;">
+      <div class="reg-field"><div class="reg-label">Paciente</div><div class="reg-line" style="border-color:#D4BCE8;"></div></div>
+      <div class="reg-field"><div class="reg-label">Semana del</div><div class="reg-line" style="border-color:#D4BCE8;"></div></div>
+      <div style="font-size:9px;color:#9B9590;">Hadrion · comunipro12@gmail.com</div>
+    </div>
+  </div>`
+}
+
+};
+
+// ── Funciones ──
+function filtrar(cat, btn){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.sheet-card').forEach(c=>{
+    c.style.display=(cat==='all'||c.dataset.cat===cat)?'':'none';
+  });
+}
+
+function verPreview(id){
+  const l=LAMINAS[id];
+  if(!l)return;
+  document.getElementById('modal-title').textContent=l.titulo;
+  document.getElementById('modal-content').innerHTML=l.html;
+  document.getElementById('modal').classList.add('open');
+}
+
+function cerrarModal(){
+  document.getElementById('modal').classList.remove('open');
+}
+
+function imprimirLamina(id){
+  const l=LAMINAS[id];
+  if(!l)return;
+  document.getElementById('print-area').innerHTML=`<div class="print-page">${l.html}</div>`;
+  window.print();
+}
+
+document.getElementById('modal').addEventListener('click',function(e){
+  if(e.target===this)cerrarModal();
+});
+</script>
+</body>
+</html>
