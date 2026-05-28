@@ -1,3 +1,11 @@
+// ================================================
+// HADRION - Plataforma Terapeutica
+// © 2025 Adriana Soba. Todos los derechos reservados.
+// Desarrollado en Uruguay
+// comunipro12@gmail.com
+// Prohibida su reproduccion sin autorizacion expresa.
+// ================================================
+
 import { useState } from "react";
 
 const C = {
@@ -290,7 +298,7 @@ function Login({onLogin,users}){
           {err&&<div className="alert alrtd">{err}</div>}
           <button className="btn btnp btnfull" style={{borderRadius:12}} onClick={login}>→ Ingresar</button>
           <div style={{textAlign:"center",marginTop:12,fontSize:12,color:C.grayL}}>Olvidaste tu contrasena? <span style={{color:C.terra,cursor:"pointer",fontWeight:600}} onClick={()=>setForgot(true)}>Recuperar acceso</span></div>
-          <div style={{marginTop:18,background:C.terraF,borderRadius:12,padding:"10px 13px",fontSize:11,color:C.terra,textAlign:"center"}}>🧠 Tu consultorio digital, desde Uruguay para el mundo.</div>
+          <div style={{marginTop:18,background:'#F5F0FA',borderRadius:12,padding:"10px 13px",fontSize:11,color:C.terra,textAlign:"center"}}>🧠 Tu consultorio digital, desde Uruguay para el mundo.</div>
           <div style={{marginTop:12,background:C.cream,borderRadius:10,padding:"10px 12px"}}>
             <div style={{fontSize:10,color:C.grayL,fontWeight:700,marginBottom:5,textTransform:"uppercase"}}>Accesos de prueba</div>
             {[{e:"comunipro12@gmail.com",p:"admin123",r:"👑 Admin"},{e:"ana@clinica.cl",p:"123456",r:"Profesional"}].map(d=>(
@@ -1243,6 +1251,47 @@ function Profile({user,onLogout}){
   );
 }
 
+
+function Footer(){
+  return(
+    <div style={{textAlign:'center',padding:'16px 20px',fontSize:11,color:'#9B9590',borderTop:'1px solid #EDE0F5',marginTop:'auto'}}>
+      <div style={{fontWeight:700,color:'#7B5EA7',marginBottom:4}}>Hadrion - Plataforma Terapeutica</div>
+      <div>© 2025 Adriana Soba. Todos los derechos reservados.</div>
+      <div style={{marginTop:3}}>Desarrollado y disenado en Uruguay 🇺🇾</div>
+      <div style={{marginTop:3}}>Propiedad intelectual protegida.</div>
+      <div style={{marginTop:3}}>Prohibida su reproduccion total o parcial sin autorizacion expresa.</div>
+      <div style={{marginTop:6,fontSize:10}}>
+        <span style={{cursor:'pointer',color:'#9B7EBD'}} onClick={()=>alert('Terminos de Uso
+
+Hadrion es una plataforma de gestion clinica desarrollada por Adriana Soba (Uruguay).
+
+Queda prohibido:
+- Copiar o reproducir el software
+- Redistribuir sin autorizacion
+- Usar con fines comerciales sin licencia
+
+Contacto: comunipro12@gmail.com')}>Terminos de uso</span>
+        {' | '}
+        <span style={{cursor:'pointer',color:'#9B7EBD'}} onClick={()=>alert('Politica de Privacidad
+
+Hadrion protege los datos de profesionales y pacientes.
+
+No compartimos informacion con terceros.
+Los datos son confidenciales y seguros.
+
+Contacto: comunipro12@gmail.com')}>Privacidad</span>
+        {' | '}
+        <span style={{cursor:'pointer',color:'#9B7EBD'}} onClick={()=>alert('Contacto
+
+Hadrion - Plataforma Terapeutica
+Adriana Soba
+comunipro12@gmail.com
+Uruguay 🇺🇾')}>Contacto</span>
+      </div>
+    </div>
+  );
+}
+
 export default function HadrionApp(){
   const [users,setUsers]=useState(INIT_USERS);
   const [user,setUser]=useState(null);
@@ -1300,6 +1349,7 @@ export default function HadrionApp(){
             </div>
           </div>
           <div className="pbody">{pages[active]||pages.dashboard}</div>
+          <Footer/>
         </div>
         <nav className="bnav noprint">
           {bnItems.map(n=><button key={n.id} className={`bn${active===n.id?" active":""}`} onClick={()=>setActive(n.id)}><span className="bnicon">{n.i}</span>{n.l}</button>)}
