@@ -15,7 +15,7 @@ const C = {
 const FONTS=`@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');`;
 
 const INIT_USERS=[
-  {id:1,name:"Jacqueline Marquez",email:"comunipro12@gmail.com",password:"admin123",role:"admin",specialty:"Fonoaudiologa",plan:"Pro",status:"active",createdAt:"01/01/2025",avatar:"JM",color:C.terra,lastLogin:"Hoy 08:30"},
+  {id:1,name:"Adriana Soba",email:"comunipro12@gmail.com",password:"admin123",role:"admin",specialty:"Fonoaudiologa",plan:"Pro",status:"active",createdAt:"01/01/2025",avatar:"AS",color:C.terra,lastLogin:"Hoy 08:30"},
   {id:2,name:"Ana Garcia",email:"ana@clinica.cl",password:"123456",role:"profesional",specialty:"Psicopedagoga",plan:"Basico",status:"active",createdAt:"15/03/2025",avatar:"AG",color:C.sage,lastLogin:"Ayer 16:00"},
   {id:3,name:"Carlos Ruiz",email:"carlos@terapia.cl",password:"123456",role:"profesional",specialty:"Fonoaudiologo",plan:"Pro",status:"pending",createdAt:"20/05/2025",avatar:"CR",color:C.purple,lastLogin:"—"},
   {id:4,name:"Sofia Pinto",email:"sofia@neuro.cl",password:"123456",role:"profesional",specialty:"T.O.",plan:"Basico",status:"inactive",createdAt:"10/04/2025",avatar:"SP",color:C.info,lastLogin:"12/05/2025"},
@@ -726,7 +726,7 @@ function History({patients,sessions,selectedPatientId}){
                 </div>
                 <div className="scb">
                   <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:12}}>
-                    {[["Paciente",patient.name],["Edad",`${patient.age} anos`],["Diagnostico",patient.diagnosis],["Sesiones",patient.sessions],["Profesional","Jacqueline Marquez"],["Especialidad","Fonoaudiologia"]].map(([l,v])=>(
+                    {[["Paciente",patient.name],["Edad",`${patient.age} anos`],["Diagnostico",patient.diagnosis],["Sesiones",patient.sessions],["Profesional","Adriana Soba"],["Especialidad","Fonoaudiologia"]].map(([l,v])=>(
                       <div key={l} className="hxf"><div className="hxl">{l}</div><div className="hxv">{v}</div></div>
                     ))}
                   </div>
