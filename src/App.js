@@ -1,12 +1,12 @@
 // ================================================
 // HADRION - Plataforma Terapeutica
-// © 2025 Adriana Soba. Todos los derechos reservados.
+// (c) 2025 Adriana Soba. Todos los derechos reservados.
 // Desarrollado en Uruguay
 // comunipro12@gmail.com
 // Prohibida su reproduccion sin autorizacion expresa.
 // ================================================
 
-import { useState } from "react";
+import React, { useState } from "react";
 
 const C = {
   terra:"#9B7EBD",terraL:"#D4BCE8",terraD:"#7B5EA7",terraF:"#F5F0FA",
@@ -75,18 +75,18 @@ const ACTIVITIES_DB=[
    description:"Trabajar conciencia fonologica a traves de rimas y trabalenguas con apoyo visual.",
    materials:"Tarjetas ilustradas con imagenes rimadas, espejo",
    niveles:{
-     facil:{titulo:"Rimas simples",instrucciones:"Mostrar dos imagenes (sol/caracol). Preguntar: ¿riman estas palabras? El nino responde SI o NO con gesto o voz.",ejemplos:["sol - caracol","mesa - fresa","pato - zapato"],apoyo:"Apoyo visual total, modelado del adulto"},
+     facil:{titulo:"Rimas simples",instrucciones:"Mostrar dos imagenes (sol/caracol). Preguntar: riman estas palabras? El nino responde SI o NO con gesto o voz.",ejemplos:["sol - caracol","mesa - fresa","pato - zapato"],apoyo:"Apoyo visual total, modelado del adulto"},
      medio:{titulo:"Completar la rima",instrucciones:"Decir el inicio de una rima y pedir que el nino complete: 'En el jardin hay una flor, y tambien hay un...' (color)",ejemplos:["La luna llena / se asoma a la (arena)","El gato gordo / se sento en el (borde)"],apoyo:"Dar 2 opciones para elegir"},
      dificil:{titulo:"Crear rimas propias",instrucciones:"El nino debe crear una oracion que rime con la que dice el adulto. Se puede usar un dado de imagenes.",ejemplos:["Adulto: El nino corre / Nino: y el perro sorre","Crear una rima sobre el clima, animales, colores"],apoyo:"Sin apoyo, produccion espontanea"}
    },printable:true},
 
   {id:2,name:"Secuencias narrativas",category:"Lenguaje",target:"TEL",type:"Clinica",age:"4-9",ageGroup:"Preescolar/Escolar",
    description:"Ordenar y narrar historias con imagenes secuenciadas para trabajar cohesion y coherencia.",
-   materials:"Laminas de 3-6 viñetas impresas, velcro o sobres",
+   materials:"Laminas de 3-6 vinetas impresas, velcro o sobres",
    niveles:{
-     facil:{titulo:"Secuencia de 2 imagenes",instrucciones:"Presentar 2 viñetas desordenadas. El nino las ordena y describe que pasa en cada una con una palabra o frase simple.",ejemplos:["Nino triste → nino comiendo → nino sonriendo","Manzana en arbol → caida → comida"],apoyo:"Modelado previo del adulto, lenguaje gestual aceptado"},
-     medio:{titulo:"Secuencia de 4 imagenes",instrucciones:"Ordenar 4 viñetas y narrar la historia con oraciones completas. Se puede usar el modelo: Primero... Despues... Luego... Al final...",ejemplos:["Historia del cumpleanos: preparacion, fiesta, torta, regalo","Historia de la mañana: despertar, bañarse, desayunar, ir al colegio"],apoyo:"Claves de inicio de oracion impresas"},
-     dificil:{titulo:"Cuento libre con 6 viñetas",instrucciones:"Ordenar 6 viñetas e inventar el cuento completo con inicio, problema y solucion. Incluir personajes con nombre.",ejemplos:["Historia del dinosaurio perdido","Aventura en el bosque con animales"],apoyo:"Sin apoyo, grabacion del relato para retroalimentacion"}
+     facil:{titulo:"Secuencia de 2 imagenes",instrucciones:"Presentar 2 vinetas desordenadas. El nino las ordena y describe que pasa en cada una con una palabra o frase simple.",ejemplos:["Nino triste → nino comiendo → nino sonriendo","Manzana en arbol → caida → comida"],apoyo:"Modelado previo del adulto, lenguaje gestual aceptado"},
+     medio:{titulo:"Secuencia de 4 imagenes",instrucciones:"Ordenar 4 vinetas y narrar la historia con oraciones completas. Se puede usar el modelo: Primero... Despues... Luego... Al final...",ejemplos:["Historia del cumpleanos: preparacion, fiesta, torta, regalo","Historia de la manana: despertar, banarse, desayunar, ir al colegio"],apoyo:"Claves de inicio de oracion impresas"},
+     dificil:{titulo:"Cuento libre con 6 vinetas",instrucciones:"Ordenar 6 vinetas e inventar el cuento completo con inicio, problema y solucion. Incluir personajes con nombre.",ejemplos:["Historia del dinosaurio perdido","Aventura en el bosque con animales"],apoyo:"Sin apoyo, grabacion del relato para retroalimentacion"}
    },printable:true},
 
   {id:3,name:"Vocabulario por categorias",category:"Lenguaje",target:"TEL",type:"Clinica",age:"3-8",ageGroup:"Preescolar/Escolar",
@@ -108,20 +108,20 @@ const ACTIVITIES_DB=[
    },printable:true},
 
   // ─── LECTOESCRITURA / DISLEXIA ───
-  {id:5,name:"Conciencia sílabica",category:"Lectoescritura",target:"Dislexia",type:"Clinica",age:"5-8",ageGroup:"Preescolar/Escolar",
+  {id:5,name:"Conciencia silabica",category:"Lectoescritura",target:"Dislexia",type:"Clinica",age:"5-8",ageGroup:"Preescolar/Escolar",
    description:"Trabajar segmentacion, identificacion y manipulacion silabica con apoyo visual y cinestetico.",
    materials:"Fichas de colores, palmadas, tablero de silabas",
    niveles:{
-     facil:{titulo:"Contar silabas con palmadas",instrucciones:"El adulto dice una palabra y el nino da una palmada por silaba. Comenzar con palabras bisílabas de uso frecuente.",ejemplos:["ca-sa (2 palmadas)","me-sa (2 palmadas)","za-pa-to (3 palmadas)"],apoyo:"Adulto modela primero, uso de tablero con casillas"},
-     medio:{titulo:"Identificar silaba inicial y final",instrucciones:"El nino identifica con que silaba empieza o termina la palabra. Se puede usar ruleta o cartas.",ejemplos:["¿Con que silaba empieza PALOMA? PA","¿Con que silaba termina CORAZON? ON","Agrupar imagenes segun silaba inicial"],apoyo:"Marcador visual para inicio y fin de palabra"},
-     dificil:{titulo:"Sustitucion silabica",instrucciones:"Cambiar una silaba de la palabra por otra y decir la nueva palabra: 'MESA si cambio ME por PI... PISA'.",ejemplos:["PATO sin PA = TO; con FU = FUTO","CAMION cambia CA por CA = CAMION, por MA = MAMION","Crear palabras nuevas sustituyendo silabas"],apoyo:"Sin apoyo, nivel metalingüistico"}
+     facil:{titulo:"Contar silabas con palmadas",instrucciones:"El adulto dice una palabra y el nino da una palmada por silaba. Comenzar con palabras bisilabas de uso frecuente.",ejemplos:["ca-sa (2 palmadas)","me-sa (2 palmadas)","za-pa-to (3 palmadas)"],apoyo:"Adulto modela primero, uso de tablero con casillas"},
+     medio:{titulo:"Identificar silaba inicial y final",instrucciones:"El nino identifica con que silaba empieza o termina la palabra. Se puede usar ruleta o cartas.",ejemplos:["Con que silaba empieza PALOMA? PA","Con que silaba termina CORAZON? ON","Agrupar imagenes segun silaba inicial"],apoyo:"Marcador visual para inicio y fin de palabra"},
+     dificil:{titulo:"Sustitucion silabica",instrucciones:"Cambiar una silaba de la palabra por otra y decir la nueva palabra: 'MESA si cambio ME por PI... PISA'.",ejemplos:["PATO sin PA = TO; con FU = FUTO","CAMION cambia CA por CA = CAMION, por MA = MAMION","Crear palabras nuevas sustituyendo silabas"],apoyo:"Sin apoyo, nivel metalinguistico"}
    },printable:true},
 
   {id:6,name:"Discriminacion b/d/p/q",category:"Lectoescritura",target:"Dislexia",type:"Clinica",age:"6-10",ageGroup:"Escolar",
    description:"Trabajar la confusion de letras de espejo b/d/p/q con estrategias multisensoriales.",
    materials:"Tarjetas de letras, cama de arena, letras de lija, espejo",
    niveles:{
-     facil:{titulo:"Reconocimiento visual con clave",instrucciones:"Usar el truco del 'cama': b tiene la panza a la derecha (b), d tiene la panza a la izquierda (d). Practicar solo con b y d.",ejemplos:["Trazar b en arena con el dedo","Tocar letra de lija y decir su nombre","Clasificar tarjetas: ¿es b o d?"],apoyo:"Clave visual permanente en el escritorio"},
+     facil:{titulo:"Reconocimiento visual con clave",instrucciones:"Usar el truco del 'cama': b tiene la panza a la derecha (b), d tiene la panza a la izquierda (d). Practicar solo con b y d.",ejemplos:["Trazar b en arena con el dedo","Tocar letra de lija y decir su nombre","Clasificar tarjetas: es b o d?"],apoyo:"Clave visual permanente en el escritorio"},
      medio:{titulo:"Lectura en contexto",instrucciones:"Leer oraciones cortas con muchas b y d. Subrayar con colores distintos: b en azul, d en verde.",ejemplos:["El dado rojo rueda debajo de la cama","La ballena bebe bastante agua del mar","Discriminar en texto impreso"],apoyo:"Texto con fuente grande, regleta lectora"},
      dificil:{titulo:"Escritura diferenciada",instrucciones:"Escribir palabras y oraciones al dictado que incluyan b, d, p, q. Sin apoyo visual de claves.",ejemplos:["Dictado de palabras: barco, dedo, puente, queso","Dictado de oracion: El perro de Pedro bebio agua","Autocorreccion del propio texto"],apoyo:"Autocorreccion con lista de cotejo"}
    },printable:true},
@@ -130,7 +130,7 @@ const ACTIVITIES_DB=[
    description:"Mejorar velocidad y fluidez lectora con textos graduados y cronometro.",
    materials:"Textos graduados impresos, cronometro, grafico de progreso",
    niveles:{
-     facil:{titulo:"Lectura de silabas y palabras",instrucciones:"Leer listas de silabas (ba, de, pi, co) y palabras monosilabas y bisílabas en 1 minuto. Contar correctas.",ejemplos:["Lista: ma, pe, si, ro, tu, ba, de... (30 silabas)","Lista de palabras: sol, mar, pie, dos, ven, luz...","Graficar cuantas leyo correctamente"],apoyo:"Senalar con dedo o lapiz cada silaba"},
+     facil:{titulo:"Lectura de silabas y palabras",instrucciones:"Leer listas de silabas (ba, de, pi, co) y palabras monosilabas y bisilabas en 1 minuto. Contar correctas.",ejemplos:["Lista: ma, pe, si, ro, tu, ba, de... (30 silabas)","Lista de palabras: sol, mar, pie, dos, ven, luz...","Graficar cuantas leyo correctamente"],apoyo:"Senalar con dedo o lapiz cada silaba"},
      medio:{titulo:"Lectura de oraciones",instrucciones:"Leer oraciones de 5-8 palabras en voz alta. Medir palabras por minuto. Meta: 60 ppm.",ejemplos:["El nino come una manzana roja","La pelota rueda por el piso del patio","Texto de 100 palabras con cronometro"],apoyo:"Regleta lectora, marcador de linea"},
      dificil:{titulo:"Lectura expresiva de parrafo",instrucciones:"Leer parrafos completos respetando puntuacion y entonacion. Meta: 90-100 ppm con comprension.",ejemplos:["Cuento de 200 palabras con preguntas de comprension","Noticia infantil con vocabulario nuevo","Lectura en voz alta para otro paciente o familiar"],apoyo:"Grabacion para autoevaluacion"}
    },printable:true},
@@ -140,8 +140,8 @@ const ACTIVITIES_DB=[
    description:"Sistema visual de autorregulacion emocional y conductual basado en los colores del semaforo.",
    materials:"Lamina de semaforo grande, tarjetas de emociones, ficha personal",
    niveles:{
-     facil:{titulo:"Identificacion de estados",instrucciones:"Mostrar la lamina del semaforo. Explicar: ROJO=parar/enojado, AMARILLO=pensar/nervioso, VERDE=ok/tranquilo. El nino ubica una figura donde esta hoy.",ejemplos:["¿De que color estas ahora?","Mostrar cara y ubicar en el semaforo","Juego: el adulto actua una emocion y el nino la ubica"],apoyo:"Figuras con caras expresivas, semaforo grande en pared"},
-     medio:{titulo:"Estrategias por color",instrucciones:"Para cada color, practicar estrategias: ROJO=respirar 3 veces, AMARILLO=contar hasta 5, VERDE=continuar. Role play de situaciones.",ejemplos:["Situacion: 'No quiero compartir el juguete' → ¿que color? → que hago?","Practicar respiracion de tortuga (inhalar lento, exhalar lento)","Crear tarjetas de estrategias personales"],apoyo:"Tarjetas de estrategias plastificadas"},
+     facil:{titulo:"Identificacion de estados",instrucciones:"Mostrar la lamina del semaforo. Explicar: ROJO=parar/enojado, AMARILLO=pensar/nervioso, VERDE=ok/tranquilo. El nino ubica una figura donde esta hoy.",ejemplos:["De que color estas ahora?","Mostrar cara y ubicar en el semaforo","Juego: el adulto actua una emocion y el nino la ubica"],apoyo:"Figuras con caras expresivas, semaforo grande en pared"},
+     medio:{titulo:"Estrategias por color",instrucciones:"Para cada color, practicar estrategias: ROJO=respirar 3 veces, AMARILLO=contar hasta 5, VERDE=continuar. Role play de situaciones.",ejemplos:["Situacion: 'No quiero compartir el juguete' → que color? → que hago?","Practicar respiracion de tortuga (inhalar lento, exhalar lento)","Crear tarjetas de estrategias personales"],apoyo:"Tarjetas de estrategias plastificadas"},
      dificil:{titulo:"Uso autonomo y transferencia",instrucciones:"El nino usa el semaforo de forma independiente en sesion y reporta como lo uso en casa o colegio.",ejemplos:["Diario emocional: colorear el semaforo al inicio y fin de sesion","Contar una situacion real donde uso la estrategia","Ensenarselo a un familiar o companero"],apoyo:"App o tarjeta de bolsillo para uso externo"}
    },printable:true},
 
@@ -150,8 +150,8 @@ const ACTIVITIES_DB=[
    materials:"Laminas de busqueda visual, tablero de puntos, cronometro",
    niveles:{
      facil:{titulo:"Buscar y marcar (2 min)",instrucciones:"Presentar una lamina con figuras. El nino debe marcar solo las que se le indica (ej. todos los circulos) en 2 minutos.",ejemplos:["Marcar todos los gatos en una lamina con 10 animales","Tachar la letra A en un renglon de letras","Buscar objetos de color rojo en una imagen"],apoyo:"Lamina simple, pocas distractores, tiempo generoso"},
-     medio:{titulo:"Atencion dividida (5 min)",instrucciones:"Tarea con dos variables: marcar circulos grandes Y tachar cuadrados pequeños al mismo tiempo. Aumentar tiempo a 5 min.",ejemplos:["Marcar numeros pares Y rodear los impares","Buscar la figura modelo entre 20 opciones similares","Laberinto con dos caminos a seguir"],apoyo:"Pausas permitidas, retroalimentacion inmediata"},
-     dificil:{titulo:"Atencion con distraccion (8 min)",instrucciones:"Realizar tarea de atencion sostenida mientras hay ruido de fondo o estimulos visuales adicionales. 8 minutos.",ejemplos:["Completar serie numerica con musica de fondo","Resolver sopa de letras con elementos moviéndose en el margen","Seguir instrucciones verbales mientras observa imagenes"],apoyo:"Autorregistro de errores y tiempo completado"}
+     medio:{titulo:"Atencion dividida (5 min)",instrucciones:"Tarea con dos variables: marcar circulos grandes Y tachar cuadrados pequenos al mismo tiempo. Aumentar tiempo a 5 min.",ejemplos:["Marcar numeros pares Y rodear los impares","Buscar la figura modelo entre 20 opciones similares","Laberinto con dos caminos a seguir"],apoyo:"Pausas permitidas, retroalimentacion inmediata"},
+     dificil:{titulo:"Atencion con distraccion (8 min)",instrucciones:"Realizar tarea de atencion sostenida mientras hay ruido de fondo o estimulos visuales adicionales. 8 minutos.",ejemplos:["Completar serie numerica con musica de fondo","Resolver sopa de letras con elementos moviendose en el margen","Seguir instrucciones verbales mientras observa imagenes"],apoyo:"Autorregistro de errores y tiempo completado"}
    },printable:true},
 
   // ─── ARTICULACION / DISARTRIA ───
@@ -174,39 +174,39 @@ const ACTIVITIES_DB=[
      dificil:{titulo:"Lectura independiente con registro",instrucciones:"El nino lee 10 minutos solo y luego le cuenta al adulto de que se trato. El adulto completa una ficha de seguimiento.",ejemplos:["Saga de libros de interes del nino","Registro: fecha, libro, paginas, resumen en 2 oraciones","Presentar el libro a alguien de la familia"],apoyo:"Ficha simple de registro semanal"}
    },printable:true},
 
-  {id:12,name:"Estimulacion lingüistica cotidiana",category:"Lenguaje",target:"TEL",type:"Familia",age:"2-6",ageGroup:"Preescolar",
+  {id:12,name:"Estimulacion linguistica cotidiana",category:"Lenguaje",target:"TEL",type:"Familia",age:"2-6",ageGroup:"Preescolar",
    description:"Estrategias para que la familia estimule el lenguaje durante las rutinas diarias del hogar.",
    materials:"Guia para familia impresa, imagenes de las rutinas",
    niveles:{
      facil:{titulo:"Expansion y modelado",instrucciones:"Cuando el nino dice algo, el adulto lo repite correctamente y agrega una palabra mas. No corregir directamente, modelar.",ejemplos:["Nino: 'agua' → Adulto: 'quieres agua', 'el agua fria'","Nino: 'nene caio' → Adulto: 'si, el nene se cayo'","Durante el bano: nombrar cada parte del cuerpo"],apoyo:"Tarjeta de recordatorio pegada en la nevera"},
-     medio:{titulo:"Comentar y preguntar",instrucciones:"Durante actividades diarias, el adulto comenta lo que hace y hace preguntas abiertas: ¿que ves? ¿que piensas? ¿que paso?",ejemplos:["En el supermercado: 'mira, hay manzanas rojas y verdes ¿cuales quieres?'","Mirando un libro: 'mira el perro, ¿que crees que va a hacer?'","Jugando: 'y ahora que le pasa al muñeco?'"],apoyo:"Lista de frases estimulantes para cada rutina"},
-     dificil:{titulo:"Narrar y anticipar",instrucciones:"Contar al nino lo que va a pasar antes de hacerlo, y despues pedirle que lo cuente el. Usar vocabulario nuevo intencionalmente.",ejemplos:["Antes de salir: 'vamos a ir al parque, vamos a... ¿que crees que vamos a hacer?'","Al volver: 'contale a papa lo que hicimos hoy'","Introducir 2 palabras nuevas por semana en contexto natural"],apoyo:"Vocabulario semanal sugerido por el profesional"}
+     medio:{titulo:"Comentar y preguntar",instrucciones:"Durante actividades diarias, el adulto comenta lo que hace y hace preguntas abiertas: que ves? que piensas? que paso?",ejemplos:["En el supermercado: 'mira, hay manzanas rojas y verdes cuales quieres?'","Mirando un libro: 'mira el perro, que crees que va a hacer?'","Jugando: 'y ahora que le pasa al muneco?'"],apoyo:"Lista de frases estimulantes para cada rutina"},
+     dificil:{titulo:"Narrar y anticipar",instrucciones:"Contar al nino lo que va a pasar antes de hacerlo, y despues pedirle que lo cuente el. Usar vocabulario nuevo intencionalmente.",ejemplos:["Antes de salir: 'vamos a ir al parque, vamos a... que crees que vamos a hacer?'","Al volver: 'contale a papa lo que hicimos hoy'","Introducir 2 palabras nuevas por semana en contexto natural"],apoyo:"Vocabulario semanal sugerido por el profesional"}
    },printable:true},
 ];
 
 const PHONEME_WORDS={
-  "A":["AVION","ARBOL","AVESTRUZ","ARAÑA","ABEJA","AGUILA","ANCLA","ARCO","ARDILLA","ALCE"],
+  "A":["AVION","ARBOL","AVESTRUZ","ARANA","ABEJA","AGUILA","ANCLA","ARCO","ARDILLA","ALCE"],
   "E":["ELEFANTE","ESTRELLA","ESCALERA","ESPEJO","ESCOBA","ENANO","ESCUDO","ESPONJA","EDIFICIO","ESPIRAL"],
-  "I":["IGLESIA","IGUANA","ISLA","IMÁN","INSECTO","INDIO","INSTRUMENTO"],
+  "I":["IGLESIA","IGUANA","ISLA","IMAN","INSECTO","INDIO","INSTRUMENTO"],
   "O":["OSO","OVEJA","OJO","OLLA","ORUGA","OCEAN","ORCA","OBRA","OFICINA"],
-  "U":["UVA","UNIFORME","UNICORNIO","UÑAS","URNA","UTENSILIO"],
+  "U":["UVA","UNIFORME","UNICORNIO","UNAS","URNA","UTENSILIO"],
   "B":["BOCA","BARCO","BICICLETA","BALLENA","BOTA","BURRO","BOLSA","BRUJA","BROCHA","BOMBA"],
   "C":["CASA","CAMA","CONEJO","COCINA","CAMION","CARRO","COPA","CORBATA","CABALLO","COHETE"],
   "CH":["CHOCOLATE","CHUPETE","CHANCHO","CHALECO","CHORREAR","CHICLE","CHISPA","CHINCHILLA"],
-  "D":["DEDO","DADO","DINOSAURIO","DUENDE","DALMATÁN","DINERO","DISCO","DRAGON","DULCE","DIENTE"],
+  "D":["DEDO","DADO","DINOSAURIO","DUENDE","DALMATAN","DINERO","DISCO","DRAGON","DULCE","DIENTE"],
   "F":["FOCA","FRESA","FLOR","FUEGO","FAMILIA","FIGURA","FLAUTA","FRAMBUESA","FRUTA","FOTOGRAFIA"],
   "G":["GATO","GLOBO","GALLETA","GORILA","GUITAR","GIRASOL","GUSANO","GRANJA","GRANIZO","GUITARRA"],
   "J":["JIRAFA","JUGO","JARDIN","JUGUETE","JABON","JITOMATE","JERSEY","JABALI"],
   "L":["LUNA","LAPIZ","LECHE","LIBRO","LORO","LAGARTO","LINTERNA","LIMON","LANGOSTA","LOBOS"],
   "LL":["LLAVE","LLANTA","LLUVIA","LLAMA","LLORAR","LLEGAR","LLENAR"],
   "M":["MARIPOSA","MESA","MANZANA","MONO","MOLINO","MOCHILA","MEDUSA","MARTILLO","MUSEO","MAGO"],
-  "N":["NUBE","NARANJA","NARIZ","NIEVE","NIDO","NENA","ÑOÑO","NUMERO","NUEZ","NOGAL"],
-  "Ñ":["ÑANDU","ÑATO","ÑOÑO","PIÑA","UÑAS","ARAÑA","MUÑECA","CUÑADO","SUEÑO","OTOÑO"],
-  "P":["PATO","PELOTA","PERRO","PIANO","PUERTA","PÁJARO","PALOMA","PINTURA","PULPO","PIZZA"],
-  "R":["RATÓN","ROBOT","ROSA","REGLA","RELOJ","RUEDA","ROCA","RADIO","RANA","ROPA"],
+  "N":["NUBE","NARANJA","NARIZ","NIEVE","NIDO","NENA","NONO","NUMERO","NUEZ","NOGAL"],
+  "N":["NANDU","NATO","NONO","PINA","UNAS","ARANA","MUNECA","CUNADO","SUENO","OTONO"],
+  "P":["PATO","PELOTA","PERRO","PIANO","PUERTA","PAJARO","PALOMA","PINTURA","PULPO","PIZZA"],
+  "R":["RATON","ROBOT","ROSA","REGLA","RELOJ","RUEDA","ROCA","RADIO","RANA","ROPA"],
   "RR":["CARRO","PERRO","TIERRA","PIZARRA","BURRO","CERRO","HIERRO","TORRE","GORRA","SIERRA"],
   "S":["SOL","SILLA","SAPATO","SOPA","SAPO","SEMILLA","SERPIENTE","SANDALIA","SOMBRILLA","SUBMARINO"],
-  "T":["TIJERAS","TREN","TORTUGA","TIGRE","TOMATE","TELÉFONO","TEATRO","TABLERO","TAMBOR","TELEVISIÓN"],
+  "T":["TIJERAS","TREN","TORTUGA","TIGRE","TOMATE","TELEFONO","TEATRO","TABLERO","TAMBOR","TELEVISION"],
   "V":["VACA","VIOLIN","VENTANA","VESTIDO","VOLCAN","VAPOR","VASIJA","VELERO","VERDURA","VIKINGO"],
   "Y":["YOYO","YOGUR","YATE","YERBA","YEGUA"],
   "Z":["ZAPATO","ZORRO","ZANAHORIA","ZEBRA","ZUMO","ZIPPER","ZEPPELIN"],
@@ -379,7 +379,7 @@ function Sidebar({active,setActive,user}){
   return(
     <div className="sidebar">
       <div className="slogo">
-        <div className="slogoicon">N</div>
+        <div className="slogoicon">H</div>
         <div><div className="slogoname">Hadrion</div><div className="slogosub">Plataforma Clinica</div></div>
       </div>
       {NAV.filter(n=>!n.adminOnly||(n.adminOnly&&user?.role==="admin")).map(n=>(
@@ -423,10 +423,10 @@ function Login({onLogin,users,onRegisterRequest}){
     setRegSent(true);
   };
   return(
-    <div style={{minHeight:"100vh",background:`linear-gradient(135deg,${C.terraF} 0%,${C.cream} 55%,${C.sageF} 100%)`,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+    <div style={{minHeight:"100vh",background:"linear-gradient(135deg,#FDF0E8 0%,#FAF8F5 55%,#EBF5EE 100%)",display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
       <div style={{background:"white",borderRadius:24,padding:"36px 26px",width:"100%",maxWidth:400,boxShadow:"0 8px 40px rgba(0,0,0,.12)"}}>
         <div style={{textAlign:"center",marginBottom:26}}>
-          <div style={{width:62,height:62,background:C.terra,borderRadius:18,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 13px",fontFamily:"'Cormorant Garamond',serif",fontSize:30,fontWeight:700,color:"white"}}>N</div>
+          <div style={{width:62,height:62,background:C.terra,borderRadius:18,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 13px",fontFamily:"'Cormorant Garamond',serif",fontSize:30,fontWeight:700,color:"white"}}>H</div>
           <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:28,fontWeight:700,color:C.charcoal}}>Hadrion</div>
           <div style={{fontSize:13,color:C.grayL,marginTop:3}}>Plataforma terapeutica - Uruguay</div>
         </div>
@@ -447,7 +447,7 @@ function Login({onLogin,users,onRegisterRequest}){
             <span style={{fontSize:12,color:C.grayL}}>No tenes cuenta? </span>
             <span style={{fontSize:12,color:C.terra,cursor:"pointer",fontWeight:700}} onClick={()=>setRegister(true)}>Solicitar acceso gratis →</span>
           </div>
-        </> : null}
+        </>}
         {forgot&&<>
           <div style={{fontSize:17,fontWeight:700,color:C.charcoal,marginBottom:6}}>Recuperar acceso</div>
           <div style={{fontSize:13,color:C.grayL,marginBottom:14}}>Ingresa tu email y te enviaremos un enlace de recuperacion.</div>
@@ -473,7 +473,7 @@ function Login({onLogin,users,onRegisterRequest}){
               {err&&<div className="alert alrtd">{err}</div>}
               <button className="btn btnp btnfull" onClick={sendRegister}>🚀 Enviar solicitud</button>
               <button className="btn btng btnfull" onClick={()=>{setRegister(false);setErr("");}}>Cancelar</button>
-              <div style={{fontSize:10,color:C.grayL,marginTop:10,textAlign:"center"}}>© 2025 Adriana Soba · comunipro12@gmail.com · Uruguay 🇺🇾</div>
+              <div style={{fontSize:10,color:C.grayL,marginTop:10,textAlign:"center"}}>(c) 2025 Adriana Soba - comunipro12@gmail.com - Uruguay 🇺🇾</div>
             </div>
           </div>
         )}
@@ -485,7 +485,7 @@ function Login({onLogin,users,onRegisterRequest}){
               <div style={{fontSize:14,color:C.grayL,lineHeight:1.6,marginBottom:20}}>Gracias por tu interes en Hadrion. Te contactamos a <strong>{regF.email}</strong> en menos de 24 horas con tu acceso de prueba.</div>
               <div style={{background:"#F5F0FA",borderRadius:12,padding:"14px",marginBottom:16}}>
                 <div style={{fontSize:16,color:C.terra,fontWeight:700,marginBottom:4}}>14 dias gratis</div>
-                <div style={{fontSize:12,color:C.grayL}}>Sin tarjeta de credito · Sin compromiso</div>
+                <div style={{fontSize:12,color:C.grayL}}>Sin tarjeta de credito - Sin compromiso</div>
               </div>
               <button className="btn btnp btnfull" onClick={()=>{setRegSent(false);setRegister(false);}}>← Volver al inicio</button>
             </div>
@@ -1067,7 +1067,7 @@ function Activities(){
               {a.printable&&<span style={{fontSize:10,color:C.info}}>🖨️</span>}
             </div>
             <div style={{fontWeight:700,fontSize:12,color:C.charcoal,marginBottom:3}}>{a.name}</div>
-            <div style={{fontSize:10,color:C.grayL,marginBottom:4}}>{a.category} - {a.target} - {a.age} años</div>
+            <div style={{fontSize:10,color:C.grayL,marginBottom:4}}>{a.category} - {a.target} - {a.age} anos</div>
             <div style={{display:"flex",gap:3}}>
               {["facil","medio","dificil"].map(n=>(
                 <span key={n} style={{fontSize:9,padding:"1px 6px",borderRadius:10,background:nivelC[n].bg,color:nivelC[n].c,fontWeight:600}}>{n}</span>
@@ -1082,7 +1082,7 @@ function Activities(){
           <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
             <span className="badge" style={{background:tC[sel.type]?.bg,color:tC[sel.type]?.c}}>{sel.type}</span>
             <span className="badge" style={{background:C.terraF,color:C.terra}}>{sel.target}</span>
-            <span className="badge" style={{background:C.sand,color:C.gray}}>{sel.age} años</span>
+            <span className="badge" style={{background:C.sand,color:C.gray}}>{sel.age} anos</span>
             <span className="badge" style={{background:C.infoF,color:C.info}}>{sel.ageGroup}</span>
           </div>
           <div className="hxf"><div className="hxl">📝 Descripcion general</div><div className="hxv">{sel.description}</div></div>
@@ -1120,16 +1120,31 @@ function Activities(){
 }
 
 const PHONEME_EMOJI={
-  "A":"✈️🌳🕷️🐝🦅⚓🌈🦌","E":"🐘⭐🪜🪞🧹","I":"⛪🦎🏝️🧲🪲",
-  "O":"🐻🐑👁️🍳","U":"🍇👔🦄💅","B":"👄⛵🚲🐋👢🎸",
-  "C":"🏠🛏️🐰🍳🚗🏆🐴🚀","CH":"🍫👶🐷🧥","D":"👆🎲🦕",
-  "F":"🦭🍓🌸🔥👨‍👩‍👦🎵","G":"🐱🎈🍪🦍🎸🌻🐛🌾",
-  "J":"🦒🧃🌺🧼","L":"🌙✏️🥛📖🦜🦎🍋🦞",
-  "LL":"🔑🛞🌧️🔥","M":"🦋🪑🍎🐒⚙️🎒🪼🔨",
-  "N":"☁️🍊👃❄️🪹","Ñ":"🦢🐃💅🍍","P":"🦆⚽🐕🎹🚪🦜🐙🍕",
-  "R":"🐭🤖🌹📏⏰🎡🪨📻🐸","RR":"🚗🐕🌍🏫🫏🗼",
-  "S":"☀️🪑👟🍜🐸🌱🐍👡🌂🤿","T":"✂️🚂🐢🐯🍅📞🎭🥁📺",
-  "V":"🐄🎻🪟👗🌋","Y":"🪀🍦⛵🌿","Z":"👟🦊🥕🦓🥤",
+  "A":["avion","arbol","arana","abeja","aguila"],
+  "E":["elefante","estrella","escalera","espejo","escoba"],
+  "I":["isla","iguana","igle sia","iman"],
+  "O":["oso","oveja","olla","oruga"],
+  "U":["uva","uniforme","unicornio"],
+  "B":["barco","bicicleta","ballena","bota"],
+  "C":["casa","cama","conejo","carro"],
+  "CH":["chocolate","chancho","chaleco"],
+  "D":["dedo","dado","dinosaurio"],
+  "F":["foca","fresa","flor","fuego"],
+  "G":["gato","globo","galleta","gorila"],
+  "J":["jirafa","jardin","jabon"],
+  "L":["luna","lapiz","leche","libro"],
+  "LL":["llave","llanta","lluvia"],
+  "M":["mariposa","mesa","manzana","mono"],
+  "N":["nube","naranja","nariz","nieve"],
+  "N":["nandu","pina","unas"],
+  "P":["pato","pelota","perro","piano"],
+  "R":["raton","robot","rosa","reloj"],
+  "RR":["carro","perro","tierra","pizarra"],
+  "S":["sol","silla","sapo","sopa"],
+  "T":["tijeras","tren","tortuga","tigre"],
+  "V":["vaca","violin","ventana"],
+  "Y":["yoyo","yogur","yate"],
+  "Z":["zapato","zorro","zanahoria"],
 };
 
 function Phonology(){
@@ -1158,7 +1173,11 @@ function Phonology(){
   };
   const handle=ph=>{setSel(ph);speak(ph);setScore(s=>s+1);setWordIdx(0);setShowWords(false);};
   const words=sel?PHONEME_WORDS[sel]||[]:[];
-  const emojis=sel?PHONEME_EMOJI[sel]||[]:[];
+  const emojiWords=sel?PHONEME_EMOJI[sel]||[]:[];
+
+  // Imagenes reales por palabra usando Pixabay (busqueda en espanol)
+  // Usar Unsplash para imagenes reales
+  const getImgUrl=(word)=>"https://source.unsplash.com/80x80/?" + word;
 
   return(
     <div className="fu">
@@ -1185,15 +1204,15 @@ function Phonology(){
             <button className="btn btnp btnsm" style={{marginTop:8}} onClick={()=>speak(sel)}>🔊 Escuchar fonema</button>
           </div>
 
-          {/* Emojis como imagenes */}
-          {(stage==="Imagen"||stage==="Escucha")&&emojis.length>0&&(
+          {/* Imagenes reales por palabra */}
+          {(stage==="Imagen"||stage==="Escucha")&&emojiWords.length>0&&(
             <div>
-              <div style={{fontSize:11,fontWeight:700,color:C.terraD,marginBottom:8,textTransform:"uppercase",letterSpacing:.5}}>Imagenes que empiezan con {sel}</div>
+              <div style={{fontSize:11,fontWeight:700,color:C.terraD,marginBottom:8,textTransform:"uppercase",letterSpacing:.5}}>Palabras que empiezan con {sel}</div>
               <div style={{display:"flex",flexWrap:"wrap",gap:8,justifyContent:"center"}}>
-                {emojis.map((em,i)=>(
-                  <div key={i} style={{textAlign:"center",cursor:"pointer"}} onClick={()=>speakWord(words[i]||sel)}>
-                    <div style={{fontSize:36,background:"white",borderRadius:12,padding:"8px",width:56,height:56,display:"flex",alignItems:"center",justifyContent:"center"}}>{em}</div>
-                    <div style={{fontSize:9,color:C.terra,fontWeight:600,marginTop:3,maxWidth:56}}>{words[i]||""}</div>
+                {emojiWords.map((w,i)=>(
+                  <div key={i} style={{textAlign:"center",cursor:"pointer",background:"white",borderRadius:12,overflow:"hidden",border:"2px solid "+C.terraL,width:80}} onClick={()=>speakWord(w)}>
+                    <img src={getImgUrl(w)} alt={w} style={{width:80,height:70,objectFit:"cover",display:"block"}} onError={e=>{e.target.style.display="none";}}/>
+                    <div style={{fontSize:10,fontWeight:800,color:C.terra,padding:"4px 2px",textTransform:"uppercase"}}>{w}</div>
                   </div>
                 ))}
               </div>
@@ -1210,7 +1229,7 @@ function Phonology(){
             {/* Palabra del dia - grande */}
             {words.length>0&&(
               <div style={{display:"flex",alignItems:"center",gap:12,background:"white",borderRadius:12,padding:"10px 14px",marginBottom:8}}>
-                <div style={{fontSize:40}}>{emojis[wordIdx%emojis.length]||"📝"}</div>
+                <div style={{width:50,height:50,borderRadius:12,background:C.terraF,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Cormorant Garamond',serif",fontSize:28,fontWeight:700,color:C.terra,flexShrink:0}}>{sel}</div>
                 <div style={{flex:1}}>
                   <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:24,fontWeight:700,color:C.charcoal}}>{words[wordIdx%words.length]}</div>
                   <div style={{fontSize:11,color:C.grayL}}>{wordIdx+1} de {words.length}</div>
@@ -1238,8 +1257,7 @@ function Phonology(){
       <div className="phgrid">
         {(cats[fil]||PHONEMES).map(ph=>(
           <button key={ph} className={`phbtn${sel===ph?" sel":""}`} onClick={()=>handle(ph)}>
-            <div>{ph}</div>
-            {PHONEME_EMOJI[ph]&&<div style={{fontSize:12,marginTop:2}}>{PHONEME_EMOJI[ph][0]}</div>}
+            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontWeight:700}}>{ph}</div>
           </button>
         ))}
       </div>
@@ -1529,7 +1547,7 @@ function Admin({users,setUsers,registerRequests,setRegisterRequests}){
       {tab==="solicitudes"&&(
         <>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-            <div style={{fontSize:13,color:C.grayL}}>{registerRequests.length} solicitudes recibidas · {pendientes.length} pendientes</div>
+            <div style={{fontSize:13,color:C.grayL}}>{registerRequests.length} solicitudes recibidas - {pendientes.length} pendientes</div>
           </div>
           {registerRequests.length===0&&(
             <div style={{textAlign:"center",padding:"30px 0",color:C.grayL}}>
@@ -1543,7 +1561,7 @@ function Admin({users,setUsers,registerRequests,setRegisterRequests}){
               <div className="sch">
                 <div>
                   <div style={{fontWeight:700,fontSize:14,color:C.charcoal}}>{r.name}</div>
-                  <div style={{fontSize:11,color:C.grayL}}>{r.email} · {r.date}</div>
+                  <div style={{fontSize:11,color:C.grayL}}>{r.email} - {r.date}</div>
                 </div>
                 <span className="badge" style={{background:r.status==="pendiente"?C.goldF:C.greenF,color:r.status==="pendiente"?C.gold:C.forest}}>{r.status}</span>
               </div>
@@ -1567,7 +1585,7 @@ function Admin({users,setUsers,registerRequests,setRegisterRequests}){
                   </div>
                 )}
                 {r.status==="aprobado"&&(
-                  <div className="alert alrts" style={{marginBottom:0}}>✅ Usuario creado · Contrasena inicial: hadrion123 · Enviala por email a {r.email}</div>
+                  <div className="alert alrts" style={{marginBottom:0}}>✅ Usuario creado - Contrasena inicial: hadrion123 - Enviala por email a {r.email}</div>
                 )}
               </div>
             </div>
@@ -1695,7 +1713,7 @@ function Admin({users,setUsers,registerRequests,setRegisterRequests}){
                 📧 Email: {f.email}<br/>
                 🔑 Contrasena: {f.password}<br/>
                 Plan: {f.plan} | 14 dias de prueba incluidos.<br/>
-                Cualquier consulta escribime. ¡Bienvenida/o!
+                Cualquier consulta escribime. Bienvenida/o!
               </div>
               <div style={{display:"flex",gap:8}}>
                 <button className="btn btnsm" style={{background:"#25D366",color:"white",flex:1,justifyContent:"center"}} onClick={()=>{
@@ -1760,7 +1778,7 @@ function Footer(){
   return(
     <div style={{textAlign:'center',padding:'16px 20px',fontSize:11,color:'#9B9590',borderTop:'1px solid #EDE0F5',marginTop:'auto'}}>
       <div style={{fontWeight:700,color:'#7B5EA7',marginBottom:4}}>Hadrion - Plataforma Terapeutica</div>
-      <div>© 2025 Adriana Soba. Todos los derechos reservados.</div>
+      <div>(c) 2025 Adriana Soba. Todos los derechos reservados.</div>
       <div style={{marginTop:3}}>Desarrollado y disenado en Uruguay 🇺🇾</div>
       <div style={{marginTop:3}}>Propiedad intelectual protegida.</div>
       <div style={{marginTop:3}}>Prohibida su reproduccion total o parcial sin autorizacion expresa.</div>
