@@ -1324,197 +1324,48 @@ function Reports({patients,sessions,payments}){
 }
 
 function Resources(){
-  const items=[{i:"📋",t:"Plantilla de anamnesis",d:"Formulario completo inicial",c:"Evaluacion"},{i:"🎯",t:"Guia de objetivos TEL",d:"Objetivos por nivel TEL",c:"Lenguaje"},{i:"📊",t:"Escala de progreso",d:"Seguimiento visual del avance",c:"Seguimiento"},{i:"🏠",t:"Guia actividades en casa",d:"Manual para familias",c:"Familia"},{i:"🔤",t:"Laminas fonologicas",d:"Imagenes por fonema",c:"Fonologia"},{i:"📝",t:"Registro de sesion",d:"Plantilla editable",c:"Administracion"},{i:"📬",t:"Carta para escuela",d:"Modelo de comunicacion",c:"Derivacion"},{i:"💡",t:"Estrategias TDAH",d:"Recomendaciones docentes",c:"TDAH"}];
+  const [sel,setSel]=useState(null);
+  const recursos=[
+    {i:"📋",t:"Plantilla de anamnesis",d:"Formulario completo de historia clinica inicial",c:"Evaluacion",contenido:`PLANTILLA DE ANAMNESIS\n\nDATOS DEL PACIENTE\nNombre: _______________\nFecha de nacimiento: _______________\nEdad: _____ Diagnostico: _______________\nTutor/Responsable: _______________\nTelefono: _______________\n\nMOTIVO DE CONSULTA\n________________________________\n________________________________\n\nANTECEDENTES\n- Embarazo y parto: _______________\n- Hitos del desarrollo: _______________\n- Antecedentes medicos: _______________\n- Historia familiar: _______________\n\nOBSERVACIONES\n________________________________`},
+    {i:"🎯",t:"Guia de objetivos TEL",d:"Objetivos terapeuticos por nivel para TEL",c:"Lenguaje",contenido:`OBJETIVOS TERAPEUTICOS - TEL\n\nNIVEL INICIAL\n- Comprension de consignas simples\n- Vocabulario basico (50-100 palabras)\n- Emision de palabras aisladas\n\nNIVEL MEDIO\n- Produccion de frases de 2-3 palabras\n- Vocabulario de 200+ palabras\n- Discriminacion auditiva de fonemas\n\nNIVEL AVANZADO\n- Oraciones completas con estructura SVO\n- Narrativa secuenciada\n- Conciencia fonologica\n\nHadrion - hadrion.netlify.app`},
+    {i:"📊",t:"Escala de progreso",d:"Herramienta de seguimiento visual del avance",c:"Seguimiento",contenido:`ESCALA DE PROGRESO TERAPEUTICO\n\nPaciente: _______________\nPeriodo: _______________\n\nOBJETIVO 1: _______________\nProgreso: [ ]10% [ ]25% [ ]50% [ ]75% [ ]100%\nObservaciones: _______________\n\nOBJETIVO 2: _______________\nProgreso: [ ]10% [ ]25% [ ]50% [ ]75% [ ]100%\nObservaciones: _______________\n\nOBJETIVO 3: _______________\nProgreso: [ ]10% [ ]25% [ ]50% [ ]75% [ ]100%\nObservaciones: _______________\n\nFirma del profesional: _______________\nHadrion - hadrion.netlify.app`},
+    {i:"🏠",t:"Guia actividades en casa",d:"Manual para familias con actividades diarias",c:"Familia",contenido:`GUIA DE ESTIMULACION EN CASA\n\nQUERIDAS FAMILIAS:\nEstas actividades son para hacer durante el dia, de forma natural y divertida.\n\nDURANTE EL BANO\n- Nombrar partes del cuerpo\n- Cantar canciones con gestos\n\nEN LA COCINA\n- Nombrar ingredientes y colores\n- Describir lo que hacemos\n\nEN EL AUTO\n- Buscar letras en carteles\n- Contar objetos de un color\n\nANTES DE DORMIR\n- Leer un cuento de 5 minutos\n- Preguntar: que paso en el cuento?\n\nContacto: comunipro12@gmail.com\nHadrion - hadrion.netlify.app`},
+    {i:"🔤",t:"Laminas fonologicas",d:"Imagenes clasificadas por fonema",c:"Fonologia",contenido:`LAMINAS FONOLOGICAS\n\nVer seccion Conciencia Fonologica en la app para acceder a las laminas interactivas con audio.\n\nPara laminas imprimibles visitar:\nhadrion.netlify.app/laminas.html\n\nContenido disponible:\n- Fonema /A/: Avion, Arbol, Araña, Abeja\n- Fonema /S/: Sol, Silla, Sopa, Sapo\n- Fonema /M/: Mariposa, Mesa, Manzana\n- Fonema /P/: Pato, Pelota, Perro, Piano\n- Y todos los fonemas del castellano\n\nHadrion - hadrion.netlify.app`},
+    {i:"📝",t:"Registro de sesion",d:"Plantilla editable para documentar sesiones",c:"Administracion",contenido:`REGISTRO DE SESION\n\nPaciente: _______________\nFecha: _______________\nSesion N: _____\nProfesional: _______________\n\nOBJETIVO TRABAJADO\n________________________________\n\nACTIVIDADES REALIZADAS\n1. _______________\n2. _______________\n3. _______________\n\nOBSERVACIONES\n________________________________\n________________________________\n\nPROGRESO (0-100%): _____\n\nTAREA PARA CASA\n________________________________\n\nPROXIMA SESION\nFecha: _______________ Hora: _______________\n\nFirma: _______________\nHadrion - hadrion.netlify.app`},
+    {i:"📬",t:"Carta para escuela",d:"Modelo de comunicacion para derivaciones",c:"Derivacion",contenido:`INFORME PARA ESTABLECIMIENTO EDUCATIVO\n\nFecha: _______________\n\nSr/Sra Director/a:\n\nMe dirijo a usted para informar que el/la alumno/a _______________,\nque concurre a _____________ grado, se encuentra actualmente en\ntratamiento de _____________ desde _______________.\n\nSe sugiere:\n- _______________\n- _______________\n- _______________\n\nQuedo a su disposicion para ampliar informacion.\n\nAtentamente,\n_______________\nMatricula N: _______________\nTelefono: _______________\nEmail: _______________\n\nHadrion - hadrion.netlify.app`},
+    {i:"💡",t:"Estrategias TDAH",d:"Recomendaciones para docentes y familia",c:"TDAH",contenido:`ESTRATEGIAS PARA TDAH\n\nPARA EL AULA\n- Ubicar al alumno cerca del docente\n- Dar instrucciones cortas y claras\n- Dividir tareas largas en pasos\n- Usar senales visuales de apoyo\n- Dar tiempo extra en evaluaciones\n\nPARA LA FAMILIA\n- Rutinas fijas y predecibles\n- Espacio de estudio sin distractores\n- Descansos cada 20 minutos\n- Reforzar positivamente los logros\n- Usar agenda visual con pictogramas\n\nESTRATEGIAS DE AUTORREGULACION\n- Semaforo de emociones\n- Respiracion consciente\n- Tiempo fuera positivo\n\nContacto: comunipro12@gmail.com\nHadrion - hadrion.netlify.app`},
+  ];
   return(
     <div className="fu">
       <div style={{marginBottom:14}}><div className="pt">Recursos</div><div className="ps">Guias, plantillas y materiales</div></div>
-      <div className="alert alrti">💡 Todos imprimibles o exportables en PDF.</div>
+      <div className="alert alrti">Toca cualquier recurso para ver el contenido completo e imprimirlo.</div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-        {items.map((r,i)=>(
-          <div key={i} className="card" style={{cursor:"pointer",padding:12}} onClick={()=>window.print()}>
+        {recursos.map((r,i)=>(
+          <div key={i} className="card" style={{cursor:"pointer",padding:12}} onClick={()=>setSel(r)}>
             <div style={{fontSize:26,marginBottom:6}}>{r.i}</div>
             <div style={{fontWeight:700,fontSize:12,color:C.charcoal,marginBottom:3}}>{r.t}</div>
             <div style={{fontSize:11,color:C.grayL,marginBottom:7}}>{r.d}</div>
             <div style={{display:"flex",justifyContent:"space-between"}}>
               <span className="badge" style={{background:C.terraF,color:C.terra,fontSize:10}}>{r.c}</span>
-              <span style={{fontSize:10,color:C.info}}>🖨️</span>
+              <span style={{fontSize:10,color:C.info}}>ver contenido</span>
             </div>
           </div>
         ))}
       </div>
-    </div>
-  );
-}
-
-function PlanColaborativo({patients,users,plan,setPlan}){
-  const [pid,setPid]=useState("");
-  const [showNew,setShowNew]=useState(false);
-  const [showArea,setShowArea]=useState(null);
-  const [f,setF]=useState({area:"fono",professional:"",objectives:"",notes:"",progress:50});
-  const patient=patients.find(p=>p.id===parseInt(pid));
-  const pPlan=plan.filter(p=>p.patientId===parseInt(pid));
-
-  const save=()=>{
-    if(!pid||!f.professional)return;
-    setPlan([...plan,{id:Date.now(),patientId:parseInt(pid),area:f.area,professional:f.professional,objectives:f.objectives?f.objectives.split(",").map(s=>s.trim()):[],progress:f.progress,lastUpdate:new Date().toLocaleDateString("es-UY"),notes:f.notes}]);
-    setF({area:"fono",professional:"",objectives:"",notes:"",progress:50});
-    setShowNew(false);
-  };
-
-  const getArea=(id)=>AREAS.find(a=>a.id===id)||AREAS[0];
-
-  return(
-    <div className="fu">
-      <div style={{marginBottom:14}}>
-        <div style={{display:"flex",alignItems:"center",gap:8}}>
-          <span style={{fontSize:22}}>🤝</span>
-          <div className="pt">Plan Colaborativo</div>
+      {sel&&(
+        <div className="overlay" onClick={()=>setSel(null)}>
+          <div className="modal" onClick={e=>e.stopPropagation()}>
+            <button className="xbtn" onClick={()=>setSel(null)}>x</button>
+            <div className="modalt">{sel.i} {sel.t}</div>
+            <div style={{background:C.cream,borderRadius:12,padding:14,marginBottom:12,whiteSpace:"pre-wrap",fontSize:12,color:C.charcoal,lineHeight:1.7,maxHeight:"50vh",overflowY:"auto"}}>{sel.contenido.replace(/\\n/g,"\n")}</div>
+            <button className="btn btnp btnfull noprint" onClick={()=>window.print()}>Imprimir / PDF</button>
+          </div>
         </div>
-        <div className="ps">Objetivos por area - trabajo en equipo terapeutico</div>
-      </div>
-
-      <div className="alert alrti" style={{marginBottom:14}}>
-        💡 Cada profesional registra sus objetivos y progreso. Todo el equipo ve el avance completo del paciente.
-      </div>
-
-      <div className="fg">
-        <label className="lbl">Selecciona paciente</label>
-        <select className="inp" value={pid} onChange={e=>setPid(e.target.value)}>
-          <option value="">Elige un paciente...</option>
-          {patients.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
-        </select>
-      </div>
-
-      {patient&&(
-        <>
-          <div style={{display:"flex",alignItems:"center",gap:11,marginBottom:14,background:"white",borderRadius:14,padding:13,boxShadow:"0 1px 6px rgba(0,0,0,.05)"}}>
-            <div className="av" style={{width:46,height:46,background:patient.color,fontSize:15}}>{patient.avatar}</div>
-            <div style={{flex:1}}>
-              <div style={{fontWeight:700,fontSize:14,color:C.charcoal}}>{patient.name}</div>
-              <div style={{fontSize:12,color:C.grayL}}>{patient.age} anos - {patient.diagnosis}</div>
-            </div>
-            <button className="btn btnp btnsm noprint" onClick={()=>setShowNew(true)}>+ Agregar area</button>
-          </div>
-
-          {/* Areas disponibles */}
-          <div style={{fontWeight:700,fontSize:13,color:C.charcoal,marginBottom:10}}>Areas terapeuticas</div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:16}}>
-            {AREAS.filter(a=>a.id!=="otro").map(area=>{
-              const aData=pPlan.find(p=>p.area===area.id);
-              return(
-                <div key={area.id} className="card" style={{padding:12,cursor:"pointer",borderLeft:`3px solid ${aData?area.color:C.sand}`}} onClick={()=>aData&&setShowArea(aData)}>
-                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-                    <span style={{fontSize:20}}>{area.icon}</span>
-                    <div style={{fontWeight:600,fontSize:12,color:C.charcoal}}>{area.label}</div>
-                  </div>
-                  {aData?(
-                    <>
-                      <div style={{fontSize:11,color:C.grayL,marginBottom:5}}>{aData.professional}</div>
-                      <div className="prog"><div className="progf" style={{width:`${aData.progress}%`}}/></div>
-                      <div style={{display:"flex",justifyContent:"space-between",marginTop:4}}>
-                        <span style={{fontSize:10,color:C.grayL}}>{aData.lastUpdate}</span>
-                        <span style={{fontSize:10,fontWeight:700,color:area.color}}>{aData.progress}%</span>
-                      </div>
-                    </>
-                  ):(
-                    <div style={{fontSize:11,color:C.grayL}}>Sin asignar - toca para agregar</div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Timeline colaborativo */}
-          {pPlan.length>0&&(
-            <SC title="📋 Ultimas actualizaciones del equipo">
-              {pPlan.sort((a,b)=>b.id-a.id).map((p,i)=>{
-                const area=getArea(p.area);
-                return(
-                  <div key={p.id} style={{display:"flex",gap:12,padding:"10px 0",borderBottom:i<pPlan.length-1?`1px solid ${C.sand}`:"none"}}>
-                    <div style={{width:36,height:36,borderRadius:10,background:area.color+"22",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>{area.icon}</div>
-                    <div style={{flex:1}}>
-                      <div style={{fontWeight:600,fontSize:13,color:C.charcoal}}>{area.label}</div>
-                      <div style={{fontSize:11,color:C.grayL}}>{p.professional} - {p.lastUpdate}</div>
-                      <div style={{fontSize:12,color:C.charcoal,marginTop:4,lineHeight:1.4}}>{p.notes}</div>
-                      {p.objectives?.length>0&&(
-                        <div style={{marginTop:5}}>
-                          {p.objectives.map((o,i)=><div key={i} style={{fontSize:11,color:C.grayL}}>- {o}</div>)}
-                        </div>
-                      )}
-                      <div style={{display:"flex",alignItems:"center",gap:8,marginTop:6}}>
-                        <div className="prog" style={{flex:1}}><div className="progf" style={{width:`${p.progress}%`,background:area.color}}/></div>
-                        <span style={{fontSize:11,fontWeight:700,color:area.color}}>{p.progress}%</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </SC>
-          )}
-
-          {pPlan.length===0&&(
-            <div style={{textAlign:"center",padding:"30px 0",color:C.grayL}}>
-              <div style={{fontSize:36,marginBottom:8}}>🤝</div>
-              <div style={{fontWeight:600}}>Sin areas asignadas aun</div>
-              <div style={{fontSize:12,marginTop:4}}>Agrega las areas terapeuticas que trabajan con este paciente</div>
-              <button className="btn btnp" style={{marginTop:12}} onClick={()=>setShowNew(true)}>+ Agregar primera area</button>
-            </div>
-          )}
-        </>
-      )}
-
-      {/* Modal nueva area */}
-      {showNew&&(
-        <Modal title="Agregar area terapeutica" onClose={()=>setShowNew(false)}>
-          <div className="alert alrtw">Cada profesional agrega sus objetivos y progreso para este paciente.</div>
-          <div className="fg">
-            <label className="lbl">Area terapeutica</label>
-            <select className="inp" value={f.area} onChange={e=>setF({...f,area:e.target.value})}>
-              {AREAS.map(a=><option key={a.id} value={a.id}>{a.icon} {a.label}</option>)}
-            </select>
-          </div>
-          <div className="fg">
-            <label className="lbl">Profesional responsable</label>
-            <select className="inp" value={f.professional} onChange={e=>setF({...f,professional:e.target.value})}>
-              <option value="">Selecciona profesional...</option>
-              {users.filter(u=>u.status==="active").map(u=><option key={u.id}>{u.name} - {u.specialty}</option>)}
-              <option value="Externo">Profesional externo</option>
-            </select>
-          </div>
-          <div className="fg">
-            <label className="lbl">Objetivos (separados por coma)</label>
-            <textarea className="inp" placeholder="Obj 1, Obj 2, Obj 3..." value={f.objectives} onChange={e=>setF({...f,objectives:e.target.value})}/>
-          </div>
-          <div className="fg">
-            <label className="lbl">Notas iniciales</label>
-            <textarea className="inp" placeholder="Observaciones, estrategias, acuerdos..." value={f.notes} onChange={e=>setF({...f,notes:e.target.value})}/>
-          </div>
-          <div className="fg">
-            <label className="lbl">Progreso inicial: {f.progress}%</label>
-            <input type="range" style={{width:"100%",accentColor:C.terra}} min={0} max={100} step={5} value={f.progress} onChange={e=>setF({...f,progress:parseInt(e.target.value)})}/>
-            <div className="prog" style={{marginTop:4}}><div className="progf" style={{width:`${f.progress}%`}}/></div>
-          </div>
-          <button className="btn btnp btnfull" onClick={save}>Guardar area</button>
-        </Modal>
-      )}
-
-      {/* Modal detalle area */}
-      {showArea&&(
-        <Modal title={`${getArea(showArea.area).icon} ${getArea(showArea.area).label}`} onClose={()=>setShowArea(null)}>
-          <div className="hxf"><div className="hxl">Profesional</div><div className="hxv">{showArea.professional}</div></div>
-          <div className="hxf"><div className="hxl">Ultima actualizacion</div><div className="hxv">{showArea.lastUpdate}</div></div>
-          <div className="hxf"><div className="hxl">Objetivos</div>{showArea.objectives?.map((o,i)=><div key={i} className="hxv">- {o}</div>)}</div>
-          <div className="hxf"><div className="hxl">Notas clinicas</div><div className="hxv">{showArea.notes}</div></div>
-          <div style={{marginTop:8}}>
-            <label className="lbl">Progreso: {showArea.progress}%</label>
-            <div className="prog"><div className="progf" style={{width:`${showArea.progress}%`,background:getArea(showArea.area).color}}/></div>
-          </div>
-          <button className="btn btno btnfull noprint" onClick={()=>window.print()}>🖨️ Imprimir</button>
-        </Modal>
       )}
     </div>
   );
 }
+
 
 function Admin({users,setUsers,registerRequests,setRegisterRequests}){
   const [tab,setTab]=useState("solicitudes");
@@ -1775,23 +1626,25 @@ function Profile({user,onLogout}){
 
 
 function Footer(){
+  const showInfo=(msg)=>alert(msg);
   return(
-    <div style={{textAlign:'center',padding:'16px 20px',fontSize:11,color:'#9B9590',borderTop:'1px solid #EDE0F5',marginTop:'auto'}}>
-      <div style={{fontWeight:700,color:'#7B5EA7',marginBottom:4}}>Hadrion - Plataforma Terapeutica</div>
+    <div style={{textAlign:"center",padding:"16px 20px",fontSize:11,color:"#9B9590",borderTop:"1px solid #EDE0F5",marginTop:"auto"}}>
+      <div style={{fontWeight:700,color:"#7B5EA7",marginBottom:4}}>Hadrion - Plataforma Terapeutica</div>
       <div>(c) 2025 Adriana Soba. Todos los derechos reservados.</div>
-      <div style={{marginTop:3}}>Desarrollado y disenado en Uruguay 🇺🇾</div>
+      <div style={{marginTop:3}}>Desarrollado y disenado en Uruguay</div>
       <div style={{marginTop:3}}>Propiedad intelectual protegida.</div>
       <div style={{marginTop:3}}>Prohibida su reproduccion total o parcial sin autorizacion expresa.</div>
       <div style={{marginTop:6,fontSize:10}}>
-        <span style={{cursor:'pointer',color:'#9B7EBD'}} onClick={()=>alert('Terminos de Uso\n\nHadrion es una plataforma de gestion clinica desarrollada por Adriana Soba (Uruguay).\n\nQueda prohibido:\n- Copiar o reproducir el software\n- Redistribuir sin autorizacion\n- Usar con fines comerciales sin licencia\n\nContacto: comunipro12@gmail.com')}>Terminos de uso</span>
-        {' | '}
-        <span style={{cursor:'pointer',color:'#9B7EBD'}} onClick={()=>alert('Politica de Privacidad\n\nHadrion protege los datos de profesionales y pacientes.\n\nNo compartimos informacion con terceros.\nLos datos son confidenciales y seguros.\n\nContacto: comunipro12@gmail.com')}>Privacidad</span>
-        {' | '}
-        <span style={{cursor:'pointer',color:'#9B7EBD'}} onClick={()=>alert('Contacto\n\nHadrion - Plataforma Terapeutica\nAdriana Soba\ncomunipro12@gmail.com\nUruguay')}>Contacto</span>
+        <span style={{cursor:"pointer",color:"#9B7EBD"}} onClick={()=>showInfo("Terminos de Uso - Hadrion. Prohibido copiar, redistribuir o usar comercialmente sin licencia. Contacto: comunipro12@gmail.com")}>Terminos de uso</span>
+        {" | "}
+        <span style={{cursor:"pointer",color:"#9B7EBD"}} onClick={()=>showInfo("Privacidad - Hadrion protege los datos de profesionales y pacientes. No compartimos informacion con terceros. Contacto: comunipro12@gmail.com")}>Privacidad</span>
+        {" | "}
+        <span style={{cursor:"pointer",color:"#9B7EBD"}} onClick={()=>showInfo("Contacto - Hadrion Plataforma Terapeutica. Adriana Soba. comunipro12@gmail.com. Uruguay.")}>Contacto</span>
       </div>
     </div>
   );
 }
+
 
 export default function HadrionApp(){
   const [users,setUsers]=useState(INIT_USERS);
