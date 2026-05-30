@@ -125,32 +125,33 @@ const PHONEME_EMOJI = {
   "Z": ["👟","🦊","🥕","🦓","🍋"],
 };
 
+// Las palabras tienen acento ortográfico para TTS correcto; el display usa .replace con acentos
 const PHONEME_WORDS = {
-  "A": ["AVION","ARBOL","ARAÑA","ABEJA","AGUILA","ANCLA","ARCO","ARDILLA"],
-  "E": ["ELEFANTE","ESTRELLA","ESCALERA","ESPEJO","ESCOBA","ENANO","ESCUDO"],
-  "I": ["IGLESIA","IGUANA","ISLA","IMAN","INSECTO","INDIO"],
-  "O": ["OSO","OVEJA","OJO","OLLA","ORUGA","ORCA","OBRA"],
-  "U": ["UVA","UNIFORME","UNICORNIO","URNA","UTENSILIO"],
-  "B": ["BOCA","BARCO","BICICLETA","BALLENA","BOTA","BURRO","BOLSA"],
-  "C": ["CASA","CAMA","CONEJO","COCINA","CAMION","CARRO","CABALLO"],
-  "CH":["CHOCOLATE","CHUPETE","CHANCHO","CHALECO","CHICLE"],
-  "D": ["DEDO","DADO","DINOSAURIO","DUENDE","DRAGON","DULCE","DIENTE"],
-  "F": ["FOCA","FRESA","FLOR","FUEGO","FAMILIA","FLAUTA","FRUTA"],
-  "G": ["GATO","GLOBO","GALLETA","GORILA","GIRASOL","GUSANO","GUITARRA"],
-  "J": ["JIRAFA","JUGO","JARDIN","JUGUETE","JABON","JABALI"],
-  "L": ["LUNA","LAPIZ","LECHE","LIBRO","LORO","LAGARTO","LIMON"],
-  "LL":["LLAVE","LLANTA","LLUVIA","LLAMA","LLORAR"],
-  "M": ["MARIPOSA","MESA","MANZANA","MONO","MOCHILA","MARTILLO","MAGO"],
-  "N": ["NUBE","NARANJA","NARIZ","NIEVE","NIDO","NUMERO","NUEZ"],
-  "Ñ": ["ÑANDU","NIÑO","UÑAS","PIÑA","MUÑECA"],
-  "P": ["PATO","PELOTA","PERRO","PIANO","PUERTA","PALOMA","PULPO"],
-  "R": ["RATON","ROBOT","ROSA","REGLA","RELOJ","RUEDA","RANA"],
-  "RR":["CARRO","PERRO","TIERRA","PIZARRA","BURRO","CERRO","TORRE"],
-  "S": ["SOL","SILLA","SOPA","SAPO","SEMILLA","SERPIENTE","SOMBRILLA"],
-  "T": ["TIJERAS","TREN","TORTUGA","TIGRE","TOMATE","TAMBOR","TELEVISION"],
-  "V": ["VACA","VIOLIN","VENTANA","VESTIDO","VOLCAN","VELERO","VERDURA"],
-  "Y": ["YOYO","YOGUR","YATE","YERBA","YEGUA"],
-  "Z": ["ZAPATO","ZORRO","ZANAHORIA","ZEBRA","ZUMO"],
+  "A": ["avión","árbol","araña","abeja","águila","ancla","arco","ardilla"],
+  "E": ["elefante","estrella","escalera","espejo","escoba","enano","escudo"],
+  "I": ["iglesia","iguana","isla","imán","insecto","indio"],
+  "O": ["oso","oveja","ojo","olla","oruga","orca","obra"],
+  "U": ["uva","uniforme","unicornio","urna","utensilio"],
+  "B": ["boca","barco","bicicleta","ballena","bota","burro","bolsa"],
+  "C": ["casa","cama","conejo","cocina","camión","carro","caballo"],
+  "CH":["chocolate","chupete","chancho","chaleco","chicle"],
+  "D": ["dedo","dado","dinosaurio","duende","dragón","dulce","diente"],
+  "F": ["foca","fresa","flor","fuego","familia","flauta","fruta"],
+  "G": ["gato","globo","galleta","gorila","girasol","gusano","guitarra"],
+  "J": ["jirafa","jugo","jardín","juguete","jabón","jabalí"],
+  "L": ["luna","lápiz","leche","libro","loro","lagarto","limón"],
+  "LL":["llave","llanta","lluvia","llama","llorar"],
+  "M": ["mariposa","mesa","manzana","mono","mochila","martillo","mago"],
+  "N": ["nube","naranja","nariz","nieve","nido","número","nuez"],
+  "Ñ": ["ñandú","niño","uñas","piña","muñeca"],
+  "P": ["pato","pelota","perro","piano","puerta","paloma","pulpo"],
+  "R": ["ratón","robot","rosa","regla","reloj","rueda","rana"],
+  "RR":["carro","perro","tierra","pizarra","burro","cerro","torre"],
+  "S": ["sol","silla","sopa","sapo","semilla","serpiente","sombrilla"],
+  "T": ["tijeras","tren","tortuga","tigre","tomate","tambor","televisión"],
+  "V": ["vaca","violín","ventana","vestido","volcán","velero","verdura"],
+  "Y": ["yoyó","yogur","yate","yerba","yegua"],
+  "Z": ["zapato","zorro","zanahoria","cebra","zumo"],
 };
 
 // ─── ÁREAS COLABORATIVAS ──────────────────────────────────────────────────────
@@ -489,7 +490,7 @@ textarea.inp{resize:vertical;min-height:74px;}
 .filbtn.active{background:#9B7EBD;color:white;border-color:#9B7EBD;}
 .phgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0;}
 @media(min-width:500px){.phgrid{grid-template-columns:repeat(6,1fr);}}
-.phbtn{aspect-ratio:1;border-radius:12px;border:2px solid #EDE0F5;background:white;font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:700;cursor:pointer;transition:all .17s;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#2C2C2C;gap:2px;min-height:90px;}
+.phbtn{aspect-ratio:1;border-radius:14px;border:2px solid #EDE0F5;background:white;font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:700;cursor:pointer;transition:all .17s;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#2C2C2C;gap:4px;min-height:110px;}
 .phbtn:hover{border-color:#9B7EBD;background:#F5F0FA;}
 .phbtn.sel{border-color:#9B7EBD;background:#9B7EBD;color:white;}
 .roletag{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
@@ -1287,14 +1288,222 @@ function History({ patients, sessions, selectedPatientId }) {
   );
 }
 
-// ─── ACTIVITIES ───────────────────────────────────────────────────────────────
+// ─── OBJETIVOS TERAPÉUTICOS (banco estático estructurado) ────────────────────
+const OBJETIVOS_DB = {
+  TEL: {
+    icon:"🗣️", color:"#5B8DB8", colorF:"#EBF3FB",
+    areas:[
+      { area:"Comprensión", objetivos:[
+        "Seguir instrucciones simples de 1 paso con apoyo visual",
+        "Comprender y ejecutar instrucciones de 2 pasos sin apoyo",
+        "Responder preguntas ¿quién?, ¿dónde?, ¿qué? sobre cuentos cortos",
+        "Comprender conceptos relacionales: arriba/abajo, antes/después",
+      ]},
+      { area:"Expresión", objetivos:[
+        "Ampliar vocabulario: nombrar 100 palabras de uso cotidiano",
+        "Producir frases de 2–3 palabras en contexto funcional",
+        "Narrar secuencias de 3 eventos con apoyo visual",
+        "Usar oraciones completas con estructura sujeto–verbo–objeto",
+      ]},
+      { area:"Conciencia fonológica", objetivos:[
+        "Identificar y producir rimas simples en juegos dirigidos",
+        "Segmentar palabras bisílabas con palmadas",
+        "Identificar la sílaba inicial de palabras familiares",
+        "Discriminar pares mínimos auditivamente (pato/gato)",
+      ]},
+    ]
+  },
+  Dislexia: {
+    icon:"📖", color:"#E8A020", colorF:"#FEF3E0",
+    areas:[
+      { area:"Conciencia fonológica", objetivos:[
+        "Segmentar palabras en fonemas individuales",
+        "Manipular fonemas: omitir, sustituir, agregar",
+        "Discriminar visualmente b/d/p/q con estrategia mnemotécnica",
+        "Identificar rimas y generar rimas propias",
+      ]},
+      { area:"Decodificación", objetivos:[
+        "Leer sílabas directas (CV) con 90% de precisión",
+        "Leer palabras monosílabas y bisílabas sin error",
+        "Alcanzar velocidad lectora de 60 palabras por minuto",
+        "Leer oraciones cortas con comprensión básica",
+      ]},
+      { area:"Comprensión lectora", objetivos:[
+        "Identificar idea principal de textos de 3–4 oraciones",
+        "Responder preguntas literales sobre textos leídos",
+        "Ordenar 4 eventos de una historia leída",
+        "Alcanzar nivel lector acorde a su grado escolar",
+      ]},
+    ]
+  },
+  TDAH: {
+    icon:"🚦", color:"#E8719C", colorF:"#FDE8F0",
+    areas:[
+      { area:"Atención y concentración", objetivos:[
+        "Mantener atención sostenida en tarea dirigida por 10 minutos",
+        "Completar tareas de atención con menos de 3 errores en 5 minutos",
+        "Inhibir respuesta impulsiva en juegos de señal de parada",
+        "Alternar atención entre dos tareas sin perder el hilo",
+      ]},
+      { area:"Autorregulación", objetivos:[
+        "Identificar su propio estado emocional usando el semáforo",
+        "Aplicar estrategia de respiración en situaciones de frustración",
+        "Completar secuencias de 3 pasos de forma autónoma",
+        "Reportar uso de estrategias de regulación en casa/escuela",
+      ]},
+      { area:"Funciones ejecutivas", objetivos:[
+        "Planificar y ejecutar una tarea de 4 pasos con lista visual",
+        "Usar agenda visual para anticipar la rutina diaria",
+        "Tolerar espera de 3 minutos sin interrumpir la actividad",
+        "Recordar y ejecutar instrucciones de 3 pasos",
+      ]},
+    ]
+  },
+  Disartria: {
+    icon:"👄", color:"#2ECC71", colorF:"#E8F8EF",
+    areas:[
+      { area:"Praxias bucofonatorias", objetivos:[
+        "Realizar praxias estáticas labiales y linguales por 5 segundos",
+        "Ejecutar secuencias de praxias dinámicas sin pausa",
+        "Completar 5 repeticiones de pa-ta-ka en 10 segundos",
+        "Mantener tono muscular orofacial adecuado en reposo",
+      ]},
+      { area:"Articulación", objetivos:[
+        "Producir oclusivas /p/, /b/, /t/, /d/ en posición inicial",
+        "Articular palabras bisílabas con inteligibilidad del 80%",
+        "Producir oraciones cortas comprensibles para el interlocutor",
+        "Controlar velocidad del habla para mejorar inteligibilidad",
+      ]},
+      { area:"Respiración y voz", objetivos:[
+        "Coordinar soplo-fonación en emisiones de 3 segundos",
+        "Mantener intensidad vocal adecuada en conversación",
+        "Regular volumen y entonación en frases de 5 palabras",
+        "Alcanzar inteligibilidad del habla del 80% en contexto familiar",
+      ]},
+    ]
+  },
+  TEA: {
+    icon:"🌈", color:"#8B7BB5", colorF:"#F0EDF8",
+    areas:[
+      { area:"Comunicación social", objetivos:[
+        "Mantener contacto visual sostenido por 3 segundos",
+        "Responder a su nombre con consistencia del 80%",
+        "Iniciar peticiones con intención comunicativa funcional",
+        "Usar pictogramas o CAA para expresar necesidades básicas",
+      ]},
+      { area:"Interacción y juego", objetivos:[
+        "Participar en juego paralelo durante 10 minutos",
+        "Imitar acciones simples del adulto con objetos",
+        "Turnarse en actividades de 3 intercambios con adulto",
+        "Ampliar repertorio de juego funcional con objetos",
+      ]},
+      { area:"Comunicación verbal/no verbal", objetivos:[
+        "Ampliar vocabulario funcional a 50 palabras o pictogramas",
+        "Combinar 2 palabras o símbolos para comunicar",
+        "Reducir ecolalia inmediata con estrategias de modelado",
+        "Responder y formular preguntas simples (¿qué es esto?)",
+      ]},
+    ]
+  },
+};
+
+function Objectives() {
+  const [selDiag, setSelDiag] = useState("TEL");
+  const [selArea, setSelArea] = useState(null);
+  const [checked, setChecked] = useState({});
+
+  const diag = OBJETIVOS_DB[selDiag];
+  const toggle = (key) => setChecked(prev => ({ ...prev, [key]: !prev[key] }));
+  const totalCheck = Object.values(checked).filter(Boolean).length;
+
+  return (
+    <div className="fu">
+      <div style={{ marginBottom:14 }}>
+        <div className="pt">Objetivos Terapéuticos</div>
+        <div className="ps">Banco de objetivos por diagnóstico y área</div>
+      </div>
+
+      {/* Selector de diagnóstico */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(100px,1fr))", gap:8, marginBottom:16 }}>
+        {Object.entries(OBJETIVOS_DB).map(([d, info]) => (
+          <button key={d} onClick={() => { setSelDiag(d); setSelArea(null); }}
+            style={{ padding:"12px 8px", borderRadius:14, border:`2px solid ${selDiag===d ? info.color : C.sand}`,
+              background:selDiag===d ? info.colorF : "white", cursor:"pointer", textAlign:"center", transition:"all .15s" }}>
+            <div style={{ fontSize:28, marginBottom:4 }}>{info.icon}</div>
+            <div style={{ fontSize:12, fontWeight:700, color:selDiag===d ? info.color : C.charcoal }}>{d}</div>
+          </button>
+        ))}
+      </div>
+
+      {/* Áreas del diagnóstico */}
+      {diag && (
+        <>
+          <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:14 }}>
+            {diag.areas.map((a, i) => (
+              <button key={i} className={`filbtn${selArea===i?" active":""}`}
+                style={selArea===i ? { background:diag.colorF, color:diag.color, borderColor:diag.color } : {}}
+                onClick={() => setSelArea(selArea===i ? null : i)}>
+                {a.area}
+              </button>
+            ))}
+          </div>
+
+          {/* Lista de objetivos */}
+          {diag.areas.filter((a, i) => selArea === null || selArea === i).map((area, ai) => (
+            <div key={ai} className="sc" style={{ marginBottom:12 }}>
+              <div className="sch">
+                <span style={{ fontWeight:700, fontSize:14, color:C.charcoal }}>📋 {area.area}</span>
+                <span style={{ fontSize:11, color:diag.color, background:diag.colorF, borderRadius:10, padding:"2px 10px", fontWeight:700 }}>
+                  {area.objetivos.length} objetivos
+                </span>
+              </div>
+              <div className="scb">
+                {area.objetivos.map((obj, oi) => {
+                  const key = `${ai}-${oi}`;
+                  return (
+                    <div key={oi} onClick={() => toggle(key)}
+                      style={{ display:"flex", gap:10, alignItems:"flex-start", padding:"10px 0", borderBottom:`1px solid ${C.sand}`, cursor:"pointer" }}>
+                      <div style={{ width:22, height:22, borderRadius:6, border:`2px solid ${checked[key] ? diag.color : C.sandD}`,
+                        background:checked[key] ? diag.colorF : "white", display:"flex", alignItems:"center", justifyContent:"center",
+                        flexShrink:0, fontSize:13, color:diag.color, marginTop:1, transition:"all .15s" }}>
+                        {checked[key] ? "✓" : ""}
+                      </div>
+                      <div style={{ fontSize:13, color:checked[key] ? C.grayL : C.charcoal, lineHeight:1.5,
+                        textDecoration:checked[key] ? "line-through" : "none", transition:"all .15s" }}>
+                        {obj}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+
+          {totalCheck > 0 && (
+            <div style={{ background:diag.colorF, borderRadius:12, padding:12, display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:4 }}>
+              <span style={{ fontSize:13, fontWeight:600, color:diag.color }}>✅ {totalCheck} objetivo(s) seleccionado(s)</span>
+              <button className="btn btnsm" style={{ background:diag.color, color:"white" }}
+                onClick={() => setChecked({})}>Limpiar</button>
+            </div>
+          )}
+
+          <div className="alert alrti" style={{ marginTop:12 }}>
+            💡 Usa el <strong>Asistente IA</strong> para generar objetivos personalizados para cada paciente.
+          </div>
+        </>
+      )}
+    </div>
+  );
+} = { Lenguaje:"🗣️", Lectoescritura:"📖", Articulacion:"👄", Regulacion:"🚦", Atencion:"🎯", Memoria:"🧠" };
+const DIAG_COLOR = { TEL:{ bg:"#EBF3FB", c:"#5B8DB8" }, Dislexia:{ bg:"#FEF3E0", c:"#E8A020" }, TDAH:{ bg:"#FDE8F0", c:"#E8719C" }, Disartria:{ bg:"#E8F8EF", c:"#2ECC71" }, TEA:{ bg:"#F0EDF8", c:"#8B7BB5" } };
+
 function Activities() {
   const [fil, setFil]         = useState("all");
   const [ageGroup, setAgeGroup] = useState("all");
   const [sel, setSel]         = useState(null);
   const [nivel, setNivel]     = useState("facil");
   const tC      = { Clinica:{ bg:C.sageF, c:C.forest }, Familia:{ bg:C.terraF, c:C.terra } };
-  const nivelC  = { facil:{ bg:"#E8F8EF", c:"#27AE60" }, medio:{ bg:C.goldF, c:C.gold }, dificil:{ bg:C.dangerF, c:C.danger } };
+  const nivelC  = { facil:{ bg:"#E8F8EF", c:"#27AE60", icon:"🟢" }, medio:{ bg:C.goldF, c:C.gold, icon:"🟡" }, dificil:{ bg:C.dangerF, c:C.danger, icon:"🔴" } };
 
   const filtered = ACTIVITIES_DB.filter(a => {
     const matchFil   = fil === "all" || a.type === fil || a.target === fil || a.category === fil;
@@ -1304,66 +1513,124 @@ function Activities() {
 
   return (
     <div className="fu">
-      <div style={{ marginBottom:14 }}><div className="pt">Banco de Actividades</div><div className="ps">Actividades con 3 niveles de dificultad y grupo etario</div></div>
-      <div className="filrow">
-        {["all","Clinica","Familia","Lenguaje","Lectoescritura","Articulacion","Regulacion","Atencion","TEL","Dislexia","TDAH","Disartria"].map(f => (
-          <button key={f} className={`filbtn${fil===f?" active":""}`} onClick={() => setFil(f)}>{f==="all"?"Todas":f}</button>
-        ))}
+      <div style={{ marginBottom:14 }}><div className="pt">Banco de Actividades</div><div className="ps">Actividades terapéuticas con 3 niveles de dificultad</div></div>
+
+      {/* Filtros de tipo/categoría */}
+      <div style={{ marginBottom:8 }}>
+        <div style={{ fontSize:11, fontWeight:700, color:C.grayL, textTransform:"uppercase", letterSpacing:.8, marginBottom:6 }}>Categoría</div>
+        <div className="filrow">
+          {["all","Lenguaje","Lectoescritura","Articulacion","Regulacion","Atencion"].map(f => (
+            <button key={f} className={`filbtn${fil===f?" active":""}`} onClick={() => setFil(f)}>
+              {f === "all" ? "Todas" : (CAT_ICONS[f]||"") + " " + f}
+            </button>
+          ))}
+        </div>
       </div>
+
+      {/* Filtros diagnóstico */}
+      <div style={{ marginBottom:8 }}>
+        <div style={{ fontSize:11, fontWeight:700, color:C.grayL, textTransform:"uppercase", letterSpacing:.8, marginBottom:6 }}>Diagnóstico</div>
+        <div className="filrow">
+          {["all","TEL","Dislexia","TDAH","Disartria","TEA"].map(d => (
+            <button key={d} className={`filbtn${fil===d?" active":""}`} onClick={() => setFil(d)}
+              style={fil===d && DIAG_COLOR[d] ? { background:DIAG_COLOR[d].bg, color:DIAG_COLOR[d].c, borderColor:DIAG_COLOR[d].c } : {}}>
+              {d === "all" ? "Todos" : d}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Filtro tipo + edad */}
       <div style={{ display:"flex", gap:7, marginBottom:14, flexWrap:"wrap", alignItems:"center" }}>
-        <span style={{ fontSize:11, color:C.grayL, alignSelf:"center", fontWeight:600 }}>Edad:</span>
-        {["all","Preescolar","Escolar","Todos"].map(g => (
+        <span style={{ fontSize:11, color:C.grayL, fontWeight:700 }}>Tipo:</span>
+        {["all","Clinica","Familia"].map(t => (
+          <button key={t} className={`filbtn${fil===t?" active":""}`} style={{ fontSize:11 }} onClick={() => setFil(t)}>{t==="all"?"Todos":t}</button>
+        ))}
+        <span style={{ fontSize:11, color:C.grayL, fontWeight:700, marginLeft:6 }}>Edad:</span>
+        {["all","Preescolar","Escolar"].map(g => (
           <button key={g} className={`filbtn${ageGroup===g?" active":""}`} style={{ fontSize:11 }} onClick={() => setAgeGroup(g)}>{g==="all"?"Todas":g}</button>
         ))}
       </div>
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))", gap:10 }}>
-        {filtered.map(a => (
-          <div key={a.id} className="card" style={{ cursor:"pointer", padding:12 }} onClick={() => { setSel(a); setNivel("facil"); }}>
-            <div style={{ display:"flex", justifyContent:"space-between", marginBottom:5 }}>
-              <span className="badge" style={{ background:tC[a.type]?.bg, color:tC[a.type]?.c, fontSize:10 }}>{a.type}</span>
-              {a.printable && <span style={{ fontSize:10, color:C.info }}>🖨️</span>}
-            </div>
-            <div style={{ fontWeight:700, fontSize:12, color:C.charcoal, marginBottom:3 }}>{a.name}</div>
-            <div style={{ fontSize:10, color:C.grayL, marginBottom:4 }}>{a.category} — {a.target} — {a.age} años</div>
-            <div style={{ display:"flex", gap:3 }}>
-              {["facil","medio","dificil"].map(n => (
-                <span key={n} style={{ fontSize:9, padding:"1px 6px", borderRadius:10, background:nivelC[n].bg, color:nivelC[n].c, fontWeight:600 }}>{n}</span>
-              ))}
-            </div>
-          </div>
-        ))}
+
+      {/* Contador */}
+      <div style={{ fontSize:12, color:C.grayL, marginBottom:10 }}>
+        Mostrando <strong style={{ color:C.terra }}>{filtered.length}</strong> actividades
       </div>
+
+      {/* Grilla de actividades */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))", gap:12 }}>
+        {filtered.map(a => {
+          const dc = DIAG_COLOR[a.target] || { bg:C.terraF, c:C.terra };
+          return (
+            <div key={a.id} className="card" style={{ cursor:"pointer", padding:14, border:`2px solid ${dc.bg}`, transition:"all .15s" }}
+              onClick={() => { setSel(a); setNivel("facil"); }}>
+              {/* Icono de categoría grande */}
+              <div style={{ fontSize:36, marginBottom:8, textAlign:"center" }}>{CAT_ICONS[a.category] || "📋"}</div>
+              <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6, flexWrap:"wrap", gap:3 }}>
+                <span className="badge" style={{ background:tC[a.type]?.bg, color:tC[a.type]?.c, fontSize:10 }}>{a.type}</span>
+                <span className="badge" style={{ background:dc.bg, color:dc.c, fontSize:10 }}>{a.target}</span>
+              </div>
+              <div style={{ fontWeight:700, fontSize:13, color:C.charcoal, marginBottom:3, lineHeight:1.3 }}>{a.name}</div>
+              <div style={{ fontSize:10, color:C.grayL, marginBottom:6 }}>{a.category} · {a.age} años</div>
+              <div style={{ display:"flex", gap:3 }}>
+                {["facil","medio","dificil"].map(n => (
+                  <span key={n} style={{ fontSize:9, padding:"2px 7px", borderRadius:10, background:nivelC[n].bg, color:nivelC[n].c, fontWeight:600 }}>{nivelC[n].icon}</span>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {filtered.length === 0 && (
+        <div style={{ textAlign:"center", padding:"30px 0", color:C.grayL }}>
+          <div style={{ fontSize:36, marginBottom:8 }}>🔍</div>
+          <div style={{ fontWeight:600 }}>Sin actividades para este filtro</div>
+        </div>
+      )}
 
       {sel && (
         <Modal title={sel.name} onClose={() => setSel(null)}>
-          <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:12 }}>
+          {/* Header con info */}
+          <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:12, alignItems:"center" }}>
+            <span style={{ fontSize:32 }}>{CAT_ICONS[sel.category]||"📋"}</span>
             <span className="badge" style={{ background:tC[sel.type]?.bg, color:tC[sel.type]?.c }}>{sel.type}</span>
-            <span className="badge" style={{ background:C.terraF, color:C.terra }}>{sel.target}</span>
+            <span className="badge" style={{ background:(DIAG_COLOR[sel.target]||{bg:C.terraF}).bg, color:(DIAG_COLOR[sel.target]||{c:C.terra}).c }}>{sel.target}</span>
             <span className="badge" style={{ background:C.sand, color:C.gray }}>{sel.age} años</span>
             <span className="badge" style={{ background:C.infoF, color:C.info }}>{sel.ageGroup}</span>
           </div>
-          <div className="hxf"><div className="hxl">📝 Descripcion</div><div className="hxv">{sel.description}</div></div>
+          <div className="hxf"><div className="hxl">📝 Descripción</div><div className="hxv">{sel.description}</div></div>
           <div className="hxf"><div className="hxl">🧰 Materiales</div><div className="hxv">{sel.materials}</div></div>
+
           {sel.niveles && (
             <>
               <div style={{ fontWeight:700, fontSize:13, color:C.charcoal, margin:"14px 0 8px" }}>Niveles de dificultad</div>
               <div style={{ display:"flex", gap:6, marginBottom:12 }}>
                 {["facil","medio","dificil"].map(n => (
                   <button key={n} className="btn btnsm" style={{ flex:1, justifyContent:"center", background:nivel===n?nivelC[n].bg:"white", color:nivel===n?nivelC[n].c:C.grayL, border:`1.5px solid ${nivel===n?nivelC[n].c:C.sand}`, fontWeight:nivel===n?700:500 }} onClick={() => setNivel(n)}>
-                    {n==="facil"?"🟢 Facil":n==="medio"?"🟡 Medio":"🔴 Dificil"}
+                    {nivelC[n].icon} {n==="facil"?"Fácil":n==="medio"?"Medio":"Difícil"}
                   </button>
                 ))}
               </div>
               {sel.niveles[nivel] && (
-                <div style={{ background:nivelC[nivel].bg, borderRadius:12, padding:14, border:`1.5px solid ${nivelC[nivel].c}22` }}>
-                  <div style={{ fontWeight:700, fontSize:13, color:nivelC[nivel].c, marginBottom:8 }}>{sel.niveles[nivel].titulo}</div>
-                  <div style={{ fontWeight:600, fontSize:11, color:C.grayL, marginBottom:4, textTransform:"uppercase" }}>Instrucciones</div>
-                  <div style={{ fontSize:13, color:C.charcoal, lineHeight:1.6, marginBottom:10 }}>{sel.niveles[nivel].instrucciones}</div>
-                  <div style={{ fontWeight:600, fontSize:11, color:C.grayL, marginBottom:4, textTransform:"uppercase" }}>Ejemplos</div>
-                  {sel.niveles[nivel].ejemplos.map((e, i) => (
-                    <div key={i} style={{ fontSize:12, color:C.charcoal, padding:"4px 0", borderBottom:`1px solid ${nivelC[nivel].c}22` }}>• {e}</div>
-                  ))}
-                  <div style={{ marginTop:8, fontSize:11, color:nivelC[nivel].c, fontWeight:600 }}>🎯 Apoyo: {sel.niveles[nivel].apoyo}</div>
+                <div style={{ background:nivelC[nivel].bg, borderRadius:12, padding:16, border:`1.5px solid ${nivelC[nivel].c}33` }}>
+                  <div style={{ fontWeight:700, fontSize:14, color:nivelC[nivel].c, marginBottom:10 }}>{sel.niveles[nivel].titulo}</div>
+
+                  <div style={{ fontWeight:700, fontSize:11, color:C.grayL, marginBottom:4, textTransform:"uppercase", letterSpacing:.5 }}>📋 Instrucciones</div>
+                  <div style={{ fontSize:13, color:C.charcoal, lineHeight:1.7, marginBottom:12, background:"white", borderRadius:8, padding:10 }}>{sel.niveles[nivel].instrucciones}</div>
+
+                  <div style={{ fontWeight:700, fontSize:11, color:C.grayL, marginBottom:6, textTransform:"uppercase", letterSpacing:.5 }}>💡 Ejemplos</div>
+                  <div style={{ background:"white", borderRadius:8, padding:10, marginBottom:10 }}>
+                    {sel.niveles[nivel].ejemplos.map((e, i) => (
+                      <div key={i} style={{ fontSize:12, color:C.charcoal, padding:"5px 0", borderBottom:i < sel.niveles[nivel].ejemplos.length-1 ? `1px solid ${C.sand}` : "none", display:"flex", gap:8 }}>
+                        <span style={{ color:nivelC[nivel].c, fontWeight:700 }}>•</span> {e}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ fontSize:12, color:nivelC[nivel].c, fontWeight:700, background:"white", borderRadius:8, padding:"8px 12px", display:"flex", gap:6 }}>
+                    <span>🎯</span> <span>Apoyo: {sel.niveles[nivel].apoyo}</span>
+                  </div>
                 </div>
               )}
             </>
@@ -1382,7 +1649,16 @@ function JuegosInteractivos({phonemes,phonemeEmoji,phonemeWords,C}){
   const [score,setScore]=React.useState(0);
   const [fb,setFb]=React.useState(null);
   const [idx,setIdx]=React.useState(0);
-  const speak=txt=>{if(!window.speechSynthesis)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt.toLowerCase());u.lang="es";u.rate=0.8;window.speechSynthesis.speak(u);};
+  const speak=txt=>{
+    if(!window.speechSynthesis)return;
+    window.speechSynthesis.cancel();
+    const phMap={"CH":"che","LL":"elle","RR":"erre","Ñ":"eñe","A":"a","E":"e","I":"i","O":"o","U":"u",
+      "B":"be","C":"ce","D":"de","F":"efe","G":"ge","J":"jota","L":"ele","M":"eme","N":"ene",
+      "P":"pe","R":"ere","S":"ese","T":"te","V":"uve","Y":"ye","Z":"ceta"};
+    const u=new SpeechSynthesisUtterance(phMap[txt]||txt.toLowerCase());
+    u.lang="es-UY";u.rate=0.7;u.pitch=1.1;
+    window.speechSynthesis.speak(u);
+  };
   const sh=arr=>[...arr].sort(()=>Math.random()-0.5);
   const responder=(ph,correcto)=>{
     if(fb)return;
@@ -1422,10 +1698,10 @@ function JuegosInteractivos({phonemes,phonemeEmoji,phonemeWords,C}){
         <div style={{fontSize:12,color:"#9B9590",marginBottom:4}}>Toca la imagen que empieza con</div>
         <div style={{fontFamily:"Georgia,serif",fontSize:64,fontWeight:700,color:"#E8719C",lineHeight:1}}>{cp}</div>
       </div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-        {opts.map((o,i)=><button key={i} onClick={()=>responder(o.ph,o.ph===cp)} style={{padding:"14px 8px",borderRadius:12,border:"2px solid #F9C8DC",background:"white",cursor:"pointer",textAlign:"center"}}>
-          <div style={{fontSize:40}}>{o.e}</div>
-          <div style={{fontSize:11,fontWeight:700,marginTop:4}}>{o.w}</div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+        {opts.map((o,i)=><button key={i} onClick={()=>responder(o.ph,o.ph===cp)} style={{padding:"18px 8px",borderRadius:14,border:"2px solid #F9C8DC",background:"white",cursor:"pointer",textAlign:"center"}}>
+          <div style={{fontSize:56}}>{o.e}</div>
+          <div style={{fontSize:12,fontWeight:700,marginTop:6,color:"#2C2C2C"}}>{o.w ? o.w.charAt(0).toUpperCase()+o.w.slice(1) : ""}</div>
         </button>)}
       </div>
       <button style={{marginTop:12,width:"100%",padding:10,borderRadius:10,border:"none",background:"#EDE0F5",cursor:"pointer",fontWeight:600}} onClick={()=>setActivo(null)}>Salir</button>
@@ -1470,18 +1746,24 @@ function Phonology() {
   const stages = ["Escucha","Imagen","Letra","Silaba","Segmentacion","Fusion","Manipulacion"];
   const cats   = { Vocales:["A","E","I","O","U"], Consonantes:PHONEMES.filter(p => !["A","E","I","O","U"].includes(p)), Todas:PHONEMES };
 
+  // TTS: usar la palabra con acento tal como está (ya tiene acentos)
   const speak = (ph) => {
     if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(ph.toLowerCase());
-    u.lang = "es"; u.rate = 0.7;
+    // Para fonemas especiales: decir el nombre correcto del fonema
+    const phMap = { "CH":"che","LL":"elle","RR":"erre","Ñ":"eñe","A":"a","E":"e","I":"i","O":"o","U":"u",
+      "B":"be","C":"ce","D":"de","F":"efe","G":"ge","J":"jota","L":"ele","M":"eme","N":"ene",
+      "P":"pe","R":"ere","S":"ese","T":"te","V":"uve","Y":"ye","Z":"ceta" };
+    const u = new SpeechSynthesisUtterance(phMap[ph] || ph.toLowerCase());
+    u.lang = "es-UY"; u.rate = 0.65; u.pitch = 1.1;
     window.speechSynthesis.speak(u);
   };
   const speakWord = (w) => {
     if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(w.toLowerCase());
-    u.lang = "es"; u.rate = 0.8;
+    // w ya tiene acentos ortográficos → TTS pronuncia correctamente
+    const u = new SpeechSynthesisUtterance(w);
+    u.lang = "es-UY"; u.rate = 0.75; u.pitch = 1.0;
     window.speechSynthesis.speak(u);
   };
 
@@ -1518,12 +1800,13 @@ function Phonology() {
               <div style={{ fontSize:11, fontWeight:700, color:C.terraD, marginBottom:8, textTransform:"uppercase", letterSpacing:.5 }}>
                 Palabras que empiezan con {sel}
               </div>
-              <div style={{ display:"flex", flexWrap:"wrap", gap:8, justifyContent:"center" }}>
+              <div style={{ display:"flex", flexWrap:"wrap", gap:10, justifyContent:"center" }}>
                 {emojis.map((emoji, i) => (
-                  <div key={i} style={{ textAlign:"center", cursor:"pointer", background:"white", borderRadius:12, border:`2px solid ${C.terraL}`, width:80, padding:"8px 4px" }}
+                  <div key={i} style={{ textAlign:"center", cursor:"pointer", background:"white", borderRadius:14, border:`2px solid ${C.terraL}`, width:90, padding:"10px 6px", boxShadow:"0 2px 8px rgba(0,0,0,.06)", transition:"transform .15s" }}
                     onClick={() => speakWord(words[i] || sel)}>
-                    <div style={{ fontSize:36, lineHeight:1.2 }}>{emoji}</div>
-                    <div style={{ fontSize:10, fontWeight:800, color:C.terra, marginTop:4, textTransform:"uppercase" }}>{words[i] || ""}</div>
+                    <div style={{ fontSize:48, lineHeight:1.2 }}>{emoji}</div>
+                    <div style={{ fontSize:11, fontWeight:800, color:C.terra, marginTop:6, textTransform:"uppercase", letterSpacing:.5 }}>{words[i] ? words[i].charAt(0).toUpperCase()+words[i].slice(1) : ""}</div>
+                    <div style={{ fontSize:9, color:C.grayL, marginTop:2 }}>🔊 tocar</div>
                   </div>
                 ))}
               </div>
@@ -1646,8 +1929,8 @@ function Phonology() {
       <div className="phgrid">
         {(cats[fil] || PHONEMES).map(ph => (
           <button key={ph} className={`phbtn${sel===ph?" sel":""}`} onClick={() => handle(ph)}>
-            <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:36, fontWeight:700, lineHeight:1 }}>{ph}</div>
-            {PHONEME_EMOJI[ph] && <div style={{ fontSize:28, lineHeight:1 }}>{PHONEME_EMOJI[ph][0]}</div>}
+            <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:34, fontWeight:700, lineHeight:1 }}>{ph}</div>
+            {PHONEME_EMOJI[ph] && <div style={{ fontSize:36, lineHeight:1 }}>{PHONEME_EMOJI[ph][0]}</div>}
           </button>
         ))}
       </div>
@@ -1661,46 +1944,281 @@ function Phonology() {
 
 // ─── REPORTS ──────────────────────────────────────────────────────────────────
 function Reports({ patients, sessions, payments }) {
-  const [pid, setPid] = useState("");
+  const [pid, setPid]       = useState("");
+  const [tab, setTab]       = useState("estadisticas");
+  const [reportType, setReportType] = useState(null);
+
   const patient = patients.find(p => p.id === parseInt(pid));
   const pSess   = sessions.filter(s => s.patientId === parseInt(pid));
   const totalC  = payments.filter(p => p.status === "pagado").reduce((a, b) => a + b.amount, 0);
+
+  // Calcular progreso promedio
+  const avgProgress = pSess.length > 0 ? Math.round(pSess.reduce((a,s) => a+(s.progress||0), 0) / pSess.length) : 0;
+  const lastSess    = pSess[0];
+  const firstSess   = pSess[pSess.length-1];
+  const tendencia   = pSess.length >= 2 ? (pSess[0].progress||0) - (pSess[pSess.length-1].progress||0) : 0;
+
+  const reportTabs = [
+    { id:"estadisticas", l:"📊 General" },
+    { id:"familia",      l:"👨‍👩‍👧 Familia" },
+    { id:"progreso",     l:"📈 Progreso" },
+    { id:"evolutivo",    l:"📋 Evolutivo" },
+  ];
+
   return (
     <div className="fu">
-      <div style={{ marginBottom:14 }}><div className="pt">Reportes</div><div className="ps">Estadisticas e informes</div></div>
-      <div className="sgrid">
-        <div className="sc2"><div className="snum">{patients.length}</div><div className="slbl">Pacientes</div></div>
-        <div className="sc2"><div className="snum">{sessions.length}</div><div className="slbl">Sesiones</div></div>
-        <div className="sc2"><div className="snum">${(totalC/1000).toFixed(0)}k</div><div className="slbl">Cobrado</div></div>
-        <div className="sc2"><div className="snum">{payments.filter(p => p.status==="pendiente").length}</div><div className="slbl">Pendientes</div></div>
-      </div>
-      <SC title="⚙️ Generar informe">
-        <div className="fg"><label className="lbl">Paciente</label>
-          <select className="inp" value={pid} onChange={e => setPid(e.target.value)}>
-            <option value="">Selecciona...</option>
-            {patients.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </select>
-        </div>
-        {patient && (
-          <>
-            <div className="alert alrts">✅ {pSess.length} sesiones registradas — listo para generar</div>
-            <div style={{ display:"flex", gap:7, flexWrap:"wrap" }}>
-              <button className="btn btnp btnsm" onClick={() => window.print()}>🖨️ Evolutivo</button>
-              <button className="btn btno btnsm" onClick={() => window.print()}>📄 Derivacion</button>
-              <button className="btn btng btnsm" onClick={() => window.print()}>👨‍👩‍👧 Para familias</button>
-            </div>
-          </>
-        )}
-      </SC>
-      <SC title="📊 Diagnosticos">
-        {Object.entries(patients.reduce((a, p) => { a[p.diagnosis]=(a[p.diagnosis]||0)+1; return a; }, {})).map(([d, n]) => (
-          <div key={d} style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 0", borderBottom:`1px solid ${C.sand}` }}>
-            <div style={{ flex:1, fontWeight:500, fontSize:13 }}>{d}</div>
-            <div className="prog" style={{ width:90 }}><div className="progf" style={{ width:`${(n/patients.length)*100}%` }} /></div>
-            <div style={{ fontSize:13, fontWeight:700, color:C.terra, minWidth:20 }}>{n}</div>
-          </div>
+      <div style={{ marginBottom:14 }}><div className="pt">Reportes</div><div className="ps">Estadísticas e informes clínicos</div></div>
+
+      <div className="atabrow">
+        {reportTabs.map(t => (
+          <button key={t.id} className={`atab${tab===t.id?" active":""}`} onClick={() => setTab(t.id)}>{t.l}</button>
         ))}
-      </SC>
+      </div>
+
+      {/* ─── TAB ESTADÍSTICAS ─── */}
+      {tab === "estadisticas" && (
+        <>
+          <div className="sgrid">
+            <div className="sc2"><div className="snum">{patients.length}</div><div className="slbl">Pacientes</div></div>
+            <div className="sc2"><div className="snum">{sessions.length}</div><div className="slbl">Sesiones</div></div>
+            <div className="sc2"><div className="snum">${(totalC/1000).toFixed(0)}k</div><div className="slbl">Cobrado</div></div>
+            <div className="sc2"><div className="snum">{payments.filter(p => p.status==="pendiente").length}</div><div className="slbl">Pendientes</div></div>
+          </div>
+          <SC title="📊 Diagnósticos">
+            {Object.entries(patients.reduce((a, p) => { a[p.diagnosis]=(a[p.diagnosis]||0)+1; return a; }, {})).map(([d, n]) => (
+              <div key={d} style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 0", borderBottom:`1px solid ${C.sand}` }}>
+                <div style={{ flex:1, fontWeight:500, fontSize:13 }}>{d}</div>
+                <div className="prog" style={{ width:90 }}><div className="progf" style={{ width:`${(n/patients.length)*100}%` }} /></div>
+                <div style={{ fontSize:13, fontWeight:700, color:C.terra, minWidth:20 }}>{n}</div>
+              </div>
+            ))}
+          </SC>
+          <SC title="🗓️ Sesiones recientes">
+            {sessions.slice(0,5).map(s => (
+              <div key={s.id} style={{ display:"flex", gap:10, alignItems:"center", padding:"8px 0", borderBottom:`1px solid ${C.sand}` }}>
+                <div style={{ fontSize:11, color:C.grayL, minWidth:70 }}>{s.date}</div>
+                <div style={{ flex:1, fontSize:13, fontWeight:600 }}>{s.patient}</div>
+                <div className="prog" style={{ width:60 }}><div className="progf" style={{ width:`${s.progress||0}%` }} /></div>
+                <div style={{ fontSize:11, fontWeight:700, color:C.terra }}>{s.progress||0}%</div>
+              </div>
+            ))}
+          </SC>
+        </>
+      )}
+
+      {/* ─── TAB FAMILIA ─── */}
+      {tab === "familia" && (
+        <>
+          <div className="fg"><label className="lbl">Seleccionar paciente</label>
+            <select className="inp" value={pid} onChange={e => setPid(e.target.value)}>
+              <option value="">Elige un paciente...</option>
+              {patients.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+          </div>
+          {!patient && <div className="alert alrti">Selecciona un paciente para generar el informe familiar.</div>}
+          {patient && (
+            <div>
+              {/* Vista previa del informe */}
+              <div style={{ background:"white", borderRadius:16, padding:20, boxShadow:"0 2px 12px rgba(0,0,0,.08)", marginBottom:12, border:`1px solid ${C.sand}` }}>
+                {/* Encabezado */}
+                <div style={{ borderBottom:`3px solid ${C.terra}`, paddingBottom:12, marginBottom:16, textAlign:"center" }}>
+                  <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:22, fontWeight:700, color:C.charcoal }}>Informe para la Familia</div>
+                  <div style={{ fontSize:12, color:C.grayL, marginTop:4 }}>Hadrion — Plataforma Terapéutica · {new Date().toLocaleDateString("es-UY")}</div>
+                </div>
+
+                {/* Datos del paciente */}
+                <div style={{ background:C.terraF, borderRadius:10, padding:12, marginBottom:14, display:"flex", gap:12, alignItems:"center" }}>
+                  <div className="av" style={{ width:44, height:44, background:patient.color, fontSize:14, borderRadius:12 }}>{patient.avatar}</div>
+                  <div>
+                    <div style={{ fontWeight:700, fontSize:15, color:C.charcoal }}>{patient.name}</div>
+                    <div style={{ fontSize:12, color:C.grayL }}>{patient.age} años · {patient.diagnosis} · {pSess.length} sesiones realizadas</div>
+                    <div style={{ fontSize:11, color:C.grayL }}>Tutor/a: {patient.guardian}</div>
+                  </div>
+                </div>
+
+                {/* Progreso */}
+                <div style={{ marginBottom:14 }}>
+                  <div style={{ fontWeight:700, fontSize:13, color:C.charcoal, marginBottom:8 }}>📈 Progreso general</div>
+                  <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:6 }}>
+                    <div className="prog" style={{ flex:1, height:12, borderRadius:8 }}>
+                      <div className="progf" style={{ width:`${avgProgress}%`, height:12, borderRadius:8 }} />
+                    </div>
+                    <div style={{ fontWeight:700, fontSize:16, color:C.terra, minWidth:40 }}>{avgProgress}%</div>
+                  </div>
+                  <div style={{ fontSize:12, color:C.grayL }}>
+                    {tendencia > 0 ? `📈 Tendencia positiva: +${tendencia}% desde el inicio` : tendencia < 0 ? `📉 En proceso de ajuste de objetivos` : "📊 Progreso estable"}
+                  </div>
+                </div>
+
+                {/* Objetivos */}
+                {patient.goals && patient.goals.length > 0 && (
+                  <div style={{ marginBottom:14 }}>
+                    <div style={{ fontWeight:700, fontSize:13, color:C.charcoal, marginBottom:8 }}>🎯 Objetivos trabajados</div>
+                    {patient.goals.map((g, i) => (
+                      <div key={i} style={{ display:"flex", gap:8, padding:"6px 0", borderBottom:`1px solid ${C.sand}`, fontSize:13, color:C.charcoal }}>
+                        <span style={{ color:C.terra }}>•</span> {g}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Nota de la última sesión */}
+                {lastSess && (
+                  <div style={{ background:C.cream, borderRadius:10, padding:12, marginBottom:14 }}>
+                    <div style={{ fontWeight:700, fontSize:12, color:C.grayL, marginBottom:6, textTransform:"uppercase" }}>Última sesión — {lastSess.date}</div>
+                    <div style={{ fontSize:13, color:C.charcoal, lineHeight:1.6 }}>{lastSess.note}</div>
+                    {lastSess.homework && (
+                      <div style={{ marginTop:8, background:C.goldF, borderRadius:8, padding:"8px 10px", fontSize:12, color:C.gold, fontWeight:600 }}>
+                        🏠 Tarea para casa: {lastSess.homework}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Notas generales */}
+                {patient.notes && (
+                  <div style={{ marginBottom:14 }}>
+                    <div style={{ fontWeight:700, fontSize:13, color:C.charcoal, marginBottom:6 }}>📝 Observaciones del profesional</div>
+                    <div style={{ fontSize:13, color:C.charcoal, lineHeight:1.6, fontStyle:"italic" }}>{patient.notes}</div>
+                  </div>
+                )}
+
+                {/* Próxima sesión */}
+                <div style={{ background:C.infoF, borderRadius:10, padding:10, display:"flex", gap:8, alignItems:"center" }}>
+                  <span style={{ fontSize:18 }}>📅</span>
+                  <div style={{ fontSize:13 }}><strong>Próxima sesión:</strong> {patient.nextSession}</div>
+                </div>
+
+                <div style={{ marginTop:14, borderTop:`1px solid ${C.sand}`, paddingTop:10, fontSize:11, color:C.grayL, textAlign:"center" }}>
+                  Informe generado con Hadrion · comunipro12@gmail.com
+                </div>
+              </div>
+              <button className="btn btnp btnfull noprint" onClick={() => window.print()}>🖨️ Imprimir / Guardar PDF</button>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ─── TAB PROGRESO ─── */}
+      {tab === "progreso" && (
+        <>
+          <div className="fg"><label className="lbl">Seleccionar paciente</label>
+            <select className="inp" value={pid} onChange={e => setPid(e.target.value)}>
+              <option value="">Elige un paciente...</option>
+              {patients.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+          </div>
+          {!patient && <div className="alert alrti">Selecciona un paciente para ver su seguimiento de progreso.</div>}
+          {patient && (
+            <div>
+              {/* Métricas de seguimiento */}
+              <div className="sgrid" style={{ marginBottom:14 }}>
+                <div className="sc2"><div className="snum">{pSess.length}</div><div className="slbl">Sesiones</div></div>
+                <div className="sc2"><div className="snum">{avgProgress}%</div><div className="slbl">Progreso prom.</div></div>
+                <div className="sc2"><div className="snum">{tendencia > 0 ? "+":"" }{tendencia}%</div><div className="slbl">Tendencia</div></div>
+                <div className="sc2">
+                  <div className="snum" style={{ fontSize:14 }}>
+                    {avgProgress >= 75 ? "🌟" : avgProgress >= 50 ? "👍" : avgProgress >= 25 ? "🔄" : "🌱"}
+                  </div>
+                  <div className="slbl">{avgProgress >= 75 ? "Excelente" : avgProgress >= 50 ? "Bueno" : avgProgress >= 25 ? "En proceso" : "Inicial"}</div>
+                </div>
+              </div>
+
+              {/* Gráfico de barra por sesión */}
+              <SC title="📈 Evolución por sesión">
+                {pSess.length === 0 && <div style={{ color:C.grayL, fontSize:12 }}>Sin sesiones registradas.</div>}
+                {[...pSess].reverse().map((s, i) => (
+                  <div key={s.id} style={{ marginBottom:10 }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
+                      <div style={{ fontSize:12, fontWeight:600 }}>Sesión {i+1} — {s.date}</div>
+                      <div style={{ fontSize:12, fontWeight:700, color:C.terra }}>{s.progress||0}%</div>
+                    </div>
+                    <div className="prog" style={{ height:10, borderRadius:6 }}>
+                      <div className="progf" style={{ width:`${s.progress||0}%`, height:10, borderRadius:6,
+                        background:(s.progress||0) >= 75 ? C.green : (s.progress||0) >= 50 ? C.gold : C.sage }} />
+                    </div>
+                    <div style={{ fontSize:11, color:C.grayL, marginTop:3 }}>{s.note?.slice(0,80)}{s.note?.length > 80 ? "…" : ""}</div>
+                  </div>
+                ))}
+              </SC>
+
+              {/* Objetivos con progreso */}
+              {patient.goals && patient.goals.length > 0 && (
+                <SC title="🎯 Estado de objetivos">
+                  {patient.goals.map((g, i) => {
+                    const prog = Math.min(100, Math.round((avgProgress / patient.goals.length) * (i+1)));
+                    return (
+                      <div key={i} style={{ marginBottom:10 }}>
+                        <div style={{ fontSize:13, fontWeight:600, color:C.charcoal, marginBottom:4 }}>• {g}</div>
+                        <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                          <div className="prog" style={{ flex:1, height:8, borderRadius:5 }}>
+                            <div className="progf" style={{ width:`${prog}%`, height:8, borderRadius:5 }} />
+                          </div>
+                          <span style={{ fontSize:11, fontWeight:700, color:C.terra, minWidth:32 }}>{prog}%</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </SC>
+              )}
+
+              <div className="alert alrts">
+                💡 Usa <strong>Asistente IA → Seguimiento</strong> para generar un análisis detallado con recomendaciones clínicas.
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ─── TAB EVOLUTIVO ─── */}
+      {tab === "evolutivo" && (
+        <>
+          <div className="fg"><label className="lbl">Seleccionar paciente</label>
+            <select className="inp" value={pid} onChange={e => setPid(e.target.value)}>
+              <option value="">Elige un paciente...</option>
+              {patients.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+          </div>
+          {!patient && <div className="alert alrti">Selecciona un paciente para ver su historia evolutiva.</div>}
+          {patient && (
+            <div>
+              <div style={{ background:"white", borderRadius:16, padding:20, boxShadow:"0 2px 12px rgba(0,0,0,.08)", border:`1px solid ${C.sand}` }}>
+                <div style={{ borderBottom:`3px solid ${C.terra}`, paddingBottom:12, marginBottom:16, textAlign:"center" }}>
+                  <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:20, fontWeight:700 }}>Informe Evolutivo</div>
+                  <div style={{ fontSize:12, color:C.grayL }}>{patient.name} · {new Date().toLocaleDateString("es-UY")}</div>
+                </div>
+
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:14, fontSize:12 }}>
+                  {[["Paciente",patient.name],["Edad",`${patient.age} años`],["Diagnóstico",patient.diagnosis],["Sesiones",pSess.length],["Tutor/a",patient.guardian],["Próxima",patient.nextSession]].map(([l,v]) => (
+                    <div key={l} style={{ padding:"6px 0", borderBottom:`1px solid ${C.sand}` }}>
+                      <span style={{ color:C.grayL }}>{l}: </span><strong>{v}</strong>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ fontWeight:700, fontSize:13, color:C.charcoal, marginBottom:8 }}>Objetivos terapéuticos</div>
+                {(patient.goals||[]).map((g,i) => (
+                  <div key={i} style={{ fontSize:13, padding:"4px 0", color:C.charcoal }}>• {g}</div>
+                ))}
+
+                <div style={{ fontWeight:700, fontSize:13, color:C.charcoal, margin:"12px 0 8px" }}>Notas evolutivas por sesión</div>
+                {pSess.slice(0,6).map((s, i) => (
+                  <div key={s.id} style={{ marginBottom:10, paddingBottom:10, borderBottom:`1px solid ${C.sand}` }}>
+                    <div style={{ fontWeight:600, fontSize:12, color:C.terra }}>Sesión {pSess.length-i} — {s.date}</div>
+                    <div style={{ fontSize:13, marginTop:3, lineHeight:1.5 }}>{s.note}</div>
+                    <div style={{ fontSize:11, color:C.grayL, marginTop:3 }}>Progreso: {s.progress||0}% · Estado: {s.estado||"—"}</div>
+                  </div>
+                ))}
+
+                <div style={{ marginTop:12, fontSize:11, color:C.grayL, textAlign:"center", borderTop:`1px solid ${C.sand}`, paddingTop:8 }}>
+                  Firma: _________________ — Hadrion Plataforma Clínica
+                </div>
+              </div>
+              <button className="btn btnp btnfull noprint" style={{ marginTop:8 }} onClick={() => window.print()}>🖨️ Imprimir / PDF</button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
@@ -2390,7 +2908,7 @@ function IAAsistente({patients,C}){
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({
           model:"claude-sonnet-4-20250514",
-          max_tokens:1000,
+          max_tokens:1500,
           messages:[{role:"user",content:prompt}]
         })
       });
@@ -2402,25 +2920,119 @@ function IAAsistente({patients,C}){
   };
 
   const generarObjetivos=()=>{
-    if(!diagnostico||!edad){setError("Completa diagnostico y edad.");return;}
-    callClaude(`Sos una fonoaudiologa experta en Uruguay. Genera 5 objetivos terapeuticos especificos, concretos y medibles para un paciente de ${edad} anos con diagnostico de ${diagnostico}. Cada objetivo debe tener: descripcion clara, criterio de logro y tiempo estimado. Formato de lista numerada. Responde en espanol, sin asteriscos ni markdown.`);
+    if(!diagnostico||!edad){setError("Completa diagnóstico y edad.");return;}
+    callClaude(`Sos una fonoaudióloga clínica experta en Uruguay. Genera 5 objetivos terapéuticos específicos, concretos y medibles para un paciente de ${edad} años con diagnóstico de ${diagnostico}.
+
+Formato EXACTO para cada objetivo (sin asteriscos, sin markdown):
+N. [Objetivo]
+   Criterio de logro: [descripción concreta, ej: "80% de ensayos correctos"]
+   Tiempo estimado: [ej: "4-6 semanas"]
+   Área: [ej: "Comprensión auditiva"]
+
+Importante: objetivos apropiados para la edad de ${edad} años, basados en evidencia, con verbos medibles (producirá, discriminará, identificará, etc.). Responde SOLO con los 5 objetivos, sin introducción ni cierre.`);
   };
 
   const generarPlan=()=>{
-    if(!diagnostico||!edad){setError("Completa diagnostico y edad.");return;}
-    callClaude(`Sos una fonoaudiologa experta. Crea un plan terapeutico mensual para un paciente de ${edad} anos con ${diagnostico}. Incluye: semana 1, 2, 3 y 4 con actividades especificas para cada sesion, materiales necesarios y indicaciones para la familia. Responde en espanol claro, sin asteriscos ni markdown.`);
+    if(!diagnostico||!edad){setError("Completa diagnóstico y edad.");return;}
+    callClaude(`Sos una fonoaudióloga clínica experta. Crea un plan terapéutico mensual para un paciente de ${edad} años con diagnóstico de ${diagnostico}.
+
+Estructura EXACTA (sin asteriscos ni markdown):
+
+PLAN TERAPÉUTICO MENSUAL — ${diagnostico} — ${edad} años
+
+SEMANA 1 — Objetivos: [indicar cuáles]
+Sesión 1: [actividad principal, 30-40 min]
+Materiales: [lista de materiales necesarios]
+Indicaciones para la familia: [tarea concreta]
+
+SEMANA 2 — Objetivos: [indicar cuáles]
+Sesión 2: [actividad principal]
+Materiales: [lista]
+Indicaciones para la familia: [tarea]
+
+SEMANA 3 — Objetivos: [indicar cuáles]
+Sesión 3: [actividad principal]
+Materiales: [lista]
+Indicaciones para la familia: [tarea]
+
+SEMANA 4 — Objetivos: [indicar cuáles]
+Sesión 4: [actividad principal + evaluación de progreso]
+Materiales: [lista]
+Indicaciones para la familia: [tarea]
+
+INDICADORES DE LOGRO DEL MES:
+- [indicador 1]
+- [indicador 2]
+- [indicador 3]
+
+Sé específico y clínico. Sin introducción ni cierre.`);
   };
 
   const generarInforme=()=>{
     const p=patients.find(x=>x.name===selPat);
     if(!p){setError("Selecciona un paciente.");return;}
-    callClaude(`Sos una fonoaudiologa redactando un informe de progreso para la familia. El paciente se llama ${p.name}, tiene ${p.age} anos, diagnostico: ${p.diagnosis}. Ha tenido ${p.sessions} sesiones. Sus objetivos son: ${(p.goals||[]).join(", ")}. Redacta un informe claro, positivo y profesional de 3 parrafos para entregar a la familia. Incluye: progreso actual, logros destacados y sugerencias para casa. En espanol, sin asteriscos ni markdown.`);
+    callClaude(`Sos una fonoaudióloga redactando un informe de progreso para la familia de ${p.name}.
+
+Datos del paciente:
+- Nombre: ${p.name}
+- Edad: ${p.age} años
+- Diagnóstico: ${p.diagnosis}
+- Sesiones realizadas: ${p.sessions}
+- Objetivos en trabajo: ${(p.goals||[]).join("; ")}
+- Notas clínicas: ${p.notes||"Sin notas adicionales"}
+
+Redacta un informe para la familia con esta estructura EXACTA (sin asteriscos ni markdown):
+
+INFORME DE PROGRESO — ${p.name}
+Fecha: ${new Date().toLocaleDateString("es-UY")}
+
+SITUACIÓN ACTUAL
+[Párrafo de 3-4 oraciones describiendo el momento actual del proceso terapéutico, en lenguaje claro y comprensible para la familia]
+
+LOGROS DESTACADOS
+[Párrafo de 3-4 oraciones sobre los avances concretos observados, usando ejemplos específicos]
+
+RECOMENDACIONES PARA EL HOGAR
+[3-4 sugerencias prácticas y concretas que la familia puede implementar en casa]
+
+PRÓXIMOS PASOS
+[2-3 oraciones sobre lo que se trabajará en las próximas sesiones]
+
+Tono: cálido, profesional, esperanzador pero honesto. Sin tecnicismos. En español rioplatense.`);
   };
 
   const generarSeguimiento=()=>{
     const p=patients.find(x=>x.name===selPat);
     if(!p){setError("Selecciona un paciente.");return;}
-    callClaude(`Sos una fonoaudiologa. Analiza el progreso de ${p.name}, ${p.age} anos, diagnostico ${p.diagnosis}, con ${p.sessions} sesiones realizadas. Genera estos 4 puntos: A. Evaluacion del progreso actual. B. Proximos pasos recomendados. C. Indicadores de logro proximas 4 semanas. D. Actividades prioritarias. En espanol claro, sin asteriscos ni markdown.`);
+    callClaude(`Sos una fonoaudióloga clínica. Genera un análisis de seguimiento terapéutico para ${p.name}.
+
+Datos:
+- Edad: ${p.age} años
+- Diagnóstico: ${p.diagnosis}
+- Sesiones realizadas: ${p.sessions}
+- Objetivos: ${(p.goals||[]).join("; ")}
+- Notas: ${p.notes||"Sin notas adicionales"}
+
+Estructura EXACTA (sin asteriscos ni markdown):
+
+ANÁLISIS DE SEGUIMIENTO — ${p.name}
+
+A. EVALUACIÓN DEL PROGRESO ACTUAL
+[Análisis clínico del estado actual en relación a los objetivos planteados, 3-4 oraciones]
+
+B. PRÓXIMOS PASOS RECOMENDADOS
+[3-4 acciones concretas para las próximas sesiones, con justificación clínica]
+
+C. INDICADORES DE LOGRO — PRÓXIMAS 4 SEMANAS
+[Lista de 4 indicadores observables y medibles]
+
+D. ACTIVIDADES PRIORITARIAS
+[3 actividades específicas recomendadas, con descripción breve de cada una]
+
+E. SEÑALES DE ALERTA A MONITOREAR
+[2-3 situaciones que requerirían ajuste del plan]
+
+Sé específico y clínico. Sin introducción ni cierre.`);
   };
 
   const tabs=[
@@ -2456,15 +3068,18 @@ function IAAsistente({patients,C}){
       {(tab==="objetivos"||tab==="plan")&&(
         <div>
           <div className="fg">
-            <label className="lbl">Diagnostico</label>
-            <input className="inp" placeholder="ej: TEL, Dislexia, TDAH, Disartria..." value={diagnostico} onChange={e=>setDiagnostico(e.target.value)}/>
+            <label className="lbl">Diagnóstico</label>
+            <select className="inp" value={diagnostico} onChange={e=>setDiagnostico(e.target.value)}>
+              <option value="">Selecciona diagnóstico...</option>
+              {["TEL","Dislexia","TDAH","Disartria","TEA","Retraso del habla","Tartamudez","Otra"].map(d => <option key={d} value={d}>{d}</option>)}
+            </select>
           </div>
           <div className="fg">
             <label className="lbl">Edad del paciente</label>
             <input className="inp" type="number" placeholder="ej: 7" value={edad} onChange={e=>setEdad(e.target.value)} min="2" max="18"/>
           </div>
           <button className="btn btnp btnfull" onClick={tab==="objetivos"?generarObjetivos:generarPlan} disabled={loading}>
-            {loading?"⏳ Generando...":tab==="objetivos"?"🎯 Generar objetivos terapeuticos":"📅 Generar plan mensual"}
+            {loading?"⏳ Generando...":tab==="objetivos"?"🎯 Generar objetivos terapéuticos":"📅 Generar plan mensual"}
           </button>
         </div>
       )}
@@ -2499,15 +3114,20 @@ function IAAsistente({patients,C}){
       {result&&(
         <div style={{marginTop:14}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-            <div style={{fontWeight:700,fontSize:13,color:C.charcoal}}>Resultado generado por IA</div>
+            <div style={{fontWeight:700,fontSize:13,color:C.charcoal}}>✅ Resultado generado por IA</div>
             <button className="btn btnsm btno noprint" onClick={()=>window.print()}>🖨️ Imprimir</button>
           </div>
-          <div style={{background:"#F5F0FA",borderRadius:14,padding:16,whiteSpace:"pre-wrap",fontSize:13,color:C.charcoal,lineHeight:1.8,border:"1.5px solid #D4BCE8"}}>
+          <div style={{background:"#F5F0FA",borderRadius:14,padding:18,whiteSpace:"pre-wrap",fontSize:13,color:C.charcoal,lineHeight:1.9,border:"1.5px solid #D4BCE8",maxHeight:"60vh",overflowY:"auto"}}>
             {result}
           </div>
-          <button className="btn btng btnfull" style={{marginTop:8}} onClick={()=>navigator.clipboard&&navigator.clipboard.writeText(result)}>
-            📋 Copiar texto
-          </button>
+          <div style={{display:"flex",gap:8,marginTop:8}}>
+            <button className="btn btng" style={{flex:1,justifyContent:"center"}} onClick={()=>navigator.clipboard&&navigator.clipboard.writeText(result)}>
+              📋 Copiar texto
+            </button>
+            <button className="btn btno" style={{flex:1,justifyContent:"center"}} onClick={()=>setResult("")}>
+              🔄 Limpiar
+            </button>
+          </div>
         </div>
       )}
     </div>
@@ -2580,7 +3200,7 @@ export default function HadrionApp() {
     payments:   <Payments   patients={patients} payments={payments} setPayments={setPayments} />,
     sessions:   <Sessions   patients={patients} sessions={sessions} setSessions={setSessions} setPatients={setPatients} />,
     history:    <History    patients={patients} sessions={sessions} selectedPatientId={selPatId} />,
-    objectives: <Activities />,
+    objectives: <Objectives />,
     activities: <Activities />,
     phonology:  <Phonology />,
     reports:    <Reports    patients={patients} sessions={sessions} payments={payments} />,
