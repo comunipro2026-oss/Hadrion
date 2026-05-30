@@ -487,9 +487,9 @@ textarea.inp{resize:vertical;min-height:74px;}
 .filrow::-webkit-scrollbar{display:none;}
 .filbtn{padding:7px 13px;border-radius:20px;border:1.5px solid #EDE0F5;background:white;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;color:#6B6560;font-family:'Plus Jakarta Sans',sans-serif;flex-shrink:0;min-height:36px;}
 .filbtn.active{background:#9B7EBD;color:white;border-color:#9B7EBD;}
-.phgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:12px 0;}
-@media(min-width:500px){.phgrid{grid-template-columns:repeat(4,1fr);}}
-.phbtn{aspect-ratio:1;border-radius:16px;border:2px solid #EDE0F5;background:white;font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:700;cursor:pointer;transition:all .17s;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#2C2C2C;gap:6px;min-height:90px;}
+.phgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0;}
+@media(min-width:500px){.phgrid{grid-template-columns:repeat(6,1fr);}}
+.phbtn{aspect-ratio:1;border-radius:12px;border:2px solid #EDE0F5;background:white;font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:700;cursor:pointer;transition:all .17s;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#2C2C2C;gap:2px;min-height:90px;}
 .phbtn:hover{border-color:#9B7EBD;background:#F5F0FA;}
 .phbtn.sel{border-color:#9B7EBD;background:#9B7EBD;color:white;}
 .roletag{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
@@ -565,7 +565,8 @@ const NAV = [
   { id:"phonology",  l:"Conciencia Fon.",   i:"🔤" },
   { id:"reports",    l:"Reportes",          i:"📊" },
   { id:"plan",       l:"Plan Colaborativo", i:"🤝", s:"Colaborativo" },
-  { id:"resources",  l:"Recursos",          i:"📚", s:"Herramientas" },
+  { id:"ia",         l:"Asistente IA",       i:"🧠", s:"Herramientas" },
+  { id:"resources",  l:"Recursos",          i:"📚" },
   { id:"admin",      l:"Administracion",    i:"🔐", s:"Admin", adminOnly:true },
   { id:"profile",    l:"Mi Perfil",         i:"👤" },
 ];
@@ -1334,85 +1335,240 @@ function Activities() {
       </div>
 
       {sel && (
-        <div style={{background:C.terraF,borderRadius:16,padding:16,marginBottom:12,border:`2px solid ${C.terraL}`}}>
-          <div style={{textAlign:"center",marginBottom:12}}>
-            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:80,fontWeight:700,color:C.terra,lineHeight:1}}>{sel}</div>
-            <div style={{fontSize:12,color:C.terraD,marginTop:4,marginBottom:6}}>Etapa activa: <b>{stage}</b></div>
-            <button className="btn btnp btnsm" onClick={()=>speak(sel)}>🔊 Escuchar</button>
+        <Modal title={sel.name} onClose={() => setSel(null)}>
+          <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:12 }}>
+            <span className="badge" style={{ background:tC[sel.type]?.bg, color:tC[sel.type]?.c }}>{sel.type}</span>
+            <span className="badge" style={{ background:C.terraF, color:C.terra }}>{sel.target}</span>
+            <span className="badge" style={{ background:C.sand, color:C.gray }}>{sel.age} años</span>
+            <span className="badge" style={{ background:C.infoF, color:C.info }}>{sel.ageGroup}</span>
+          </div>
+          <div className="hxf"><div className="hxl">📝 Descripcion</div><div className="hxv">{sel.description}</div></div>
+          <div className="hxf"><div className="hxl">🧰 Materiales</div><div className="hxv">{sel.materials}</div></div>
+          {sel.niveles && (
+            <>
+              <div style={{ fontWeight:700, fontSize:13, color:C.charcoal, margin:"14px 0 8px" }}>Niveles de dificultad</div>
+              <div style={{ display:"flex", gap:6, marginBottom:12 }}>
+                {["facil","medio","dificil"].map(n => (
+                  <button key={n} className="btn btnsm" style={{ flex:1, justifyContent:"center", background:nivel===n?nivelC[n].bg:"white", color:nivel===n?nivelC[n].c:C.grayL, border:`1.5px solid ${nivel===n?nivelC[n].c:C.sand}`, fontWeight:nivel===n?700:500 }} onClick={() => setNivel(n)}>
+                    {n==="facil"?"🟢 Facil":n==="medio"?"🟡 Medio":"🔴 Dificil"}
+                  </button>
+                ))}
+              </div>
+              {sel.niveles[nivel] && (
+                <div style={{ background:nivelC[nivel].bg, borderRadius:12, padding:14, border:`1.5px solid ${nivelC[nivel].c}22` }}>
+                  <div style={{ fontWeight:700, fontSize:13, color:nivelC[nivel].c, marginBottom:8 }}>{sel.niveles[nivel].titulo}</div>
+                  <div style={{ fontWeight:600, fontSize:11, color:C.grayL, marginBottom:4, textTransform:"uppercase" }}>Instrucciones</div>
+                  <div style={{ fontSize:13, color:C.charcoal, lineHeight:1.6, marginBottom:10 }}>{sel.niveles[nivel].instrucciones}</div>
+                  <div style={{ fontWeight:600, fontSize:11, color:C.grayL, marginBottom:4, textTransform:"uppercase" }}>Ejemplos</div>
+                  {sel.niveles[nivel].ejemplos.map((e, i) => (
+                    <div key={i} style={{ fontSize:12, color:C.charcoal, padding:"4px 0", borderBottom:`1px solid ${nivelC[nivel].c}22` }}>• {e}</div>
+                  ))}
+                  <div style={{ marginTop:8, fontSize:11, color:nivelC[nivel].c, fontWeight:600 }}>🎯 Apoyo: {sel.niveles[nivel].apoyo}</div>
+                </div>
+              )}
+            </>
+          )}
+          {sel.printable && <button className="btn btno btnfull noprint" style={{ marginTop:12 }} onClick={() => window.print()}>🖨️ Imprimir actividad</button>}
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+// ─── PHONOLOGY ────────────────────────────────────────────────────────────────
+function JuegosInteractivos({phonemes,phonemeEmoji,phonemeWords,C}){
+  const [activo,setActivo]=React.useState(null);
+  const [ronda,setRonda]=React.useState([]);
+  const [score,setScore]=React.useState(0);
+  const [fb,setFb]=React.useState(null);
+  const [idx,setIdx]=React.useState(0);
+  const speak=txt=>{if(!window.speechSynthesis)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt.toLowerCase());u.lang="es";u.rate=0.8;window.speechSynthesis.speak(u);};
+  const sh=arr=>[...arr].sort(()=>Math.random()-0.5);
+  const responder=(ph,correcto)=>{
+    if(fb)return;
+    setFb(correcto?"ok":"mal");
+    if(correcto)setScore(s=>s+1);
+    setTimeout(()=>{setFb(null);if(idx+1<ronda.length){setIdx(i=>i+1);if(activo==="atrapa")setTimeout(()=>speak(ronda[idx+1]),300);}else setActivo("fin");},900);
+  };
+  if(activo==="atrapa"&&idx<ronda.length){
+    const ops=sh([ronda[idx],...sh(phonemes.filter(p=>p!==ronda[idx])).slice(0,2)]);
+    return(<div style={{background:"white",borderRadius:16,padding:16}}>
+      <div style={{display:"flex",justifyContent:"space-between",marginBottom:12,alignItems:"center"}}>
+        <b style={{fontSize:14}}>🎯 Atrapa el sonido</b>
+        <span style={{background:"#F5F0FA",color:"#9B7EBD",padding:"4px 10px",borderRadius:20,fontSize:12,fontWeight:700}}>⭐{score} {idx+1}/{ronda.length}</span>
+      </div>
+      <div style={{background:"#F5F0FA",borderRadius:14,padding:16,textAlign:"center",marginBottom:12}}>
+        <div style={{fontSize:12,color:"#9B9590",marginBottom:8}}>Escucha y toca la letra correcta</div>
+        <button style={{background:"#9B7EBD",color:"white",border:"none",borderRadius:12,padding:"12px 28px",fontSize:15,fontWeight:700,cursor:"pointer"}} onClick={()=>speak(ronda[idx])}>🔊 Escuchar: {ronda[idx]}</button>
+      </div>
+      {fb&&<div style={{textAlign:"center",padding:10,borderRadius:12,marginBottom:10,background:fb==="ok"?"#E8F8EF":"#FDECEA",color:fb==="ok"?"#27AE60":"#C0392B",fontWeight:700,fontSize:16}}>{fb==="ok"?"✅ Correcto!":"❌ Incorrecto!"}</div>}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
+        {ops.map((ph,i)=><button key={i} onClick={()=>responder(ph,ph===ronda[idx])} style={{padding:"18px 8px",borderRadius:14,border:"2px solid #EDE0F5",background:"white",fontFamily:"Georgia,serif",fontSize:28,fontWeight:700,cursor:"pointer"}}>{ph}</button>)}
+      </div>
+      <button style={{marginTop:12,width:"100%",padding:10,borderRadius:10,border:"none",background:"#EDE0F5",cursor:"pointer",fontWeight:600}} onClick={()=>setActivo(null)}>Salir</button>
+    </div>);
+  }
+  if(activo==="donde"&&idx<ronda.length){
+    const cp=ronda[idx];
+    const wps=sh(phonemes.filter(p=>p!==cp&&phonemeEmoji[p]&&phonemeWords[p])).slice(0,3);
+    const opts=sh([{ph:cp,e:(phonemeEmoji[cp]||[])[0]||"📝",w:(phonemeWords[cp]||[])[0]||cp},...wps.map(p=>({ph:p,e:(phonemeEmoji[p]||[])[0]||"📝",w:(phonemeWords[p]||[])[0]||p}))]);
+    return(<div style={{background:"white",borderRadius:16,padding:16}}>
+      <div style={{display:"flex",justifyContent:"space-between",marginBottom:12,alignItems:"center"}}>
+        <b style={{fontSize:14}}>❓ Donde esta?</b>
+        <span style={{background:"#FDE8F0",color:"#E8719C",padding:"4px 10px",borderRadius:20,fontSize:12,fontWeight:700}}>⭐{score} {idx+1}/{ronda.length}</span>
+      </div>
+      {fb&&<div style={{textAlign:"center",padding:10,borderRadius:12,marginBottom:10,background:fb==="ok"?"#E8F8EF":"#FDECEA",color:fb==="ok"?"#27AE60":"#C0392B",fontWeight:700,fontSize:16}}>{fb==="ok"?"✅ Correcto!":"❌ Incorrecto!"}</div>}
+      <div style={{background:"#FDE8F0",borderRadius:14,padding:14,textAlign:"center",marginBottom:12}}>
+        <div style={{fontSize:12,color:"#9B9590",marginBottom:4}}>Toca la imagen que empieza con</div>
+        <div style={{fontFamily:"Georgia,serif",fontSize:64,fontWeight:700,color:"#E8719C",lineHeight:1}}>{cp}</div>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+        {opts.map((o,i)=><button key={i} onClick={()=>responder(o.ph,o.ph===cp)} style={{padding:"14px 8px",borderRadius:12,border:"2px solid #F9C8DC",background:"white",cursor:"pointer",textAlign:"center"}}>
+          <div style={{fontSize:40}}>{o.e}</div>
+          <div style={{fontSize:11,fontWeight:700,marginTop:4}}>{o.w}</div>
+        </button>)}
+      </div>
+      <button style={{marginTop:12,width:"100%",padding:10,borderRadius:10,border:"none",background:"#EDE0F5",cursor:"pointer",fontWeight:600}} onClick={()=>setActivo(null)}>Salir</button>
+    </div>);
+  }
+  if(activo==="fin"){
+    return(<div style={{background:"white",borderRadius:16,padding:24,textAlign:"center"}}>
+      <div style={{fontSize:48,marginBottom:12}}>🎉</div>
+      <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,marginBottom:8}}>Juego terminado!</div>
+      <div style={{fontSize:16,color:"#9B9590",marginBottom:16}}>Puntaje: <b style={{color:"#9B7EBD"}}>{score}</b> / {ronda.length}</div>
+      <div style={{background:"#F5F0FA",borderRadius:12,padding:12,marginBottom:16}}>{score===ronda.length?"🌟 Perfecto!":score>=ronda.length/2?"👏 Muy bien!":"💪 Segui practicando!"}</div>
+      <button style={{background:"#9B7EBD",color:"white",border:"none",borderRadius:12,padding:"12px 24px",fontSize:14,fontWeight:700,cursor:"pointer"}} onClick={()=>setActivo(null)}>Jugar de nuevo</button>
+    </div>);
+  }
+  return(<div>
+    {[
+      {id:"atrapa",icon:"🎯",name:"Atrapa el sonido",desc:"Escucha el fonema y toca la letra correcta entre 3 opciones",color:"#9B7EBD",
+       action:()=>{const ph=sh(phonemes).slice(0,8);setRonda(ph);setIdx(0);setScore(0);setFb(null);setActivo("atrapa");setTimeout(()=>speak(ph[0]),500);}},
+      {id:"donde",icon:"❓",name:"Donde esta?",desc:"Ve el fonema y toca la imagen que empieza con ese sonido",color:"#E8719C",
+       action:()=>{const ph=sh(phonemes.filter(p=>phonemeEmoji[p]&&phonemeWords[p])).slice(0,6);setRonda(ph);setIdx(0);setScore(0);setFb(null);setActivo("donde");}},
+    ].map(j=>(
+      <div key={j.id} style={{display:"flex",alignItems:"center",gap:12,padding:14,background:"white",borderRadius:14,marginBottom:10,cursor:"pointer",border:`2px solid ${j.color}33`,boxShadow:"0 2px 8px rgba(0,0,0,.06)"}} onClick={j.action}>
+        <div style={{width:52,height:52,borderRadius:14,background:j.color+"22",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,flexShrink:0}}>{j.icon}</div>
+        <div style={{flex:1}}>
+          <div style={{fontWeight:700,fontSize:14,color:"#2C2C2C"}}>{j.name}</div>
+          <div style={{fontSize:12,color:"#9B9590",marginTop:3}}>{j.desc}</div>
+        </div>
+        <div style={{background:j.color,color:"white",padding:"8px 16px",borderRadius:10,fontSize:13,fontWeight:700,flexShrink:0}}>Jugar</div>
+      </div>
+    ))}
+  </div>);
+}
+
+function Phonology() {
+  const [sel, setSel]         = useState(null);
+  const [stage, setStage]     = useState("Escucha");
+  const [score, setScore]     = useState(0);
+  const [fil, setFil]         = useState("Todas");
+  const [wordIdx, setWordIdx] = useState(0);
+  const [showWords, setShowWords] = useState(false);
+
+  const stages = ["Escucha","Imagen","Letra","Silaba","Segmentacion","Fusion","Manipulacion"];
+  const cats   = { Vocales:["A","E","I","O","U"], Consonantes:PHONEMES.filter(p => !["A","E","I","O","U"].includes(p)), Todas:PHONEMES };
+
+  const speak = (ph) => {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(ph.toLowerCase());
+    u.lang = "es"; u.rate = 0.7;
+    window.speechSynthesis.speak(u);
+  };
+  const speakWord = (w) => {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(w.toLowerCase());
+    u.lang = "es"; u.rate = 0.8;
+    window.speechSynthesis.speak(u);
+  };
+
+  const handle = (ph) => { setSel(ph); speak(ph); setScore(s => s+1); setWordIdx(0); setShowWords(false); };
+  const words     = sel ? (PHONEME_WORDS[sel] || []) : [];
+  const emojis    = sel ? (PHONEME_EMOJI[sel]  || []) : [];
+
+  return (
+    <div className="fu">
+      <div style={{ marginBottom:14 }}><div className="pt">Conciencia Fonologica</div><div className="ps">7 etapas — emojis reales — audio integrado</div></div>
+
+      <SC title="Etapa del ejercicio">
+        <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
+          {stages.map(s => <button key={s} className={`filbtn${stage===s?" active":""}`} onClick={() => setStage(s)}>{s}</button>)}
+        </div>
+      </SC>
+
+      <div style={{ display:"flex", gap:8, marginBottom:12, flexWrap:"wrap", alignItems:"center" }}>
+        {Object.keys(cats).map(c => <button key={c} className={`filbtn${fil===c?" active":""}`} onClick={() => setFil(c)}>{c}</button>)}
+        <div style={{ marginLeft:"auto", background:C.terraF, borderRadius:10, padding:"6px 12px", fontSize:13, fontWeight:700, color:C.terra }}>⭐ {score}</div>
+      </div>
+
+      {sel && (
+        <div style={{ background:C.terraF, borderRadius:16, padding:16, marginBottom:12, border:`2px solid ${C.terraL}` }}>
+          <div style={{ textAlign:"center", marginBottom:12 }}>
+            <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:72, fontWeight:700, color:C.terra, lineHeight:1 }}>{sel}</div>
+            <div style={{ fontSize:12, color:C.terraD, marginTop:4 }}>Etapa: {stage}</div>
+            <button className="btn btnp btnsm" style={{ marginTop:8 }} onClick={() => speak(sel)}>🔊 Escuchar fonema</button>
           </div>
 
-          {stage==="Escucha"&&(
-            <div style={{background:"white",borderRadius:12,padding:14,marginBottom:10}}>
-              <div style={{fontWeight:700,fontSize:13,color:C.terraD,marginBottom:10}}>🎧 Toca cada imagen, escucha y repeti</div>
-              <div style={{display:"flex",flexWrap:"wrap",gap:10,justifyContent:"center"}}>
-                {emojis.slice(0,6).map((emoji,i)=>(
-                  <div key={i} onClick={()=>speakWord(words[i]||sel)} style={{textAlign:"center",cursor:"pointer",background:C.terraF,borderRadius:14,border:`2px solid ${C.terraL}`,width:88,padding:"10px 6px"}}>
-                    <div style={{fontSize:40}}>{emoji}</div>
-                    <div style={{fontSize:11,fontWeight:800,color:C.terra,marginTop:5}}>{words[i]||""}</div>
+          {/* Emojis por fonema */}
+          {(stage === "Imagen" || stage === "Escucha") && emojis.length > 0 && (
+            <div>
+              <div style={{ fontSize:11, fontWeight:700, color:C.terraD, marginBottom:8, textTransform:"uppercase", letterSpacing:.5 }}>
+                Palabras que empiezan con {sel}
+              </div>
+              <div style={{ display:"flex", flexWrap:"wrap", gap:8, justifyContent:"center" }}>
+                {emojis.map((emoji, i) => (
+                  <div key={i} style={{ textAlign:"center", cursor:"pointer", background:"white", borderRadius:12, border:`2px solid ${C.terraL}`, width:80, padding:"8px 4px" }}
+                    onClick={() => speakWord(words[i] || sel)}>
+                    <div style={{ fontSize:36, lineHeight:1.2 }}>{emoji}</div>
+                    <div style={{ fontSize:10, fontWeight:800, color:C.terra, marginTop:4, textTransform:"uppercase" }}>{words[i] || ""}</div>
                   </div>
                 ))}
               </div>
             </div>
-          )}
 
-          {stage==="Imagen"&&(
-            <div style={{background:"white",borderRadius:12,padding:14,marginBottom:10}}>
-              <div style={{fontWeight:700,fontSize:13,color:C.terraD,marginBottom:10}}>🖼️ Toca SOLO las que empiezan con <b style={{color:C.terra}}>{sel}</b></div>
-              <div style={{display:"flex",flexWrap:"wrap",gap:10,justifyContent:"center"}}>
-                {emojis.slice(0,6).map((emoji,i)=>(
-                  <div key={i} onClick={(e)=>{e.currentTarget.style.border="3px solid #27AE60";e.currentTarget.style.background="#E8F8EF";setScore(s=>s+1);speakWord(words[i]||sel);}}
-                    style={{textAlign:"center",cursor:"pointer",background:"white",borderRadius:14,border:`2px solid ${C.sand}`,width:88,padding:"10px 6px"}}>
-                    <div style={{fontSize:40}}>{emoji}</div>
-                    <div style={{fontSize:11,fontWeight:700,color:C.gray,marginTop:5}}>{words[i]||""}</div>
-                  </div>
-                ))}
+          {stage === "Letra" && (
+            <div style={{background:"white",borderRadius:12,padding:12,marginBottom:10}}>
+              <div style={{fontWeight:700,fontSize:13,color:C.terraD,marginBottom:8}}>🔤 Toca la letra correcta</div>
+              <div style={{textAlign:"center",marginBottom:12}}>
+                <button style={{background:C.terra,color:"white",border:"none",borderRadius:12,padding:"12px 28px",fontSize:14,fontWeight:700,cursor:"pointer"}} onClick={()=>speak(sel)}>🔊 Escuchar sonido</button>
               </div>
-            </div>
-          )}
-
-          {stage==="Letra"&&(
-            <div style={{background:"white",borderRadius:12,padding:14,marginBottom:10}}>
-              <div style={{fontWeight:700,fontSize:13,color:C.terraD,marginBottom:10}}>🔤 Escucha y toca la letra correcta</div>
-              <div style={{textAlign:"center",marginBottom:14}}>
-                <button style={{background:C.terra,color:"white",border:"none",borderRadius:12,padding:"14px 32px",fontSize:15,fontWeight:700,cursor:"pointer"}} onClick={()=>speak(sel)}>🔊 Escuchar sonido</button>
-              </div>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
                 {[sel,...PHONEMES.filter(p=>p!==sel).sort(()=>Math.random()-0.5).slice(0,2)].sort(()=>Math.random()-0.5).map((ph,i)=>(
-                  <button key={i} onClick={(e)=>{e.currentTarget.style.background=ph===sel?"#E8F8EF":"#FDECEA";e.currentTarget.style.border=ph===sel?"3px solid #27AE60":"3px solid #C0392B";e.currentTarget.style.color=ph===sel?"#27AE60":"#C0392B";if(ph===sel)setScore(s=>s+1);}}
-                    style={{padding:"18px",borderRadius:14,border:`2px solid ${C.sand}`,background:"white",fontFamily:"Georgia,serif",fontSize:30,fontWeight:700,cursor:"pointer",color:C.charcoal}}>{ph}</button>
+                  <button key={i} onClick={(e)=>{e.currentTarget.style.background=ph===sel?"#E8F8EF":"#FDECEA";e.currentTarget.style.border=ph===sel?"2px solid #27AE60":"2px solid #C0392B";if(ph===sel)setScore(s=>s+1);}}
+                    style={{padding:"16px",borderRadius:14,border:`2px solid ${C.sand}`,background:"white",fontFamily:"Georgia,serif",fontSize:28,fontWeight:700,cursor:"pointer",color:C.charcoal}}>{ph}</button>
                 ))}
               </div>
             </div>
           )}
 
-          {stage==="Silaba"&&(
-            <div style={{background:"white",borderRadius:12,padding:14,marginBottom:10}}>
-              <div style={{fontWeight:700,fontSize:13,color:C.terraD,marginBottom:10}}>✂️ Da una palmada por cada silaba</div>
+          {stage === "Silaba" && (
+            <div style={{background:"white",borderRadius:12,padding:12,marginBottom:10}}>
+              <div style={{fontWeight:700,fontSize:13,color:C.terraD,marginBottom:8}}>✂️ Da una palmada por cada silaba</div>
               {words.slice(0,4).map((w,i)=>(
-                <div key={i} onClick={()=>speakWord(w)} style={{display:"flex",alignItems:"center",gap:12,padding:12,background:C.terraF,borderRadius:12,marginBottom:8,cursor:"pointer"}}>
-                  <div style={{fontSize:32}}>{emojis[i]||"📝"}</div>
-                  <div style={{flex:1}}>
-                    <div style={{fontWeight:800,fontSize:20,color:C.charcoal,letterSpacing:6}}>{w}</div>
-                    <div style={{fontSize:11,color:C.terra,marginTop:3}}>👏 toca para escuchar</div>
-                  </div>
+                <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:10,background:C.terraF,borderRadius:12,marginBottom:8,cursor:"pointer"}} onClick={()=>speakWord(w)}>
+                  <div style={{fontSize:28}}>{emojis[i]||"📝"}</div>
+                  <div style={{flex:1}}><div style={{fontWeight:700,fontSize:18,color:C.charcoal,letterSpacing:4}}>{w}</div><div style={{fontSize:11,color:C.terra}}>👏 toca para escuchar</div></div>
                 </div>
               ))}
             </div>
           )}
 
-          {stage==="Segmentacion"&&(
-            <div style={{background:"white",borderRadius:12,padding:14,marginBottom:10}}>
-              <div style={{fontWeight:700,fontSize:13,color:C.terraD,marginBottom:10}}>🔍 Di cada sonido por separado</div>
+          {stage === "Segmentacion" && (
+            <div style={{background:"white",borderRadius:12,padding:12,marginBottom:10}}>
+              <div style={{fontWeight:700,fontSize:13,color:C.terraD,marginBottom:8}}>🔍 Di cada sonido por separado</div>
               {words.slice(0,3).map((w,i)=>(
-                <div key={i} style={{marginBottom:12,background:C.terraF,borderRadius:12,padding:12}}>
-                  <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
-                    <div style={{fontSize:32}}>{emojis[i]||"📝"}</div>
-                    <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700,color:C.charcoal}}>{w}</div>
-                    <button onClick={()=>speakWord(w)} style={{marginLeft:"auto",background:"#4285F4",color:"white",border:"none",borderRadius:8,padding:"7px 14px",fontSize:13,cursor:"pointer"}}>🔊</button>
+                <div key={i} style={{marginBottom:10,background:C.terraF,borderRadius:12,padding:12}}>
+                  <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}>
+                    <div style={{fontSize:28}}>{emojis[i]||"📝"}</div>
+                    <div style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:700,color:C.charcoal,flex:1}}>{w}</div>
+                    <button style={{background:"#4285F4",color:"white",border:"none",borderRadius:8,padding:"6px 12px",fontSize:12,cursor:"pointer"}} onClick={()=>speakWord(w)}>🔊</button>
                   </div>
-                  <div style={{display:"flex",gap:7,flexWrap:"wrap"}}>
+                  <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                     {w.split("").map((letra,j)=>(
-                      <div key={j} style={{width:40,height:40,borderRadius:10,border:`2px solid ${C.terraL}`,background:"white",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"Georgia,serif",fontSize:20,fontWeight:700,color:C.terra}}>{letra.toUpperCase()}</div>
+                      <div key={j} style={{width:36,height:36,borderRadius:8,border:`2px solid ${C.terraL}`,background:"white",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:C.terra}}>{letra.toUpperCase()}</div>
                     ))}
                   </div>
                 </div>
@@ -1420,58 +1576,65 @@ function Activities() {
             </div>
           )}
 
-          {stage==="Fusion"&&(
-            <div style={{background:"white",borderRadius:12,padding:14,marginBottom:10}}>
-              <div style={{fontWeight:700,fontSize:13,color:C.terraD,marginBottom:10}}>🔗 Toca cada letra y adivina la palabra</div>
+          {stage === "Fusion" && (
+            <div style={{background:"white",borderRadius:12,padding:12,marginBottom:10}}>
+              <div style={{fontWeight:700,fontSize:13,color:C.terraD,marginBottom:8}}>🔗 Toca cada letra y adivina la palabra</div>
               {words.slice(0,3).map((w,i)=>(
-                <div key={i} style={{marginBottom:12,background:C.terraF,borderRadius:12,padding:12}}>
-                  <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>
+                <div key={i} style={{marginBottom:10,background:C.terraF,borderRadius:12,padding:12}}>
+                  <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                     {w.split("").map((letra,j)=>(
-                      <button key={j} onClick={()=>speak(letra)} style={{minWidth:40,height:40,borderRadius:10,border:`2px solid ${C.terraL}`,background:"white",fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:C.terra,cursor:"pointer"}}>{letra.toUpperCase()}</button>
+                      <button key={j} style={{minWidth:36,height:36,borderRadius:8,border:`2px solid ${C.terraL}`,background:"white",fontFamily:"Georgia,serif",fontSize:16,fontWeight:700,color:C.terra,cursor:"pointer"}} onClick={()=>speak(letra)}>{letra.toUpperCase()}</button>
                     ))}
-                    <button onClick={()=>speakWord(w)} style={{height:40,borderRadius:10,border:"none",background:C.terra,color:"white",padding:"0 14px",fontSize:13,fontWeight:700,cursor:"pointer"}}>🔊 {w}</button>
+                    <button style={{height:36,borderRadius:8,border:"none",background:C.terra,color:"white",padding:"0 14px",fontSize:12,fontWeight:700,cursor:"pointer"}} onClick={()=>speakWord(w)}>🔊 Completa</button>
                   </div>
                 </div>
               ))}
             </div>
           )}
 
-          {stage==="Manipulacion"&&(
-            <div style={{background:"white",borderRadius:12,padding:14,marginBottom:10}}>
-              <div style={{fontWeight:700,fontSize:13,color:C.terraD,marginBottom:10}}>🔀 Cambia el fonema inicial</div>
-              {[["PATO","GATO","G"],["PISO","BISO","B"],["CAMA","TAMA","T"],["LUNA","BUNA","B"],["SOPA","ROPA","R"]].map(([w1,w2,f2],i)=>(
-                <div key={i} style={{display:"flex",alignItems:"center",gap:10,marginBottom:10,background:C.terraF,borderRadius:12,padding:"12px 14px"}}>
-                  <button onClick={()=>speakWord(w1)} style={{background:"white",border:`2px solid ${C.terraL}`,borderRadius:10,padding:"10px 14px",fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:C.terra,cursor:"pointer"}}>{w1}</button>
-                  <div style={{color:C.grayL,fontSize:20}}>→</div>
-                  <button onClick={()=>speakWord(w2)} style={{background:C.terra,border:"none",borderRadius:10,padding:"10px 14px",fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,color:"white",cursor:"pointer"}}>{w2}</button>
-                  <div style={{fontSize:12,color:C.grayL,flex:1}}>Cambia {w1[0]} → {f2}</div>
+          {stage === "Manipulacion" && (
+            <div style={{background:"white",borderRadius:12,padding:12,marginBottom:10}}>
+              <div style={{fontWeight:700,fontSize:13,color:C.terraD,marginBottom:8}}>🔀 Cambia el fonema inicial</div>
+              {[["PATO","GATO","G"],["PISO","BISO","B"],["CAMA","TAMA","T"],["LUNA","TUNA","T"]].map(([w1,w2,cambio],i)=>(
+                <div key={i} style={{display:"flex",alignItems:"center",gap:10,marginBottom:8,background:C.terraF,borderRadius:12,padding:"10px 14px"}}>
+                  <button style={{background:"white",border:`2px solid ${C.terraL}`,borderRadius:10,padding:"8px 12px",fontFamily:"Georgia,serif",fontSize:16,fontWeight:700,color:C.terra,cursor:"pointer"}} onClick={()=>speakWord(w1)}>{w1}</button>
+                  <div style={{color:C.grayL,fontSize:16}}>→</div>
+                  <button style={{background:C.terra,border:"none",borderRadius:10,padding:"8px 12px",fontFamily:"Georgia,serif",fontSize:16,fontWeight:700,color:"white",cursor:"pointer"}} onClick={()=>speakWord(w2)}>{w2}</button>
+                  <div style={{fontSize:11,color:C.grayL}}>Cambia por {cambio}</div>
                 </div>
               ))}
             </div>
           )}
 
-          <div style={{marginTop:10}}>
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
-              <div style={{fontSize:11,fontWeight:700,color:C.terraD,textTransform:"uppercase"}}>Palabras con {sel}</div>
-              <button className="btn btnsm" style={{background:C.terra,color:"white",fontSize:10}} onClick={()=>setShowWords(s=>!s)}>{showWords?"Ocultar":"Ver todas"}</button>
+          )}
+
+          {/* Palabra del dia */}
+          <div style={{ marginTop:12 }}>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
+              <div style={{ fontSize:11, fontWeight:700, color:C.terraD, textTransform:"uppercase", letterSpacing:.5 }}>Palabras con {sel}</div>
+              <button className="btn btnsm" style={{ background:C.terra, color:"white", fontSize:10 }} onClick={() => setShowWords(s => !s)}>
+                {showWords ? "Ocultar" : "Ver todas"}
+              </button>
             </div>
-            {words.length>0&&(
-              <div style={{display:"flex",alignItems:"center",gap:14,background:"white",borderRadius:12,padding:"12px 14px",marginBottom:8}}>
-                <div style={{fontSize:44}}>{emojis[wordIdx%emojis.length]||"📝"}</div>
-                <div style={{flex:1}}>
-                  <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,fontWeight:700,color:C.charcoal}}>{words[wordIdx%words.length]}</div>
-                  <div style={{fontSize:11,color:C.grayL}}>{wordIdx+1} de {words.length}</div>
+            {words.length > 0 && (
+              <div style={{ display:"flex", alignItems:"center", gap:12, background:"white", borderRadius:12, padding:"10px 14px", marginBottom:8 }}>
+                <div style={{ width:50, height:50, borderRadius:12, background:C.terraF, display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Cormorant Garamond',serif", fontSize:28, fontWeight:700, color:C.terra, flexShrink:0 }}>{sel}</div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:24, fontWeight:700, color:C.charcoal }}>{words[wordIdx % words.length]}</div>
+                  <div style={{ fontSize:11, color:C.grayL }}>{wordIdx+1} de {words.length}</div>
                 </div>
-                <div style={{display:"flex",flexDirection:"column",gap:5}}>
-                  <button className="btn btnsm" style={{background:"#4285F4",color:"white"}} onClick={()=>speakWord(words[wordIdx%words.length])}>🔊</button>
-                  <button className="btn btnsm" style={{background:C.sand}} onClick={()=>setWordIdx(i=>(i+1)%words.length)}>→</button>
+                <div style={{ display:"flex", flexDirection:"column", gap:4 }}>
+                  <button className="btn btnsm" style={{ background:"#4285F4", color:"white", fontSize:12 }} onClick={() => speakWord(words[wordIdx % words.length])}>🔊</button>
+                  <button className="btn btnsm" style={{ background:C.sand, fontSize:12 }} onClick={() => setWordIdx(i => (i+1) % words.length)}>→</button>
                 </div>
               </div>
             )}
-            {showWords&&(
-              <div style={{display:"flex",flexWrap:"wrap",gap:7}}>
-                {words.map((w,i)=>(
-                  <button key={i} className="chip" style={{fontSize:11}} onClick={()=>{setWordIdx(i);speakWord(w);}}>{emojis[i]||"📝"} {w}</button>
+            {showWords && (
+              <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
+                {words.map((w, i) => (
+                  <button key={i} className="chip" style={{ fontSize:11 }} onClick={() => { setWordIdx(i); speakWord(w); }}>
+                    {emojis[i] || "📝"} {w}
+                  </button>
                 ))}
               </div>
             )}
@@ -1483,13 +1646,15 @@ function Activities() {
       <div className="phgrid">
         {(cats[fil] || PHONEMES).map(ph => (
           <button key={ph} className={`phbtn${sel===ph?" sel":""}`} onClick={() => handle(ph)}>
-            <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:34, fontWeight:700, lineHeight:1 }}>{ph}</div>
+            <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:36, fontWeight:700, lineHeight:1 }}>{ph}</div>
             {PHONEME_EMOJI[ph] && <div style={{ fontSize:28, lineHeight:1 }}>{PHONEME_EMOJI[ph][0]}</div>}
           </button>
         ))}
       </div>
 
-      <SC title="🎮 Juegos Fonologicos"><JuegosInteractivos phonemes={PHONEMES} phonemeEmoji={PHONEME_EMOJI} phonemeWords={PHONEME_WORDS} C={C}/></SC>
+      <SC title="🎮 Juegos Fonologicos">
+        <JuegosInteractivos phonemes={PHONEMES} phonemeEmoji={PHONEME_EMOJI} phonemeWords={PHONEME_WORDS} C={C}/>
+      </SC>
     </div>
   );
 }
@@ -2204,6 +2369,152 @@ function Footer() {
 }
 
 // ─── APP PRINCIPAL ────────────────────────────────────────────────────────────
+
+// ═══════════════════════════════════════
+// IA TERAPEUTICA - Powered by Claude API
+// ═══════════════════════════════════════
+function IAAsistente({patients,C}){
+  const [tab,setTab]=React.useState("objetivos");
+  const [selPat,setSelPat]=React.useState("");
+  const [diagnostico,setDiagnostico]=React.useState("");
+  const [edad,setEdad]=React.useState("");
+  const [loading,setLoading]=React.useState(false);
+  const [result,setResult]=React.useState("");
+  const [error,setError]=React.useState("");
+
+  const callClaude=async(prompt)=>{
+    setLoading(true);setResult("");setError("");
+    try{
+      const res=await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          model:"claude-sonnet-4-20250514",
+          max_tokens:1000,
+          messages:[{role:"user",content:prompt}]
+        })
+      });
+      const data=await res.json();
+      if(data.content&&data.content[0])setResult(data.content[0].text);
+      else setError("No se pudo obtener respuesta. Intenta de nuevo.");
+    }catch(e){setError("Error de conexion. Verifica tu internet.");}
+    setLoading(false);
+  };
+
+  const generarObjetivos=()=>{
+    if(!diagnostico||!edad){setError("Completa diagnostico y edad.");return;}
+    callClaude(`Sos una fonoaudiologa experta en Uruguay. Genera 5 objetivos terapeuticos especificos, concretos y medibles para un paciente de ${edad} anos con diagnostico de ${diagnostico}. Cada objetivo debe tener: descripcion clara, criterio de logro y tiempo estimado. Formato de lista numerada. Responde en espanol, sin asteriscos ni markdown.`);
+  };
+
+  const generarPlan=()=>{
+    if(!diagnostico||!edad){setError("Completa diagnostico y edad.");return;}
+    callClaude(`Sos una fonoaudiologa experta. Crea un plan terapeutico mensual para un paciente de ${edad} anos con ${diagnostico}. Incluye: semana 1, 2, 3 y 4 con actividades especificas para cada sesion, materiales necesarios y indicaciones para la familia. Responde en espanol claro, sin asteriscos ni markdown.`);
+  };
+
+  const generarInforme=()=>{
+    const p=patients.find(x=>x.name===selPat);
+    if(!p){setError("Selecciona un paciente.");return;}
+    callClaude(`Sos una fonoaudiologa redactando un informe de progreso para la familia. El paciente se llama ${p.name}, tiene ${p.age} anos, diagnostico: ${p.diagnosis}. Ha tenido ${p.sessions} sesiones. Sus objetivos son: ${(p.goals||[]).join(", ")}. Redacta un informe claro, positivo y profesional de 3 parrafos para entregar a la familia. Incluye: progreso actual, logros destacados y sugerencias para casa. En espanol, sin asteriscos ni markdown.`);
+  };
+
+  const generarSeguimiento=()=>{
+    const p=patients.find(x=>x.name===selPat);
+    if(!p){setError("Selecciona un paciente.");return;}
+    callClaude(`Sos una fonoaudiologa. Analiza el progreso de ${p.name}, ${p.age} anos, diagnostico ${p.diagnosis}, con ${p.sessions} sesiones realizadas. Genera estos 4 puntos: A. Evaluacion del progreso actual. B. Proximos pasos recomendados. C. Indicadores de logro proximas 4 semanas. D. Actividades prioritarias. En espanol claro, sin asteriscos ni markdown.`);
+  };
+
+  const tabs=[
+    {id:"objetivos",icon:"🎯",label:"Objetivos"},
+    {id:"plan",icon:"📅",label:"Plan mensual"},
+    {id:"informe",icon:"📄",label:"Informe familia"},
+    {id:"seguimiento",icon:"📊",label:"Seguimiento"},
+  ];
+
+  return(
+    <div className="fu">
+      <div style={{marginBottom:14}}>
+        <div className="pt">Asistente IA</div>
+        <div className="ps">Genera objetivos, planes e informes con inteligencia artificial</div>
+      </div>
+
+      <div style={{background:"linear-gradient(135deg,#9B7EBD,#7B5EA7)",borderRadius:16,padding:16,color:"white",marginBottom:16,display:"flex",gap:12,alignItems:"center"}}>
+        <div style={{fontSize:36}}>🧠</div>
+        <div>
+          <div style={{fontWeight:700,fontSize:15,marginBottom:2}}>Powered by Claude AI</div>
+          <div style={{fontSize:12,opacity:.85}}>Asistencia clinica inteligente para profesionales terapeuticos</div>
+        </div>
+      </div>
+
+      <div className="atabrow" style={{marginBottom:16}}>
+        {tabs.map(t=>(
+          <button key={t.id} className={`atab${tab===t.id?" active":""}`} onClick={()=>{setTab(t.id);setResult("");setError("");}}>
+            {t.icon} {t.label}
+          </button>
+        ))}
+      </div>
+
+      {(tab==="objetivos"||tab==="plan")&&(
+        <div>
+          <div className="fg">
+            <label className="lbl">Diagnostico</label>
+            <input className="inp" placeholder="ej: TEL, Dislexia, TDAH, Disartria..." value={diagnostico} onChange={e=>setDiagnostico(e.target.value)}/>
+          </div>
+          <div className="fg">
+            <label className="lbl">Edad del paciente</label>
+            <input className="inp" type="number" placeholder="ej: 7" value={edad} onChange={e=>setEdad(e.target.value)} min="2" max="18"/>
+          </div>
+          <button className="btn btnp btnfull" onClick={tab==="objetivos"?generarObjetivos:generarPlan} disabled={loading}>
+            {loading?"⏳ Generando...":tab==="objetivos"?"🎯 Generar objetivos terapeuticos":"📅 Generar plan mensual"}
+          </button>
+        </div>
+      )}
+
+      {(tab==="informe"||tab==="seguimiento")&&(
+        <div>
+          <div className="fg">
+            <label className="lbl">Seleccionar paciente</label>
+            <select className="inp" value={selPat} onChange={e=>setSelPat(e.target.value)}>
+              <option value="">Selecciona un paciente...</option>
+              {patients.filter(p=>p.status==="active").map(p=>(
+                <option key={p.id} value={p.name}>{p.name} - {p.age} años - {p.diagnosis}</option>
+              ))}
+            </select>
+          </div>
+          <button className="btn btnp btnfull" onClick={tab==="informe"?generarInforme:generarSeguimiento} disabled={loading}>
+            {loading?"⏳ Generando...":tab==="informe"?"📄 Generar informe para familia":"📊 Generar analisis de seguimiento"}
+          </button>
+        </div>
+      )}
+
+      {error&&<div className="alert alrtd" style={{marginTop:10}}>{error}</div>}
+
+      {loading&&(
+        <div style={{textAlign:"center",padding:"30px 0"}}>
+          <div style={{fontSize:36,marginBottom:12}}>🧠</div>
+          <div style={{fontWeight:600,color:C.terra,marginBottom:6}}>Analizando con IA...</div>
+          <div style={{fontSize:12,color:C.grayL}}>Esto puede tomar unos segundos</div>
+        </div>
+      )}
+
+      {result&&(
+        <div style={{marginTop:14}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+            <div style={{fontWeight:700,fontSize:13,color:C.charcoal}}>Resultado generado por IA</div>
+            <button className="btn btnsm btno noprint" onClick={()=>window.print()}>🖨️ Imprimir</button>
+          </div>
+          <div style={{background:"#F5F0FA",borderRadius:14,padding:16,whiteSpace:"pre-wrap",fontSize:13,color:C.charcoal,lineHeight:1.8,border:"1.5px solid #D4BCE8"}}>
+            {result}
+          </div>
+          <button className="btn btng btnfull" style={{marginTop:8}} onClick={()=>navigator.clipboard&&navigator.clipboard.writeText(result)}>
+            📋 Copiar texto
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 export default function HadrionApp() {
   // Cargar desde localStorage o usar datos iniciales
   const stored = loadFromStorage();
@@ -2278,6 +2589,7 @@ export default function HadrionApp() {
     admin:      user?.role === "admin"
       ? <Admin users={users} setUsers={setUsers} registerRequests={registerRequests} setRegisterRequests={setReg} currentUser={user} />
       : <div className="fu"><div className="alert alrtd">🔐 Solo administradores.</div></div>,
+    ia:         <IAAsistente patients={patients} C={C}/>,
     profile:    <Profile user={user} onLogout={logout} setUser={u => { setUser(u); saveToStorage({ users, user:u, patients, sessions, payments, agendaItems, plan, registerRequests }); }} />,
   };
 
@@ -2340,57 +2652,4 @@ export default function HadrionApp() {
       )}
     </>
   );
-}function JuegosInteractivos({phonemes,phonemeEmoji,phonemeWords,C}){
-  const [juegoActivo,setJuegoActivo]=useState(null);
-  const [ronda,setRonda]=useState([]);
-  const [score,setScore]=useState(0);
-  const [feedback,setFeedback]=useState(null);
-  const [idx,setIdx]=useState(0);
-  const speak=(txt)=>{if(!window.speechSynthesis)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt.toLowerCase());u.lang="es";u.rate=0.8;window.speechSynthesis.speak(u);};
-  const shuffle=(arr)=>[...arr].sort(()=>Math.random()-0.5);
-  const cerrar=()=>{setJuegoActivo(null);setFeedback(null);setIdx(0);};
-  const iniciarAtrapa=()=>{const ph=shuffle(phonemes).slice(0,8);setRonda(ph);setIdx(0);setScore(0);setFeedback(null);setJuegoActivo("atrapa");setTimeout(()=>speak(ph[0]),600);};
-  const iniciarDonde=()=>{const ph=shuffle(phonemes.filter(p=>phonemeEmoji[p]&&phonemeWords[p])).slice(0,6);setRonda(ph);setIdx(0);setScore(0);setFeedback(null);setJuegoActivo("donde");};
-  if(juegoActivo==="atrapa"&&idx<ronda.length){
-    const ops=shuffle([ronda[idx],...shuffle(phonemes.filter(p=>p!==ronda[idx])).slice(0,2)]);
-    return(<div style={{background:"white",borderRadius:16,padding:16}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}><b style={{fontSize:14}}>🎯 Atrapa el sonido</b><span style={{background:"#F5F0FA",color:"#9B7EBD",padding:"4px 10px",borderRadius:20,fontSize:12,fontWeight:700}}>⭐{score} | {idx+1}/{ronda.length}</span></div>
-      <div style={{background:"#F5F0FA",borderRadius:14,padding:16,textAlign:"center",marginBottom:12}}><div style={{fontSize:12,color:"#9B9590",marginBottom:10}}>Escucha y toca la letra correcta</div><button style={{background:"#9B7EBD",color:"white",border:"none",borderRadius:12,padding:"14px 32px",fontSize:16,fontWeight:700,cursor:"pointer"}} onClick={()=>speak(ronda[idx])}>🔊 Escuchar</button></div>
-      {feedback&&<div style={{textAlign:"center",padding:12,borderRadius:12,marginBottom:12,background:feedback==="ok"?"#E8F8EF":"#FDECEA",color:feedback==="ok"?"#27AE60":"#C0392B",fontWeight:700,fontSize:18}}>{feedback==="ok"?"✅ Correcto!":"❌ Incorrecto!"}</div>}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>{ops.map((ph,i)=>(<button key={i} onClick={()=>{if(feedback)return;const ok=ph===ronda[idx];setFeedback(ok?"ok":"mal");if(ok)setScore(s=>s+1);setTimeout(()=>{setFeedback(null);if(idx+1<ronda.length){setIdx(i=>i+1);setTimeout(()=>speak(ronda[idx+1]),400);}else setJuegoActivo("fin");},1000);}} style={{padding:"20px 8px",borderRadius:14,border:"2px solid #EDE0F5",background:"white",fontFamily:"Georgia,serif",fontSize:30,fontWeight:700,cursor:"pointer",color:"#2C2C2C"}}>{ph}</button>))}</div>
-      <button style={{marginTop:14,width:"100%",padding:11,borderRadius:10,border:"none",background:"#EDE0F5",color:"#6B6560",cursor:"pointer",fontWeight:600,fontSize:13}} onClick={cerrar}>Salir</button>
-    </div>);
-  }
-  if(juegoActivo==="donde"&&idx<ronda.length){
-    const correctPh=ronda[idx];
-    const wrong=shuffle(phonemes.filter(p=>p!==correctPh&&phonemeEmoji[p]&&phonemeWords[p])).slice(0,3);
-    const opts=shuffle([{ph:correctPh,emoji:(phonemeEmoji[correctPh]||[])[0]||"📝",word:(phonemeWords[correctPh]||[])[0]||correctPh},...wrong.map(p=>({ph:p,emoji:(phonemeEmoji[p]||[])[0]||"📝",word:(phonemeWords[p]||[])[0]||p}))]);
-    return(<div style={{background:"white",borderRadius:16,padding:16}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}><b style={{fontSize:14}}>❓ Donde esta?</b><span style={{background:"#FDE8F0",color:"#E8719C",padding:"4px 10px",borderRadius:20,fontSize:12,fontWeight:700}}>⭐{score} | {idx+1}/{ronda.length}</span></div>
-      {feedback&&<div style={{textAlign:"center",padding:12,borderRadius:12,marginBottom:12,background:feedback==="ok"?"#E8F8EF":"#FDECEA",color:feedback==="ok"?"#27AE60":"#C0392B",fontWeight:700,fontSize:18}}>{feedback==="ok"?"✅ Correcto!":"❌ Incorrecto!"}</div>}
-      <div style={{background:"#FDE8F0",borderRadius:14,padding:14,textAlign:"center",marginBottom:14}}><div style={{fontSize:12,color:"#9B9590",marginBottom:6}}>Toca la imagen que empieza con</div><div style={{fontFamily:"Georgia,serif",fontSize:72,fontWeight:700,color:"#E8719C",lineHeight:1}}>{correctPh}</div></div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>{opts.map((opt,i)=>(<button key={i} onClick={()=>{if(feedback)return;const ok=opt.ph===correctPh;setFeedback(ok?"ok":"mal");if(ok)setScore(s=>s+1);setTimeout(()=>{setFeedback(null);if(idx+1<ronda.length)setIdx(i=>i+1);else setJuegoActivo("fin");},1000);}} style={{padding:"16px 8px",borderRadius:14,border:"2px solid #F9C8DC",background:"white",cursor:"pointer",textAlign:"center"}}><div style={{fontSize:44}}>{opt.emoji}</div><div style={{fontSize:12,fontWeight:700,color:"#2C2C2C",marginTop:6}}>{opt.word}</div></button>))}</div>
-      <button style={{marginTop:14,width:"100%",padding:11,borderRadius:10,border:"none",background:"#EDE0F5",color:"#6B6560",cursor:"pointer",fontWeight:600,fontSize:13}} onClick={cerrar}>Salir</button>
-    </div>);
-  }
-  if(juegoActivo==="fin"){
-    return(<div style={{background:"white",borderRadius:16,padding:28,textAlign:"center"}}>
-      <div style={{fontSize:52,marginBottom:14}}>🎉</div>
-      <div style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:700,marginBottom:10}}>Juego terminado!</div>
-      <div style={{fontSize:16,color:"#9B9590",marginBottom:16}}>Puntaje: <strong style={{color:"#9B7EBD",fontSize:20}}>{score}</strong> de {ronda.length}</div>
-      <div style={{background:"#F5F0FA",borderRadius:14,padding:14,marginBottom:18,fontSize:14,color:"#7B5EA7",fontWeight:600}}>{score===ronda.length?"🌟 Perfecto!":score>=ronda.length/2?"👏 Muy bien!":"💪 Seguimos!"}</div>
-      <button style={{background:"#9B7EBD",color:"white",border:"none",borderRadius:14,padding:"14px 32px",fontSize:15,fontWeight:700,cursor:"pointer"}} onClick={cerrar}>Jugar de nuevo</button>
-    </div>);
-  }
-  return(<div>
-    {[{id:"atrapa",icon:"🎯",name:"Atrapa el sonido",desc:"Escucha el fonema y toca la letra correcta entre 3 opciones",color:"#9B7EBD",action:iniciarAtrapa},{id:"donde",icon:"❓",name:"Donde esta?",desc:"Ve el fonema y toca la imagen que empieza con ese sonido",color:"#E8719C",action:iniciarDonde}].map(j=>(
-      <div key={j.id} style={{display:"flex",alignItems:"center",gap:14,padding:14,background:"white",borderRadius:16,marginBottom:12,cursor:"pointer",border:`2px solid ${j.color}33`,boxShadow:"0 2px 8px rgba(0,0,0,.07)"}} onClick={j.action}>
-        <div style={{width:52,height:52,borderRadius:14,background:j.color+"22",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,flexShrink:0}}>{j.icon}</div>
-        <div style={{flex:1}}><div style={{fontWeight:700,fontSize:15,color:"#2C2C2C",marginBottom:3}}>{j.name}</div><div style={{fontSize:12,color:"#9B9590"}}>{j.desc}</div></div>
-        <div style={{background:j.color,color:"white",padding:"8px 16px",borderRadius:10,fontSize:13,fontWeight:700,flexShrink:0}}>Jugar</div>
-      </div>
-    ))}
-  </div>);
 }
-
-
