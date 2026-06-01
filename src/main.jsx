@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import HadrionApp from './App.jsx'
+import HadrionApp from './App'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
