@@ -397,8 +397,7 @@ const ANAMNESIS = [
 ];
 
 // ─── CSS GLOBAL ───────────────────────────────────────────────────────────────
-const CSS = `
-${FONTS}
+const CSS = `\n${FONTS}
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;background:#FDF8FF;}
 .app{font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh;background:#FDF8FF;display:flex;flex-direction:column;}
@@ -1081,11 +1080,7 @@ function Patients({ patients, setPatients, setActive, setSelPatId, sessions }) {
             <button className="btn btnsm noprint" style={{background:"#25D366",color:"white"}}
               onClick={()=>{
                 const txt = [`FICHA CLÍNICA — ${sel.name}`,`Diagnóstico: ${sel.diagnosis} | Edad: ${sel.age} años`,sel.guardian?`Tutor: ${sel.guardian}`:"",sel.phone?`Tel: ${sel.phone}`:"",sel.notes?`Notas: ${sel.notes}`:"",
-                (sel.goals||[]).length>0?`Objetivos:
-${(sel.goals||[]).map((g,i)=>`${i+1}. ${g}`).join("
-")}`:"","
-Hadrion — comunipro12@gmail.com"].filter(Boolean).join("
-");
+                (sel.goals||[]).length>0?`Objetivos:\n${(sel.goals||[]).map((g,i)=>`${i+1}. ${g}`).join("\n")}`:"","\nHadrion — comunipro12@gmail.com"].filter(Boolean).join("\n");
                 const phone = (sel.phone||"").replace(/[^0-9]/g,"");
                 window.open(phone?`https://wa.me/${phone}?text=${encodeURIComponent(txt)}`:`https://wa.me/?text=${encodeURIComponent(txt)}`,"_blank");
               }}>💬 WhatsApp</button>
@@ -1293,12 +1288,8 @@ function Sessions({ patients, sessions, setSessions, setPatients }) {
                 <button className="btn btng btnsm noprint" onClick={() => window.print()} title="Imprimir">🖨️</button>
                 <button className="btn btnsm noprint" style={{background:"#25D366",color:"white",padding:"5px 8px",fontSize:10,borderRadius:8}} title="Enviar por WhatsApp"
                   onClick={()=>{
-                    const txt = [`SESIÓN — ${s.patient}`,`Fecha: ${s.date}`,s.objective?`Objetivo: ${s.objective}`:"",`
-${s.note}`,s.homework?`
-Tarea: ${s.homework}`:"",`
-Progreso: ${s.progress}%`,"
-Hadrion — comunipro12@gmail.com"].filter(Boolean).join("
-");
+                    const txt = [`SESIÓN — ${s.patient}`,`Fecha: ${s.date}`,s.objective?`Objetivo: ${s.objective}`:"",`\n${s.note}`,s.homework?`
+Tarea: ${s.homework}`:"",`\nProgreso: ${s.progress}%`,"\nHadrion — comunipro12@gmail.com"].filter(Boolean).join("\n");
                     const p = patients.find(x=>x.id===s.patientId);
                     const phone = (p?.phone||"").replace(/[^0-9]/g,"");
                     window.open(phone?`https://wa.me/${phone}?text=${encodeURIComponent(txt)}`:`https://wa.me/?text=${encodeURIComponent(txt)}`,"_blank");
@@ -1428,8 +1419,7 @@ ${patient.familia}` : "",
 ${patient.diagnosticoP}` : "",
                   "",
                   "Hadrion — Plataforma Terapéutica · comunipro12@gmail.com"
-                ].filter(Boolean).join("
-");
+                ].filter(Boolean).join("\n");
                 const phone = (patient.phone||"").replace(/\D/g,"");
                 const url = phone
                   ? `https://wa.me/${phone}?text=${encodeURIComponent(txt)}`
@@ -1447,8 +1437,7 @@ ${patient.diagnosticoP}` : "",
                   patient.motivo ? `Motivo: ${patient.motivo}` : "",
                   patient.antecedentes ? `Antecedentes: ${patient.antecedentes}` : "",
                   "Hadrion — comunipro12@gmail.com"
-                ].filter(Boolean).join("
-");
+                ].filter(Boolean).join("\n");
                 window.open(`mailto:${patient.email||""}?subject=${encodeURIComponent("Anamnesis — "+patient.name)}&body=${encodeURIComponent(txt)}`);
               }}>
               ✉️ Email
@@ -1471,8 +1460,7 @@ ${patient.diagnosticoP}` : "",
 Edad: ${patient.age} años
 Diagnóstico: ${patient.diagnosis}
 Sesiones realizadas: ${pSess.length}`],
-              ["OBJETIVOS TERAPÉUTICOS", (patient.goals||[]).map((g,i)=>`${i+1}. ${g}`).join("
-") || "Sin objetivos registrados"],
+              ["OBJETIVOS TERAPÉUTICOS", (patient.goals||[]).map((g,i)=>`${i+1}. ${g}`).join("\n") || "Sin objetivos registrados"],
               ["EVOLUCIÓN", pSess.length > 0 ? `Última sesión (${pSess[0]?.date}): ${pSess[0]?.note}` : "Sin sesiones registradas"],
               ["OBSERVACIONES", patient.notes || "Sin observaciones"],
             ].map(([title, content]) => (
@@ -1509,8 +1497,7 @@ ${pSess[0]?.note}` : "",
 ${patient.notes}` : "",
                   "",
                   "Hadrion — Plataforma Terapéutica · comunipro12@gmail.com"
-                ].filter(Boolean).join("
-");
+                ].filter(Boolean).join("\n");
                 const phone = (patient.phone||"").replace(/\D/g,"");
                 const url = phone
                   ? `https://wa.me/${phone}?text=${encodeURIComponent(txt)}`
@@ -1866,6 +1853,7 @@ function Phonology() {
                 ))}
               </div>
             </div>
+          )}
 
           {stage === "Letra" && (
             <div style={{background:"white",borderRadius:12,padding:12,marginBottom:10}}>
