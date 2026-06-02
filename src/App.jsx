@@ -27,10 +27,12 @@ const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+G
 const INIT_USERS = [
   { id:1, name:"Adriana Soba",   email:"comunipro12@gmail.com", password:"admin123",
     role:"admin",         specialty:"Fonoaudiologa",   plan:"Pro",    status:"active",
-    createdAt:"01/01/2025", avatar:"AS", color:C.terra,  lastLogin:"Hoy 08:30" },
+    createdAt:"01/01/2025", avatar:"AS", color:C.terra,  lastLogin:"Hoy 08:30",
+    subscriptionEnd:null, dataExpiresAt:null, trialDays:14 },
   { id:2, name:"Ana Garcia",     email:"ana@clinica.cl",         password:"123456",
     role:"profesional",   specialty:"Psicopedagoga",   plan:"Basico", status:"active",
-    createdAt:"15/03/2025", avatar:"AG", color:C.sage,   lastLogin:"Ayer 16:00" },
+    createdAt:"15/03/2025", avatar:"AG", color:C.sage,   lastLogin:"Ayer 16:00",
+    subscriptionEnd:"2026-07-15", dataExpiresAt:"2026-08-14", trialDays:14 },
   { id:3, name:"Carlos Ruiz",    email:"carlos@terapia.cl",      password:"123456",
     role:"profesional",   specialty:"Fonoaudiologo",   plan:"Pro",    status:"pending",
     createdAt:"20/05/2025", avatar:"CR", color:C.purple, lastLogin:"—" },
@@ -43,23 +45,25 @@ const INIT_PATIENTS = [
   { id:1, name:"Valentina Lopez", age:7,  diagnosis:"TEL",      sessions:12, nextSession:"Lun 27/05 10:00",
     avatar:"VL", color:C.terra,  phone:"(+54) 9 8765 4321", email:"vlopez@mail.com",
     guardian:"Maria Lopez (madre)", notes:"Dificultad en fonemas fricativos. Buena disposicion.",
-    goals:["Produccion /s/ en posicion inicial","Discriminacion auditiva de pares minimos","Comprension de instrucciones complejas"], status:"active" },
+    goals:["Produccion /s/ en posicion inicial","Discriminacion auditiva de pares minimos","Comprension de instrucciones complejas"], status:"active",
+    dependencia:"Particular", tarifaPorSesion:1500, complemento:0, currency:"UYU", asistencias:{} },
   { id:2, name:"Martin Garcia",   age:9,  diagnosis:"Dislexia",  sessions:8,  nextSession:"Mie 29/05 09:00",
     avatar:"MG", color:C.sage,   phone:"(+54) 9 7654 3210", email:"mgarcia@mail.com",
     guardian:"Pedro Garcia (padre)",  notes:"Confusion persistente b/d. Mejora en velocidad lectora.",
-    goals:["Decodificacion b/d/p/q","Velocidad lectora 80 ppm","Comprension lectora nivel 3 grados"], status:"active" },
+    goals:["Decodificacion b/d/p/q","Velocidad lectora 80 ppm","Comprension lectora nivel 3 grados"], status:"active",
+    dependencia:"BPS", tarifaPorSesion:800, complemento:200, currency:"UYU", asistencias:{} },
   { id:3, name:"Sofia Ramirez",   age:6,  diagnosis:"TDAH",      sessions:15, nextSession:"Jue 30/05 11:00",
     avatar:"SR", color:C.purple, phone:"(+54) 9 6543 2109", email:"sramirez@mail.com",
     guardian:"Ana Ramirez (madre)", notes:"Alta dispersion. Responde bien a actividades cortas.",
-    goals:["Atencion sostenida 15 min","Autorregulacion emocional","Seguimiento de instrucciones secuenciadas"], status:"active" },
+    goals:["Atencion sostenida 15 min","Autorregulacion emocional","Seguimiento de instrucciones secuenciadas"], status:"active", dependencia:"Particular", tarifaPorSesion:1200, complemento:0, currency:"UYU", asistencias:{} },
   { id:4, name:"Tomas Herrera",   age:8,  diagnosis:"Disartria", sessions:6,  nextSession:"Vie 31/05 10:00",
     avatar:"TH", color:C.info,   phone:"(+54) 9 5432 1098", email:"therrera@mail.com",
     guardian:"Rosa Herrera (madre)", notes:"Dificultad en articulacion. Buena motivacion.",
-    goals:["Praxias bucofonatorias","Produccion de oclusivas","Inteligibilidad del habla 80%"], status:"active" },
+    goals:["Praxias bucofonatorias","Produccion de oclusivas","Inteligibilidad del habla 80%"], status:"active", dependencia:"FONASA", tarifaPorSesion:900, complemento:0, currency:"UYU", asistencias:{} },
   { id:5, name:"Pedro Salinas",   age:3,  diagnosis:"TEA",       sessions:4,  nextSession:"Sin agendar",
     avatar:"PS", color:C.gold,   phone:"(+54) 9 4321 0987", email:"psalinas@mail.com",
     guardian:"Luis Salinas (padre)", notes:"Primera infancia. Comunicacion no verbal predominante.",
-    goals:["Contacto visual sostenido","Comunicacion intencional","Juego funcional con objetos"], status:"active" },
+    goals:["Contacto visual sostenido","Comunicacion intencional","Juego funcional con objetos"], status:"active", dependencia:"Mutual", tarifaPorSesion:1000, complemento:0, currency:"UYU", asistencias:{} },
 ];
 
 const INIT_SESSIONS = [
@@ -114,7 +118,7 @@ const PHONEME_EMOJI = {
   "LL":["🗝️","🛞","🌧️","🦙","😢"],
   "M": ["🦋","🪑","🍎","🐒","🎒","🔨","🧙"],
   "N": ["☁️","🍊","👃","❄️","🐦","🔢","🌰"],
-  "Ñ": ["🦆","🍍","💅","🛁","🕷️"],
+  "Ñ": ["🦆","🍍","💅"],
   "P": ["🦆","⚽","🐕","🎹","🚪","🕊️","🐙"],
   "R": ["🐭","🤖","🌹","📏","⌚","🛞","🐸"],
   "RR":["🚗","🐕","🌍","📋","🫏","⛰️","🗼"],
@@ -142,7 +146,7 @@ const PHONEME_WORDS = {
   "LL":["LLAVE","LLANTA","LLUVIA","LLAMA","LLORAR"],
   "M": ["MARIPOSA","MESA","MANZANA","MONO","MOCHILA","MARTILLO","MAGO"],
   "N": ["NUBE","NARANJA","NARIZ","NIEVE","NIDO","NUMERO","NUEZ"],
-  "Ñ": ["ÑANDU","NIÑO","UÑAS","PIÑA","MUÑECA","BAÑO","ARAÑA"],
+  "Ñ": ["ÑANDU","NIÑO","UÑAS","PIÑA","MUÑECA"],
   "P": ["PATO","PELOTA","PERRO","PIANO","PUERTA","PALOMA","PULPO"],
   "R": ["RATON","ROBOT","ROSA","REGLA","RELOJ","RUEDA","RANA"],
   "RR":["CARRO","PERRO","TIERRA","PIZARRA","BURRO","CERRO","TORRE"],
@@ -515,23 +519,26 @@ const addMinutes = (timeStr, mins) => {
   return `${String(Math.floor(total/60)).padStart(2,"0")}:${String(total%60).padStart(2,"0")}`;
 };
 
+// ─── PERSISTENCIA LOCAL ───────────────────────────────────────────────────────
 // ─── ID ÚNICO ────────────────────────────────────────────────────────────────
 const makeId = () => {
   if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
 };
 
-// ─── PERSISTENCIA LOCAL ───────────────────────────────────────────────────────
-const STORAGE_KEY = "hadrion_v2";
+const STORAGE_KEY = "hadrion_v5";
+const daysUntil = d => {
+  if (!d) return null;
+  return Math.ceil((new Date(d + "T00:00:00") - new Date()) / (1000 * 60 * 60 * 24));
+};
+
 const saveToStorage = (data) => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch(e) {
     if (e.name === "QuotaExceededError" || e.code === 22) {
-      console.warn("Hadrion: localStorage lleno. Datos no guardados.");
-    } else {
-      console.warn("Storage error:", e);
-    }
+      console.warn("Hadrion: localStorage lleno.");
+    } else { console.warn("Storage error:", e); }
   }
 };
 const loadFromStorage = () => {
@@ -583,11 +590,12 @@ const NAV = [
   { id:"asistencias",l:"Asistencias",        i:"📆" },
   { id:"ia",         l:"Asistente IA",       i:"🧠", s:"Herramientas" },
   { id:"resources",  l:"Recursos",          i:"📚" },
-  { id:"admin",      l:"Administracion",    i:"🔐", s:"Admin", adminOnly:true },
+  { id:"organizaciones", l:"Organizaciones",  i:"🏫", s:"Admin", adminOnly:true },
+  { id:"admin",      l:"Administracion",    i:"🔐", adminOnly:true, badge:true },
   { id:"profile",    l:"Mi Perfil",         i:"👤" },
 ];
 
-function Sidebar({ active, setActive, user }) {
+function Sidebar({ active, setActive, user, registerRequests=[] }) {
   return (
     <div className="sidebar">
       <div className="slogo">
@@ -599,7 +607,11 @@ function Sidebar({ active, setActive, user }) {
           {n.s && <div className="ssec">{n.s}</div>}
           <div className={`sitem${active === n.id ? " active" : ""}`} onClick={() => setActive(n.id)}>
             <span className="sicon">{n.i}</span>{n.l}
-            {n.id === "admin" && <span className="sbadge">Admin</span>}
+            {n.id === "admin" && (
+              registerRequests.filter(r=>r.status==="pendiente").length > 0
+                ? <span className="sbadge" style={{background:"#C0392B"}}>{registerRequests.filter(r=>r.status==="pendiente").length}</span>
+                : <span className="sbadge">Admin</span>
+            )}
           </div>
         </div>
       ))}
@@ -734,8 +746,17 @@ function Dashboard({ user, patients, sessions, payments, setActive, setShowQS, a
   const total    = payments.filter(p => p.status === "pagado").reduce((a, p) => a + p.amount, 0);
   const todayKey = new Date().toISOString().slice(0, 10);
   const todayCount = agendaItems.filter(a => a.date === todayKey).length;
+  // Aviso suscripción
+  const diasSub = user?.subscriptionEnd ? daysUntil(user.subscriptionEnd) : null;
+
   return (
     <div className="fu">
+      {diasSub !== null && diasSub >= 0 && diasSub <= 14 && (
+        <div style={{background:diasSub<=3?"#FDECEA":diasSub<=7?"#FEF3E0":"#EBF3FB",borderRadius:12,padding:"10px 14px",marginBottom:12,fontSize:13,color:diasSub<=3?"#C0392B":diasSub<=7?"#E8A020":"#5B8DB8",fontWeight:600}}>
+          {diasSub===0 ? "🔴 Tu acceso vence hoy — contactá a Adriana para renovar" :
+           `${diasSub<=3?"🔴":"⚠️"} Tu acceso vence en ${diasSub} día${diasSub!==1?"s":""} — comunipro12@gmail.com`}
+        </div>
+      )}
       <div className="welcome">
         <div style={{ fontSize:12, opacity:.7, marginBottom:3 }}>{cap(todayStr())}</div>
         <div className="wname">Hola, {user.name.split(" ")[0]} 👋</div>
@@ -784,8 +805,8 @@ function Dashboard({ user, patients, sessions, payments, setActive, setShowQS, a
 
 // ─── AGENDA ───────────────────────────────────────────────────────────────────
 function Agenda({ patients, items, setItems }) {
-  const [showNew,   setShowNew]   = useState(false);
-  const [editItem,  setEditItem]  = useState(null);
+  const [showNew,  setShowNew]  = useState(false);
+  const [editItem, setEditItem] = useState(null);
   const [syncingId, setSyncingId] = useState(null);
   const [f, setF] = useState({ patient:"", time:"09:00", type:"Sesion", date:new Date().toISOString().slice(0,10), duration:45 });
 
@@ -853,10 +874,10 @@ function Agenda({ patients, items, setItems }) {
                       onClick={() => addToGcal(a)} title="Agregar a Google Calendar">
                       {syncingId === a.id ? "..." : "📅 GCal"}
                     </button>
-                    <button className="btn btnsm" style={{background:C.terraF,color:C.terra,padding:"6px 10px",fontSize:11,borderRadius:8,minHeight:36}}
-                      onClick={() => setEditItem({...a})} title="Editar cita">✏️</button>
-                    <button className="btn btnd btnsm" style={{padding:"6px 10px",fontSize:11,borderRadius:8,minHeight:36}}
-                      onClick={() => setItems(prev => prev.filter(x => x.id !== a.id))} title="Eliminar cita">🗑️</button>
+                    <button style={{background:"#F5F0FA",border:"none",borderRadius:8,padding:"6px 10px",fontSize:11,fontWeight:700,color:"#9B7EBD",cursor:"pointer",minHeight:36}}
+                      onClick={()=>setEditItem({...a})} title="Editar cita">✏️</button>
+                    <button style={{background:"#FDECEA",border:"none",borderRadius:8,padding:"6px 10px",fontSize:11,fontWeight:700,color:"#C0392B",cursor:"pointer",minHeight:36}}
+                      onClick={()=>setItems(prev=>prev.filter(x=>x.id!==a.id))} title="Eliminar cita">🗑️</button>
                   </div>
                 </div>
               </div>
@@ -883,34 +904,34 @@ function Agenda({ patients, items, setItems }) {
       )}
 
       {editItem && (
-        <Modal title="Editar cita" onClose={() => setEditItem(null)}>
+        <Modal title="✏️ Editar cita" onClose={() => setEditItem(null)}>
           <div className="fg"><label className="lbl">Paciente</label>
-            <select className="inp" value={editItem.patient} onChange={e => setEditItem({...editItem, patient:e.target.value})}>
-              {patients.map(p => <option key={p.id}>{p.name}</option>)}
+            <select className="inp" value={editItem.patient} onChange={e=>setEditItem({...editItem,patient:e.target.value})}>
+              {patients.map(p=><option key={p.id}>{p.name}</option>)}
             </select>
           </div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
             <div className="fg"><label className="lbl">Fecha</label>
-              <input type="date" className="inp" value={editItem.date} onChange={e => setEditItem({...editItem, date:e.target.value})}/>
+              <input type="date" className="inp" value={editItem.date} onChange={e=>setEditItem({...editItem,date:e.target.value})}/>
             </div>
             <div className="fg"><label className="lbl">Hora</label>
-              <input type="time" className="inp" value={editItem.time} onChange={e => setEditItem({...editItem, time:e.target.value})}/>
+              <input type="time" className="inp" value={editItem.time} onChange={e=>setEditItem({...editItem,time:e.target.value})}/>
             </div>
           </div>
           <div className="fg"><label className="lbl">Tipo</label>
-            <select className="inp" value={editItem.type} onChange={e => setEditItem({...editItem, type:e.target.value})}>
-              {["Sesion","Evaluacion","Seguimiento","Primera consulta"].map(t => <option key={t}>{t}</option>)}
+            <select className="inp" value={editItem.type} onChange={e=>setEditItem({...editItem,type:e.target.value})}>
+              {["Sesion","Evaluacion","Seguimiento","Primera consulta"].map(t=><option key={t}>{t}</option>)}
             </select>
           </div>
-          <button className="btn btnp btnfull" onClick={() => {
-            setItems(prev => prev.map(x => x.id === editItem.id
-              ? {...x, patient:editItem.patient, date:editItem.date, time:editItem.time, type:editItem.type,
-                  end:addMinutes(editItem.time, 45),
-                  color:patients.find(p=>p.name===editItem.patient)?.color||C.terra}
+          <button className="btn btnp btnfull" onClick={()=>{
+            setItems(prev=>prev.map(x=>x.id===editItem.id
+              ? {...x, patient:editItem.patient, date:editItem.date, time:editItem.time,
+                  type:editItem.type, end:addMinutes(editItem.time,45),
+                  color:patients.find(p=>p.name===editItem.patient)?.color||"#9B7EBD"}
               : x));
             setEditItem(null);
           }}>Guardar cambios</button>
-          <button className="btn btng btnfull" onClick={() => setEditItem(null)}>Cancelar</button>
+          <button className="btn btng btnfull" onClick={()=>setEditItem(null)}>Cancelar</button>
         </Modal>
       )}
 
@@ -951,7 +972,7 @@ function Patients({ patients, setPatients, setActive, setSelPatId, sessions }) {
   const [showNew, setShowNew] = useState(false);
   const [search, setSearch]   = useState("");
   const [editF, setEditF]     = useState({});
-  const emptyF = { name:"", age:"", diagnosis:"", phone:"", email:"", guardian:"", notes:"" };
+  const emptyF = { name:"", age:"", diagnosis:"", phone:"", email:"", guardian:"", notes:"", dependencia:"Particular", tarifaPorSesion:"", complemento:"", currency:"UYU" };
   const [f, setF]             = useState(emptyF);
 
   const dC = { TEL:C.terra, Dislexia:C.sage, TDAH:C.purple, Disartria:C.info, TEA:C.gold, Otro:C.gray };
@@ -966,10 +987,12 @@ function Patients({ patients, setPatients, setActive, setSelPatId, sessions }) {
     if (!f.name || !f.diagnosis) return;
     const init = f.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
     setPatients(prev => [...prev, {
-      id: Date.now(), name:f.name, age:parseInt(f.age)||0, diagnosis:f.diagnosis,
+      id: makeId(), name:f.name, age:parseInt(f.age)||0, diagnosis:f.diagnosis,
       sessions:0, nextSession:"Sin agendar", avatar:init,
       color: cols[prev.length % cols.length],
-      phone:f.phone, email:f.email, guardian:f.guardian, notes:f.notes, goals:[], status:"active"
+      phone:f.phone, email:f.email, guardian:f.guardian, notes:f.notes, goals:[], status:"active",
+      dependencia:f.dependencia||"Particular", tarifaPorSesion:parseFloat(f.tarifaPorSesion)||0,
+      complemento:parseFloat(f.complemento)||0, currency:f.currency||"UYU", asistencias:{}
     }]);
     setF(emptyF); setShowNew(false);
   };
@@ -996,6 +1019,12 @@ function Patients({ patients, setPatients, setActive, setSelPatId, sessions }) {
             <div style={{ flex:1 }}>
               <div style={{ fontWeight:700, fontSize:14, color:C.charcoal }}>{p.name}</div>
               <div style={{ fontSize:12, color:C.grayL, marginTop:1 }}>{p.age} años — <span className="badge" style={{ background:(dC[p.diagnosis]||C.gray)+"22", color:dC[p.diagnosis]||C.gray, fontSize:10 }}>{p.diagnosis}</span></div>
+              {(p.dependencia||p.tarifaPorSesion>0) && (
+                <div style={{display:"flex",gap:5,marginTop:3,flexWrap:"wrap"}}>
+                  <span style={{fontSize:10,background:"#F5F0FA",color:"#9B7EBD",borderRadius:5,padding:"1px 6px",fontWeight:700}}>{p.dependencia||"Particular"}</span>
+                  {p.tarifaPorSesion>0 && <span style={{fontSize:10,color:"#9B9590"}}>${(p.tarifaPorSesion||0).toLocaleString("es-UY")}/ses{(p.complemento||0)>0?` +$${p.complemento.toLocaleString("es-UY")} compl.`:""}</span>}
+                </div>
+              )}
               <div style={{ fontSize:11, color:C.grayL, marginTop:2 }}>📅 {p.nextSession}</div>
             </div>
             <div style={{ textAlign:"right" }}>
@@ -1025,8 +1054,53 @@ function Patients({ patients, setPatients, setActive, setSelPatId, sessions }) {
             <div key={ic} className="hxf"><div className="hxv">{ic} {v}</div></div>
           ))}
           {sel.notes && <div className="hxf"><div className="hxl">Notas</div><div className="hxv">{sel.notes}</div></div>}
-          {sel.goals?.length > 0 && <div className="hxf"><div className="hxl">Objetivos</div>{sel.goals.map((g, i) => <div key={i} className="hxv">• {g}</div>)}</div>}
-          <button className="btn btno btnfull noprint" style={{ marginTop:10 }} onClick={() => window.print()}>🖨️ Imprimir ficha</button>
+
+          {/* Objetivos editables */}
+          <div className="hxf">
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+              <div className="hxl">Objetivos terapéuticos</div>
+              <button style={{background:"none",border:"none",fontSize:11,color:"#9B7EBD",cursor:"pointer",fontWeight:700,fontFamily:"sans-serif"}}
+                onClick={()=>{
+                  const nuevo = window.prompt("Nuevo objetivo:");
+                  if (nuevo?.trim()) setPatients(prev=>prev.map(p=>p.id===sel.id?{...p,goals:[...(p.goals||[]),nuevo.trim()]}:p));
+                }}>+ Agregar</button>
+            </div>
+            {(sel.goals||[]).length===0 && <div style={{fontSize:12,color:"#9B9590"}}>Sin objetivos registrados</div>}
+            {(sel.goals||[]).map((g,i)=>(
+              <div key={i} style={{display:"flex",alignItems:"center",gap:6,marginBottom:5}}>
+                <div style={{width:18,height:18,borderRadius:"50%",background:"#F5F0FA",display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:700,color:"#9B7EBD",flexShrink:0}}>{i+1}</div>
+                <div style={{flex:1,fontSize:12,color:"#2C2C2C",lineHeight:1.4}}>{g}</div>
+                <button style={{background:"none",border:"none",fontSize:16,cursor:"pointer",color:"#C0392B",padding:"0 4px",lineHeight:1}}
+                  onClick={()=>setPatients(prev=>prev.map(p=>p.id===sel.id?{...p,goals:(p.goals||[]).filter((_,j)=>j!==i)}:p))}>×</button>
+              </div>
+            ))}
+          </div>
+
+          <div style={{display:"flex",gap:8,marginTop:10,flexWrap:"wrap"}}>
+            <button className="btn btno btnsm noprint" onClick={()=>window.print()}>🖨️ Imprimir ficha</button>
+            <button className="btn btnsm noprint" style={{background:"#25D366",color:"white"}}
+              onClick={()=>{
+                const txt = [`FICHA CLÍNICA — ${sel.name}`,`Diagnóstico: ${sel.diagnosis} | Edad: ${sel.age} años`,sel.guardian?`Tutor: ${sel.guardian}`:"",sel.phone?`Tel: ${sel.phone}`:"",sel.notes?`Notas: ${sel.notes}`:"",
+                (sel.goals||[]).length>0?`Objetivos:
+${(sel.goals||[]).map((g,i)=>`${i+1}. ${g}`).join("
+")}`:"","
+Hadrion — comunipro12@gmail.com"].filter(Boolean).join("
+");
+                const phone = (sel.phone||"").replace(/[^0-9]/g,"");
+                window.open(phone?`https://wa.me/${phone}?text=${encodeURIComponent(txt)}`:`https://wa.me/?text=${encodeURIComponent(txt)}`,"_blank");
+              }}>💬 WhatsApp</button>
+            <button className="btn btnsm noprint" style={{background:"#5B8DB8",color:"white"}}
+              onClick={()=>{
+                const body = `Ficha de ${sel.name}
+Diagnóstico: ${sel.diagnosis}
+Edad: ${sel.age} años
+${sel.notes||""}
+Objetivos: ${(sel.goals||[]).join(", ")}
+
+Hadrion — comunipro12@gmail.com`;
+                window.open(`mailto:${sel.email||""}?subject=${encodeURIComponent("Ficha — "+sel.name)}&body=${encodeURIComponent(body)}`);
+              }}>✉️ Email</button>
+          </div>
         </Modal>
       )}
 
@@ -1066,6 +1140,28 @@ function Patients({ patients, setPatients, setActive, setSelPatId, sessions }) {
           <div className="fg"><label className="lbl">Notas iniciales</label>
             <textarea className="inp" placeholder="Motivo de consulta..." value={f.notes} onChange={e => setF({ ...f, notes:e.target.value })} />
           </div>
+          <div style={{background:"#F5F0FA",borderRadius:12,padding:12,marginBottom:4}}>
+            <div style={{fontSize:11,fontWeight:700,color:"#7B5EA7",marginBottom:8,textTransform:"uppercase"}}>💰 Tarifa y cobro</div>
+            <div className="fg"><label className="lbl">Dependencia</label>
+              <select className="inp" value={f.dependencia} onChange={e=>setF({...f,dependencia:e.target.value})}>
+                {["Particular","BPS","FONASA","Mutual","Prepaga","Obra social","Otro"].map(d=><option key={d}>{d}</option>)}
+              </select>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6}}>
+              <div className="fg"><label className="lbl">Tarifa/ses.</label>
+                <input className="inp" type="number" min="0" placeholder="0" value={f.tarifaPorSesion} onChange={e=>setF({...f,tarifaPorSesion:e.target.value})}/>
+              </div>
+              <div className="fg"><label className="lbl">Complemento</label>
+                <input className="inp" type="number" min="0" placeholder="0" value={f.complemento} onChange={e=>setF({...f,complemento:e.target.value})}/>
+              </div>
+              <div className="fg"><label className="lbl">Moneda</label>
+                <select className="inp" value={f.currency} onChange={e=>setF({...f,currency:e.target.value})}>
+                  <option value="UYU">UYU</option>
+                  <option value="USD">USD</option>
+                </select>
+              </div>
+            </div>
+          </div>
           <button className="btn btnp btnfull" onClick={add}>Agregar paciente</button>
         </Modal>
       )}
@@ -1076,7 +1172,7 @@ function Patients({ patients, setPatients, setActive, setSelPatId, sessions }) {
 // ─── PAYMENTS ─────────────────────────────────────────────────────────────────
 function Payments({ patients, payments, setPayments }) {
   const [showNew, setShowNew] = useState(false);
-  const [f, setF] = useState({ patientId:"", amount:"", type:"Particular", method:"Transferencia", date:new Date().toISOString().slice(0,10) });
+  const [f, setF] = useState({ patientId:"", amount:"", type:"Particular", method:"Transferencia", date:new Date().toISOString().slice(0,10), currency:"UYU", notes:"" });
 
   const total      = payments.filter(p => p.status === "pagado").reduce((a, p) => a + p.amount, 0);
   const particular = payments.filter(p => p.type === "Particular"  && p.status === "pagado").reduce((a, p) => a + p.amount, 0);
@@ -1085,8 +1181,8 @@ function Payments({ patients, payments, setPayments }) {
   const save = () => {
     if (!f.patientId || !f.amount) return;
     const p = patients.find(x => x.id === parseInt(f.patientId));
-    setPayments(prev => [...prev, { id:makeId(), patientId:parseInt(f.patientId), patient:p?.name||"", amount:parseInt(f.amount), type:f.type, date:f.date, method:f.method, status:"pagado" }]);
-    setF({ patientId:"", amount:"", type:"Particular", method:"Transferencia", date:new Date().toISOString().slice(0,10) });
+    setPayments(prev => [...prev, { id:makeId(), patientId:parseInt(f.patientId), patient:p?.name||"", amount:parseInt(f.amount), currency:f.currency||"UYU", type:f.type, date:f.date, method:f.method, notes:f.notes||"", status:"pagado" }]);
+    setF({ patientId:"", amount:"", type:"Particular", method:"Transferencia", date:new Date().toISOString().slice(0,10), currency:"UYU", notes:"" });
     setShowNew(false);
   };
 
@@ -1170,7 +1266,9 @@ function Sessions({ patients, sessions, setSessions, setPatients }) {
   const save = () => {
     if (!f.patientId || !f.note) return;
     const p = patients.find(x => x.id === parseInt(f.patientId));
-    const newSession = { id:makeId(), patientId:parseInt(f.patientId), patient:p?.name||"", date:new Date().toLocaleDateString("es-UY"), ...f, activities:f.activities ? f.activities.split(",").map(s => s.trim()) : [] };
+    const patId = parseInt(f.patientId);
+    if (!patId || !f.note) return;
+    const newSession = { id:makeId(), patientId:patId, patient:p?.name||"", date:new Date().toLocaleDateString("es-UY"), ...f, duration:f.duration||45, activities:f.activities ? f.activities.split(",").map(s => s.trim()) : [] };
     setSessions(prev => [newSession, ...prev]);
     // actualizar contador de sesiones del paciente
     setPatients(prev => prev.map(pat => pat.id === parseInt(f.patientId) ? { ...pat, sessions: pat.sessions + 1 } : pat));
@@ -1191,7 +1289,31 @@ function Sessions({ patients, sessions, setSessions, setPatients }) {
             <div><div style={{ fontWeight:700, fontSize:14, color:C.charcoal }}>{s.patient}</div><div style={{ fontSize:11, color:C.grayL }}>{s.date}</div></div>
             <div style={{ display:"flex", gap:6, alignItems:"center" }}>
               {s.objective && <span className="badge" style={{ background:C.terraF, color:C.terra, fontSize:10 }}>{s.objective}</span>}
-              <button className="btn btng btnsm noprint" onClick={() => window.print()}>🖨️</button>
+              <div style={{display:"flex",gap:4}}>
+                <button className="btn btng btnsm noprint" onClick={() => window.print()} title="Imprimir">🖨️</button>
+                <button className="btn btnsm noprint" style={{background:"#25D366",color:"white",padding:"5px 8px",fontSize:10,borderRadius:8}} title="Enviar por WhatsApp"
+                  onClick={()=>{
+                    const txt = [`SESIÓN — ${s.patient}`,`Fecha: ${s.date}`,s.objective?`Objetivo: ${s.objective}`:"",`
+${s.note}`,s.homework?`
+Tarea: ${s.homework}`:"",`
+Progreso: ${s.progress}%`,"
+Hadrion — comunipro12@gmail.com"].filter(Boolean).join("
+");
+                    const p = patients.find(x=>x.id===s.patientId);
+                    const phone = (p?.phone||"").replace(/[^0-9]/g,"");
+                    window.open(phone?`https://wa.me/${phone}?text=${encodeURIComponent(txt)}`:`https://wa.me/?text=${encodeURIComponent(txt)}`,"_blank");
+                  }}>💬</button>
+                <button className="btn btnsm noprint" style={{background:"#5B8DB8",color:"white",padding:"5px 8px",fontSize:10,borderRadius:8}} title="Enviar por Email"
+                  onClick={()=>{
+                    const p = patients.find(x=>x.id===s.patientId);
+                    const body = `Sesión ${s.date} — ${s.patient}
+${s.note}
+${s.homework?"Tarea: "+s.homework:""}
+
+Hadrion — comunipro12@gmail.com`;
+                    window.open(`mailto:${p?.email||""}?subject=${encodeURIComponent("Sesión "+s.date+" — "+s.patient)}&body=${encodeURIComponent(body)}`);
+                  }}>✉️</button>
+              </div>
             </div>
           </div>
           <div className="scb">
@@ -1239,7 +1361,7 @@ function Sessions({ patients, sessions, setSessions, setPatients }) {
 }
 
 // ─── HISTORY ──────────────────────────────────────────────────────────────────
-function History({ patients, sessions, selectedPatientId }) {
+function History({ patients, sessions, selectedPatientId, setPatients }) {
   const [pid, setPid] = useState(selectedPatientId || "");
   const [ans, setAns] = useState({});
   const [tab, setTab] = useState("anamnesis");
@@ -1255,6 +1377,169 @@ function History({ patients, sessions, selectedPatientId }) {
         </select>
       </div>
       {patient && (
+        <>
+        <div className="atabrow" style={{marginBottom:14}}>
+          {[["evoluciones","📝 Evoluciones"],["anamnesis","📋 Anamnesis"],["informe","📄 Informe"]].map(([id,l]) => (
+            <button key={id} className={`atab${htab===id?" active":""}`} onClick={()=>setHtab(id)}>{l}</button>
+          ))}
+        </div>
+        </>
+      )}
+      {patient && htab === "anamnesis" && (
+        <div style={{background:"white",borderRadius:16,padding:16,marginBottom:14}}>
+          <div style={{fontWeight:700,fontSize:15,marginBottom:14}}>📋 Anamnesis — {patient.name}</div>
+          {[
+            ["Motivo de consulta","motivo"],["Antecedentes médicos","antecedentes"],
+            ["Historia del desarrollo","desarrollo"],["Conducta en sesión","conducta"],
+            ["Observaciones familiares","familia"],["Diagnóstico presuntivo","diagnosticoP"],
+          ].map(([label, key]) => (
+            <div className="fg" key={key}>
+              <label className="lbl">{label}</label>
+              <textarea className="inp" style={{minHeight:64}}
+                value={patient[key]||""}
+                onChange={e => {
+                  if (setPatients) setPatients(prev => prev.map(p => p.id===patient.id ? {...p,[key]:e.target.value} : p));
+                }}
+                placeholder={`Escribí ${label.toLowerCase()}...`}/>
+            </div>
+          ))}
+          <div style={{display:"flex",gap:8,marginTop:8,flexWrap:"wrap"}}>
+            <button className="btn btno btnsm noprint" onClick={()=>window.print()}>🖨️ Imprimir</button>
+            <button className="btn btnsm noprint"
+              style={{background:"#25D366",color:"white"}}
+              onClick={()=>{
+                const txt = [
+                  `ANAMNESIS — ${patient.name}`,
+                  `Fecha: ${new Date().toLocaleDateString("es-UY")}`,
+                  `Diagnóstico: ${patient.diagnosis}`,
+                  `Edad: ${patient.age} años`,
+                  "",
+                  patient.motivo ? `MOTIVO DE CONSULTA:
+${patient.motivo}` : "",
+                  patient.antecedentes ? `ANTECEDENTES:
+${patient.antecedentes}` : "",
+                  patient.desarrollo ? `DESARROLLO:
+${patient.desarrollo}` : "",
+                  patient.conducta ? `CONDUCTA EN SESIÓN:
+${patient.conducta}` : "",
+                  patient.familia ? `OBSERVACIONES FAMILIARES:
+${patient.familia}` : "",
+                  patient.diagnosticoP ? `DIAGNÓSTICO PRESUNTIVO:
+${patient.diagnosticoP}` : "",
+                  "",
+                  "Hadrion — Plataforma Terapéutica · comunipro12@gmail.com"
+                ].filter(Boolean).join("
+");
+                const phone = (patient.phone||"").replace(/\D/g,"");
+                const url = phone
+                  ? `https://wa.me/${phone}?text=${encodeURIComponent(txt)}`
+                  : `https://wa.me/?text=${encodeURIComponent(txt)}`;
+                window.open(url,"_blank");
+              }}>
+              💬 WhatsApp
+            </button>
+            <button className="btn btnsm noprint"
+              style={{background:"#5B8DB8",color:"white"}}
+              onClick={()=>{
+                const txt = [
+                  `ANAMNESIS — ${patient.name}`,
+                  `Diagnóstico: ${patient.diagnosis} | Edad: ${patient.age} años`,
+                  patient.motivo ? `Motivo: ${patient.motivo}` : "",
+                  patient.antecedentes ? `Antecedentes: ${patient.antecedentes}` : "",
+                  "Hadrion — comunipro12@gmail.com"
+                ].filter(Boolean).join("
+");
+                window.open(`mailto:${patient.email||""}?subject=${encodeURIComponent("Anamnesis — "+patient.name)}&body=${encodeURIComponent(txt)}`);
+              }}>
+              ✉️ Email
+            </button>
+          </div>
+        </div>
+      )}
+      {patient && htab === "informe" && (
+        <div style={{background:"white",borderRadius:16,padding:16,marginBottom:14}}>
+          <div style={{fontWeight:700,fontSize:15,marginBottom:4}}>📄 Informe formal — {patient.name}</div>
+          <div style={{fontSize:12,color:"#9B9590",marginBottom:14}}>Generá un informe para entregar a la familia o institución.</div>
+          <div style={{borderTop:"2px solid #9B7EBD",paddingTop:14,fontFamily:"Georgia,serif"}}>
+            <div style={{textAlign:"center",marginBottom:16}}>
+              <div style={{fontWeight:700,fontSize:16}}>INFORME DE EVALUACIÓN Y SEGUIMIENTO TERAPÉUTICO</div>
+              <div style={{fontSize:13,color:"#6B6560",marginTop:4}}>Hadrion — Plataforma Terapéutica · comunipro12@gmail.com</div>
+              <div style={{fontSize:12,color:"#9B9590"}}>Fecha: {new Date().toLocaleDateString("es-UY",{day:"numeric",month:"long",year:"numeric"})}</div>
+            </div>
+            {[
+              ["DATOS DEL PACIENTE", `Nombre: ${patient.name}
+Edad: ${patient.age} años
+Diagnóstico: ${patient.diagnosis}
+Sesiones realizadas: ${pSess.length}`],
+              ["OBJETIVOS TERAPÉUTICOS", (patient.goals||[]).map((g,i)=>`${i+1}. ${g}`).join("
+") || "Sin objetivos registrados"],
+              ["EVOLUCIÓN", pSess.length > 0 ? `Última sesión (${pSess[0]?.date}): ${pSess[0]?.note}` : "Sin sesiones registradas"],
+              ["OBSERVACIONES", patient.notes || "Sin observaciones"],
+            ].map(([title, content]) => (
+              <div key={title} style={{marginBottom:14}}>
+                <div style={{fontWeight:700,fontSize:13,borderBottom:"1px solid #EDE0F5",paddingBottom:4,marginBottom:6}}>{title}</div>
+                <div style={{fontSize:13,lineHeight:1.7,whiteSpace:"pre-line"}}>{content}</div>
+              </div>
+            ))}
+            <div style={{marginTop:24,display:"flex",justifyContent:"flex-end"}}>
+              <div style={{textAlign:"center"}}>
+                <div style={{borderTop:"1px solid #2C2C2C",width:200,marginBottom:4}}/>
+                <div style={{fontSize:12}}>Firma y sello profesional</div>
+                <div style={{fontSize:11,color:"#9B9590",marginTop:2}}>comunipro12@gmail.com</div>
+              </div>
+            </div>
+          </div>
+          <div style={{display:"flex",gap:8,marginTop:14,flexWrap:"wrap"}}>
+            <button className="btn btno btnsm noprint" onClick={()=>window.print()}>🖨️ Imprimir</button>
+            <button className="btn btnsm noprint"
+              style={{background:"#25D366",color:"white"}}
+              onClick={()=>{
+                const txt = [
+                  `INFORME TERAPÉUTICO — ${patient.name}`,
+                  `Fecha: ${new Date().toLocaleDateString("es-UY")}`,
+                  `Edad: ${patient.age} años | Diagnóstico: ${patient.diagnosis}`,
+                  `Sesiones realizadas: ${pSess.length}`,
+                  "",
+                  "OBJETIVOS:",
+                  ...(patient.goals||[]).map((g,i)=>`${i+1}. ${g}`),
+                  "",
+                  pSess.length>0 ? `ÚLTIMA SESIÓN (${pSess[0]?.date}):
+${pSess[0]?.note}` : "",
+                  patient.notes ? `OBSERVACIONES:
+${patient.notes}` : "",
+                  "",
+                  "Hadrion — Plataforma Terapéutica · comunipro12@gmail.com"
+                ].filter(Boolean).join("
+");
+                const phone = (patient.phone||"").replace(/\D/g,"");
+                const url = phone
+                  ? `https://wa.me/${phone}?text=${encodeURIComponent(txt)}`
+                  : `https://wa.me/?text=${encodeURIComponent(txt)}`;
+                window.open(url,"_blank");
+              }}>
+              💬 WhatsApp
+            </button>
+            <button className="btn btnsm noprint"
+              style={{background:"#5B8DB8",color:"white"}}
+              onClick={()=>{
+                const txt = `Estimada familia de ${patient.name}:
+
+Adjunto informe terapéutico.
+
+Diagnóstico: ${patient.diagnosis}
+Sesiones: ${pSess.length}
+Objetivos: ${(patient.goals||[]).join(", ")}
+
+Adriana Soba
+comunipro12@gmail.com`;
+                window.open(`mailto:${patient.email||""}?subject=${encodeURIComponent("Informe terapéutico — "+patient.name)}&body=${encodeURIComponent(txt)}`);
+              }}>
+              ✉️ Email
+            </button>
+          </div>
+        </div>
+      )}
+      {patient && htab === "evoluciones" && (
         <>
           <div style={{ display:"flex", alignItems:"center", gap:11, marginBottom:14, background:"white", borderRadius:14, padding:13, boxShadow:"0 1px 6px rgba(0,0,0,.05)" }}>
             <div className="av" style={{ width:46, height:46, background:patient.color, fontSize:15 }}>{patient.avatar}</div>
@@ -1581,7 +1866,6 @@ function Phonology() {
                 ))}
               </div>
             </div>
-          )}
 
           {stage === "Letra" && (
             <div style={{background:"white",borderRadius:12,padding:12,marginBottom:10}}>
@@ -1658,6 +1942,8 @@ function Phonology() {
                 </div>
               ))}
             </div>
+          )}
+
           )}
 
           {/* Palabra del dia */}
@@ -2131,18 +2417,28 @@ function PlanColaborativo({ patients, users, plan, setPlan }) {
 }
 
 // ─── ADMIN ────────────────────────────────────────────────────────────────────
-function Admin({ users, setUsers, registerRequests, setRegisterRequests, currentUser }) {
+function Admin({ users, setUsers, registerRequests, setRegisterRequests, currentUser, precios=null, setPrecios=null }) {
   const [tab, setTab]   = useState("solicitudes");
   const [showNew, setNew] = useState(false);
   const pendientes      = registerRequests.filter(r => r.status === "pendiente");
-  const [f, setF]       = useState({ name:"", email:"", password:"", role:"profesional", specialty:"", plan:"Basico", phone:"" });
+  const [f, setF]       = useState({ name:"", email:"", password:"", role:"profesional", specialty:"", plan:"Basico", phone:"", trialDays:"14" });
   const cols            = [C.terra, C.sage, C.purple, C.info, C.gold];
 
   const add = () => {
     if (!f.name || !f.email || !f.password) return;
     const init = f.name.split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
-    setUsers(prev => [...prev, { id:makeId(), name:f.name, email:f.email, password:f.password, role:f.role, specialty:f.specialty, plan:f.plan, status:"active", createdAt:new Date().toLocaleDateString("es-UY"), avatar:init, color:cols[prev.length % cols.length], lastLogin:"—" }]);
-    setF({ name:"", email:"", password:"", role:"profesional", specialty:"", plan:"Basico", phone:"" });
+    const days = parseInt(f.trialDays) || 14;
+    const end = new Date(); end.setDate(end.getDate() + days);
+    const endStr = end.toISOString().slice(0,10);
+    const dataExp = new Date(end); dataExp.setDate(dataExp.getDate() + 30);
+    setUsers(prev => [...prev, {
+      id:makeId(), name:f.name, email:f.email, password:f.password, role:f.role,
+      specialty:f.specialty, plan:f.plan, status:"active",
+      createdAt:new Date().toLocaleDateString("es-UY"), avatar:init,
+      color:cols[prev.length % cols.length], lastLogin:"—",
+      subscriptionEnd:endStr, dataExpiresAt:dataExp.toISOString().slice(0,10), trialDays:days
+    }]);
+    setF({ name:"", email:"", password:"", role:"profesional", specialty:"", plan:"Basico", phone:"", trialDays:"14" });
     setNew(false);
   };
 
@@ -2173,7 +2469,7 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
         <div className="ps">Gestion de usuarios, roles y seguridad</div>
       </div>
       <div className="atabrow">
-        {[{ k:"solicitudes",l:"📬 Solicitudes" },{ k:"usuarios",l:"👥 Usuarios" },{ k:"seguridad",l:"🛡️ Seguridad" },{ k:"stats",l:"📊 Stats" },{ k:"config",l:"⚙️ Config" }].map(t => (
+        {[{ k:"solicitudes",l:"📬 Solicitudes" },{ k:"usuarios",l:"👥 Usuarios" },{ k:"precios",l:"💰 Precios" },{ k:"marketing",l:"📢 Marketing" },{ k:"stats",l:"📊 Stats" },{ k:"config",l:"⚙️ Config" }].map(t => (
           <button key={t.k} className={`atab${tab===t.k?" active":""}`} onClick={() => setTab(t.k)}>{t.l}</button>
         ))}
       </div>
@@ -2199,9 +2495,26 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
                   <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
                     <button className="btn btnp btnsm" onClick={() => {
                       const init = r.name.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
-                      setUsers(prev => [...prev, { id:makeId(), name:r.name, email:r.email, password:"Hadrion" + Math.floor(1000+Math.random()*9000), role:"profesional", specialty:r.specialty, plan:"Basico", status:"active", createdAt:new Date().toLocaleDateString("es-UY"), avatar:init, color:cols[users.length%cols.length], lastLogin:"—" }]);
+                      const dias = 14;
+                      const end = new Date(); end.setDate(end.getDate() + dias);
+                      const endStr = end.toISOString().slice(0,10);
+                      const dataExp = new Date(end); dataExp.setDate(dataExp.getDate() + 30);
+                      const pwd = "Hadrion" + Math.floor(1000+Math.random()*9000);
+                      const newUser = { id:makeId(), name:r.name, email:r.email, password:pwd, role:"profesional", specialty:r.specialty, plan:"Basico", status:"active", createdAt:new Date().toLocaleDateString("es-UY"), avatar:init, color:cols[users.length%cols.length], lastLogin:"—", subscriptionEnd:endStr, dataExpiresAt:dataExp.toISOString().slice(0,10), trialDays:dias };
+                      setUsers(prev => [...prev, newUser]);
                       setRegisterRequests(prev => prev.map(req => req.id===r.id ? { ...req, status:"aprobado" } : req));
-                    }}>✅ Aprobar</button>
+                      // Enviar WhatsApp automático
+                      const phone = (r.phone||"").replace(/\D/g,"");
+                      if (phone) {
+                        const msg = encodeURIComponent(`Hola ${r.name.split(" ")[0]}! 🎉 Tu acceso a Hadrion está listo.
+🔗 hadrion-v4.netlify.app
+📧 Email: ${r.email}
+🔑 Contraseña: ${pwd}
+Tenés ${dias} días de prueba gratis. ¡Bienvenida!
+Cualquier consulta: comunipro12@gmail.com`);
+                        window.open(`https://wa.me/${phone}?text=${msg}`, "_blank");
+                      }
+                    }}>✅ Confirmar pago y dar acceso</button>
                     <button className="btn btnd btnsm" onClick={() => setRegisterRequests(prev => prev.map(req => req.id===r.id ? { ...req, status:"rechazado" } : req))}>❌ Rechazar</button>
                   </div>
                 )}
@@ -2300,6 +2613,141 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
         </>
       )}
 
+      {tab === "precios" && precios && (
+        <div>
+          <div className="alert alrti" style={{marginBottom:12}}>Los precios que configurés acá se muestran en solicitudes, perfil de usuarios y publicaciones de marketing.</div>
+          {[
+            { key:"basico",  label:"Plan Básico",   icon:"⭐",  maxU:"1 usuario"   },
+            { key:"pro",     label:"Plan Pro",      icon:"🌟",  maxU:"3 usuarios"  },
+            { key:"clinica", label:"Plan Clínica",  icon:"🏥",  maxU:"10 usuarios" },
+            { key:"colegio", label:"Plan Colegio",  icon:"🏫",  maxU:"30 usuarios" },
+          ].map(p => (
+            <div key={p.key} style={{background:"white",borderRadius:14,padding:14,marginBottom:10,boxShadow:"0 1px 8px rgba(0,0,0,.06)"}}>
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+                <span style={{fontSize:20}}>{p.icon}</span>
+                <div style={{fontWeight:700,fontSize:13}}>{p.label}</div>
+                <span style={{fontSize:11,color:"#9B9590",background:"#F5F0FA",borderRadius:20,padding:"2px 8px"}}>{p.maxU}</span>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                <div className="fg" style={{marginBottom:0}}>
+                  <label className="lbl">UYU / mes</label>
+                  <input className="inp" type="number" min="0" value={precios[p.key]||0}
+                    onChange={e=>setPrecios({...precios,[p.key]:parseInt(e.target.value)||0})}/>
+                </div>
+                <div className="fg" style={{marginBottom:0}}>
+                  <label className="lbl">USD / mes</label>
+                  <input className="inp" type="number" min="0" value={precios[p.key+"USD"]||0}
+                    onChange={e=>setPrecios({...precios,[p.key+"USD"]:parseInt(e.target.value)||0})}/>
+                </div>
+              </div>
+            </div>
+          ))}
+          <div style={{fontWeight:700,fontSize:13,margin:"16px 0 10px"}}>🔗 Links de pago</div>
+          {[
+            ["💙 MercadoPago — Básico","mpLinkBasico"],
+            ["💙 MercadoPago — Pro","mpLinkPro"],
+            ["💙 MercadoPago — Clínica","mpLinkClinica"],
+            ["🌎 Stripe / PayPal internacional","stripeLink"],
+          ].map(([label,key]) => (
+            <div className="fg" key={key}>
+              <label className="lbl">{label}</label>
+              <input className="inp" type="url" placeholder="https://..." value={precios[key]||""}
+                onChange={e=>setPrecios({...precios,[key]:e.target.value})}/>
+            </div>
+          ))}
+          <div style={{background:"linear-gradient(135deg,#9B7EBD,#7B5EA7)",borderRadius:14,padding:14,color:"white",marginTop:8}}>
+            <div style={{fontWeight:700,fontSize:13,marginBottom:8}}>Vista previa pública</div>
+            {["basico","pro","clinica","colegio"].map((k,i) => (
+              <div key={k} style={{display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:"1px solid rgba(255,255,255,.2)"}}>
+                <span style={{fontSize:12}}>{["⭐ Básico","🌟 Pro","🏥 Clínica","🏫 Colegio"][i]}</span>
+                <span style={{fontWeight:700,fontSize:12}}>${(precios[k]||0).toLocaleString("es-UY")} UYU / US${precios[k+"USD"]||0}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {tab === "marketing" && (
+        <div>
+          <div className="alert alrti" style={{marginBottom:12}}>
+            💡 <strong>Estrategia recomendada:</strong> Publicá contenido de valor y esperá que se contacten. Quien escribe tiene interés real.
+          </div>
+
+          <div style={{fontWeight:700,fontSize:14,color:"#2C2C2C",marginBottom:10}}>📱 Publicación para Instagram</div>
+          <div style={{background:"white",borderRadius:14,padding:14,marginBottom:14,fontSize:13,lineHeight:1.7,color:"#2C2C2C",border:"1.5px solid #EDE0F5",whiteSpace:"pre-wrap"}}>
+{`✨ ¿Sos fonoaudióloga, psicopedagoga o terapeuta y seguís con anotaciones en papel?
+
+Hadrion es la plataforma clínica diseñada para vos 🌸
+
+✅ Registrá sesiones en segundos
+✅ Calculá cuánto cobrar por dependencia (BPS, Mutual, Particular...)
+✅ Asistencias y liquidación automática
+✅ Módulo TEA/Autismo con objetivos por área
+✅ IA terapéutica para generar objetivos e informes
+✅ Historia clínica digital
+✅ Agenda con Google Calendar
+
+📍 Desarrollado en Uruguay para profesionales de habla hispana
+
+👉 Escribime por DM o WhatsApp para conocer los planes
+💜 14 días de prueba gratis
+
+#fonoaudiologia #psicopedagogia #terapiaocupacional #autismo #TEA #Uruguay #plataformaclinica #hadrion`}
+          </div>
+          <button className="btn btno btnsm" onClick={()=>navigator.clipboard?.writeText("✨ ¿Sos fonoaudióloga...").catch(()=>{})}>
+            📋 Copiar texto
+          </button>
+
+          <div style={{fontWeight:700,fontSize:14,color:"#2C2C2C",marginBottom:10,marginTop:16}}>💬 Mensaje para grupos de WhatsApp</div>
+          <div style={{background:"white",borderRadius:14,padding:14,marginBottom:14,fontSize:13,lineHeight:1.7,color:"#2C2C2C",border:"1.5px solid #EDE0F5",whiteSpace:"pre-wrap"}}>
+{`Hola! Les cuento que lancé Hadrion, una plataforma clínica para terapeutas 🌸
+
+Podés registrar sesiones, calcular cobros por BPS/Mutual/Particular, llevar historia clínica y usar IA para generar objetivos e informes.
+
+Desarrollada en Uruguay, con 14 días de prueba gratis.
+
+Si les interesa, escríbanme 💜`}
+          </div>
+
+          <div style={{fontWeight:700,fontSize:14,color:"#2C2C2C",marginBottom:10,marginTop:8}}>🛒 Flujo de venta recomendado</div>
+          {[
+            ["1","Te contactan por DM o WhatsApp","Respondé rápido, preguntá su especialidad"],
+            ["2","Mostrá el valor","Enviá capturas o describí la funcionalidad clave para ellas"],
+            ["3","Acordar pago","Compartí tu link de MercadoPago o datos bancarios"],
+            ["4","Confirmar pago","Esperá la confirmación antes de dar acceso"],
+            ["5","Dar acceso","Usá el panel Admin → Dar de alta → enviá credenciales por WA"],
+          ].map(([n,t,d]) => (
+            <div key={n} style={{display:"flex",gap:10,marginBottom:8,alignItems:"flex-start"}}>
+              <div style={{width:24,height:24,borderRadius:"50%",background:"#9B7EBD",color:"white",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,flexShrink:0}}>{n}</div>
+              <div><div style={{fontWeight:600,fontSize:13}}>{t}</div><div style={{fontSize:11,color:"#9B9590"}}>{d}</div></div>
+            </div>
+          ))}
+
+          <div style={{fontWeight:700,fontSize:14,color:"#2C2C2C",marginBottom:10,marginTop:16}}>💳 Formas de cobro seguras (Uruguay)</div>
+          {[
+            ["🥇","MercadoPago","Recomendado — link de pago, sin dar datos personales, ~4% comisión"],
+            ["🥈","Transferencia BROU/Itaú","Sin comisión, rastreable, dar solo alias o CBU"],
+            ["🥉","RedPagos/Abitab","Para quienes no tienen cuenta bancaria"],
+            ["❌","Número personal","No recomendado — usá WhatsApp Business"],
+          ].map(([ico,t,d]) => (
+            <div key={t} style={{display:"flex",gap:10,marginBottom:8,alignItems:"flex-start",padding:"8px 12px",background:"white",borderRadius:10}}>
+              <span style={{fontSize:16}}>{ico}</span>
+              <div><div style={{fontWeight:600,fontSize:13}}>{t}</div><div style={{fontSize:11,color:"#9B9590"}}>{d}</div></div>
+            </div>
+          ))}
+
+          <div style={{background:"linear-gradient(135deg,#9B7EBD,#7B5EA7)",borderRadius:14,padding:"14px 16px",color:"white",marginTop:8}}>
+            <div style={{fontWeight:700,fontSize:13,marginBottom:8}}>💰 Precios sugeridos Uruguay 2025</div>
+            {[["Plan Básico","1 usuario","$490 UYU/mes"],["Plan Pro","3 usuarios + IA","$1.200 UYU/mes"],["Plan Clínica","10 usuarios","$2.800 UYU/mes"],["Plan Colegio","30 usuarios","$4.500 UYU/mes"]].map(([p,d,price]) => (
+              <div key={p} style={{display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:"1px solid rgba(255,255,255,.2)"}}>
+                <div><div style={{fontWeight:600,fontSize:12}}>{p}</div><div style={{fontSize:10,opacity:.8}}>{d}</div></div>
+                <div style={{fontWeight:700,fontSize:13}}>{price}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {tab === "config" && (
         <SC title="⚙️ Configuracion">
           {[["Nombre","Hadrion"],["Plan","Pro — Ilimitado"],["Region","Uruguay"],["Idioma","Espanol"],["Zona horaria","GMT-3"],["Contacto","comunipro12@gmail.com"]].map(([l,v]) => (
@@ -2329,6 +2777,15 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
             </select>
           </div>
           <button className="btn btnp btnfull" onClick={add}>✅ Crear usuario</button>
+          <div className="fg">
+            <label className="lbl">Días de acceso (prueba)</label>
+            <input className="inp" type="number" min="1" max="365" value={f.trialDays||"14"}
+              onChange={e => setF({...f, trialDays:e.target.value})}
+              placeholder="14"/>
+            <div style={{fontSize:11,color:"#9B9590",marginTop:3}}>
+              El acceso vence en {f.trialDays||14} días. Los datos se conservan 30 días adicionales.
+            </div>
+          </div>
           {f.name && f.email && f.password && (
             <div style={{ marginTop:12 }}>
               <div style={{ display:"flex", gap:8 }}>
@@ -2340,7 +2797,7 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
                 </button>
               </div>
               <div className="alert alrti" style={{ marginTop:8, fontSize:11 }}>
-                Crea primero el usuario, luego usa estos botones para enviarle las credenciales.
+                Primero creá el usuario, luego enviá las credenciales por WhatsApp o Email.
               </div>
             </div>
           )}
@@ -2409,6 +2866,170 @@ function Profile({ user, onLogout, setUser }) {
 }
 
 // ─── FOOTER ───────────────────────────────────────────────────────────────────
+// ─── ORGANIZACIONES ───────────────────────────────────────────────────────────
+const PLANES_ORG = [
+  { id:"basico",   label:"Básico",  maxUsers:1,  precio:490,  color:"#9B7EBD" },
+  { id:"pro",      label:"Pro",     maxUsers:3,  precio:1200, color:"#5B8DB8" },
+  { id:"clinica",  label:"Clínica", maxUsers:10, precio:2800, color:"#2ECC71" },
+  { id:"colegio",  label:"Colegio", maxUsers:30, precio:4500, color:"#E8A020" },
+];
+
+function Organizaciones({ users, setUsers }) {
+  const [orgs, setOrgs]     = useState([
+    { id:1, nombre:"Clínica Demo", tipo:"Clinica", plan:"clinica", maxUsers:10,
+      contacto:"demo@clinica.com", usuarios:[1,2], activa:true, createdAt:"01/01/2025" }
+  ]);
+  const [showNew, setShowNew] = useState(false);
+  const [f, setF]             = useState({ nombre:"", tipo:"Clinica", plan:"pro", contacto:"", telefono:"" });
+  const [selOrg, setSelOrg]   = useState(null);
+
+  const tiposOrg = ["Clinica","Escuela","Colegio","Centro terapeutico","Hospital","Otro"];
+
+  const addOrg = () => {
+    if (!f.nombre) return;
+    const plan = PLANES_ORG.find(p => p.id === f.plan);
+    setOrgs(prev => [...prev, {
+      id: makeId(), nombre:f.nombre, tipo:f.tipo, plan:f.plan,
+      maxUsers: plan?.maxUsers || 3, contacto:f.contacto,
+      telefono:f.telefono, usuarios:[], activa:true,
+      createdAt:new Date().toLocaleDateString("es-UY")
+    }]);
+    setF({ nombre:"", tipo:"Clinica", plan:"pro", contacto:"", telefono:"" });
+    setShowNew(false);
+  };
+
+  const orgUsers = org => users.filter(u => (org.usuarios||[]).includes(u.id));
+  const canAddUser = org => orgUsers(org).length < org.maxUsers;
+
+  return (
+    <div className="fu">
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
+        <div>
+          <div className="pt">🏫 Organizaciones</div>
+          <div className="ps">Clínicas, escuelas y centros con multiusuario</div>
+        </div>
+        <button className="btn btnp btnsm" onClick={()=>setShowNew(true)}>+ Nueva org.</button>
+      </div>
+
+      {/* Planes disponibles */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:16}}>
+        {PLANES_ORG.map(p => (
+          <div key={p.id} style={{background:"white",borderRadius:12,padding:"12px 14px",border:`2px solid ${p.color}33`}}>
+            <div style={{fontWeight:700,fontSize:13,color:p.color}}>{p.label}</div>
+            <div style={{fontSize:11,color:"#9B9590",marginTop:2}}>Hasta {p.maxUsers} usuario{p.maxUsers>1?"s":""}</div>
+            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:700,color:"#2C2C2C",marginTop:4}}>${p.precio.toLocaleString("es-UY")} UYU/mes</div>
+          </div>
+        ))}
+      </div>
+
+      {orgs.length === 0 && (
+        <div style={{textAlign:"center",padding:"30px 0",color:"#9B9590"}}>
+          <div style={{fontSize:36}}>🏫</div>
+          <div style={{fontWeight:600}}>Sin organizaciones registradas</div>
+        </div>
+      )}
+
+      {orgs.map(org => {
+        const plan = PLANES_ORG.find(p => p.id === org.plan);
+        const miembros = orgUsers(org);
+        const pct = miembros.length / org.maxUsers * 100;
+        return (
+          <div key={org.id} style={{background:"white",borderRadius:18,overflow:"hidden",boxShadow:"0 2px 12px rgba(0,0,0,.07)",marginBottom:14}}>
+            <div style={{padding:"14px 16px",borderBottom:"1px solid #EDE0F5",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+              <div>
+                <div style={{fontWeight:700,fontSize:14}}>{org.nombre}</div>
+                <div style={{fontSize:11,color:"#9B9590",marginTop:2}}>{org.tipo} · Plan {plan?.label} · {org.createdAt}</div>
+              </div>
+              <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                <span style={{fontSize:10,background:org.activa?"#E8F8EF":"#FDECEA",color:org.activa?"#1a7a3c":"#C0392B",borderRadius:20,padding:"2px 8px",fontWeight:700}}>
+                  {org.activa?"Activa":"Inactiva"}
+                </span>
+                <button onClick={()=>setSelOrg(selOrg?.id===org.id?null:org)}
+                  style={{background:"#F5F0FA",border:"none",borderRadius:8,padding:"6px 10px",cursor:"pointer",fontSize:11,fontWeight:700,color:"#9B7EBD"}}>
+                  ⚙️
+                </button>
+              </div>
+            </div>
+            <div style={{padding:"14px 16px"}}>
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+                <div style={{flex:1,background:"#EDE0F5",borderRadius:8,height:7,overflow:"hidden"}}>
+                  <div style={{height:"100%",borderRadius:8,background:plan?.color||"#9B7EBD",width:`${Math.min(pct,100)}%`,transition:"width .3s"}}/>
+                </div>
+                <span style={{fontSize:12,fontWeight:700,color:plan?.color||"#9B7EBD"}}>{miembros.length}/{org.maxUsers}</span>
+                <span style={{fontSize:11,color:"#9B9590"}}>usuarios</span>
+              </div>
+              <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                {miembros.map(u => (
+                  <div key={u.id} style={{display:"flex",alignItems:"center",gap:5,background:"#F5F0FA",borderRadius:20,padding:"4px 10px"}}>
+                    <div style={{width:20,height:20,borderRadius:"50%",background:u.color,display:"flex",alignItems:"center",justifyContent:"center",color:"white",fontSize:9,fontWeight:700}}>{u.avatar}</div>
+                    <span style={{fontSize:11,fontWeight:500}}>{u.name.split(" ")[0]}</span>
+                  </div>
+                ))}
+                {canAddUser(org) && (
+                  <button style={{background:"#EDE0F5",border:"none",borderRadius:20,padding:"4px 10px",fontSize:11,cursor:"pointer",color:"#9B7EBD",fontFamily:"sans-serif"}}
+                    onClick={()=>{
+                      const available = users.filter(u => !orgs.some(o => (o.usuarios||[]).includes(u.id)));
+                      if (available.length === 0) { alert("No hay usuarios disponibles para agregar."); return; }
+                      const name = prompt("Email del usuario a agregar:");
+                      const u = users.find(x => x.email === name);
+                      if (!u) { alert("Usuario no encontrado."); return; }
+                      setOrgs(prev => prev.map(o => o.id===org.id ? {...o, usuarios:[...(o.usuarios||[]),u.id]} : o));
+                    }}>
+                    + Agregar usuario
+                  </button>
+                )}
+              </div>
+              {!canAddUser(org) && (
+                <div style={{fontSize:11,color:"#E8A020",marginTop:6}}>
+                  ⚠️ Límite de usuarios alcanzado. Actualizá el plan para agregar más.
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })}
+
+      {showNew && (
+        <Modal title="Nueva Organización" onClose={()=>setShowNew(false)}>
+          <div className="fg"><label className="lbl">Nombre</label>
+            <input className="inp" placeholder="Ej: Clínica Los Pinos" value={f.nombre} onChange={e=>setF({...f,nombre:e.target.value})}/>
+          </div>
+          <div className="fg"><label className="lbl">Tipo</label>
+            <select className="inp" value={f.tipo} onChange={e=>setF({...f,tipo:e.target.value})}>
+              {tiposOrg.map(t=><option key={t}>{t}</option>)}
+            </select>
+          </div>
+          <div className="fg"><label className="lbl">Plan</label>
+            <select className="inp" value={f.plan} onChange={e=>setF({...f,plan:e.target.value})}>
+              {PLANES_ORG.map(p=>(
+                <option key={p.id} value={p.id}>{p.label} — hasta {p.maxUsers} usuarios — ${p.precio.toLocaleString("es-UY")} UYU/mes</option>
+              ))}
+            </select>
+          </div>
+          <div className="fg"><label className="lbl">Email de contacto</label>
+            <input className="inp" type="email" value={f.contacto} onChange={e=>setF({...f,contacto:e.target.value})}/>
+          </div>
+          <div className="fg"><label className="lbl">Teléfono (WhatsApp)</label>
+            <input className="inp" type="tel" placeholder="(+598) 9..." value={f.telefono} onChange={e=>setF({...f,telefono:e.target.value})}/>
+          </div>
+          <div style={{background:"#F5F0FA",borderRadius:12,padding:12,marginBottom:12}}>
+            <div style={{fontSize:11,fontWeight:700,color:"#9B9590",marginBottom:4,textTransform:"uppercase"}}>Resumen del plan seleccionado</div>
+            {(() => { const p = PLANES_ORG.find(pl=>pl.id===f.plan);
+              return p ? (
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                  <div><div style={{fontWeight:700,color:p.color}}>{p.label}</div><div style={{fontSize:12,color:"#9B9590"}}>Hasta {p.maxUsers} usuarios</div></div>
+                  <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:700,color:p.color}}>${p.precio.toLocaleString("es-UY")}/mes</div>
+                </div>
+              ) : null;
+            })()}
+          </div>
+          <button className="btn btnp btnfull" onClick={addOrg}>Crear organización</button>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
 // ─── ASISTENCIAS ─────────────────────────────────────────────────────────────
 function Asistencias({ patients, setPatients }) {
   const myPats = patients.filter(p => p.status === "active");
@@ -2453,11 +3074,16 @@ function Asistencias({ patients, setPatients }) {
   };
 
   const getColor = v => {
-    if (!v)        return { bg:"#F0F0F0", c:"#aaa",    label:"–"  };
-    if (v === "P") return { bg:C.greenF,  c:"#1a7a3c", label:"P"  };
-    if (v === "F") return { bg:C.dangerF, c:C.danger,  label:"F"  };
-    if (v === "FJ") return { bg:C.goldF,  c:C.gold,    label:"FJ" };
+    if (!v)         return { bg:"#F0F0F0", c:"#aaa",    label:"–"  };
+    if (v === "P")  return { bg:"#E8F8EF", c:"#1a7a3c", label:"P"  };
+    if (v === "F")  return { bg:"#FDECEA", c:"#C0392B", label:"F"  };
+    if (v === "FJ") return { bg:"#FEF3E0", c:"#E8A020", label:"FJ" };
     return { bg:"#F0F0F0", c:"#aaa", label:"–" };
+  };
+
+  const fmtDep = dep => {
+    const colors = { Particular:"#9B7EBD", BPS:"#5B8DB8", FONASA:"#2ECC71", Mutual:"#8B7BB5", Prepaga:"#E8A020", "Obra social":"#E8719C" };
+    return colors[dep] || "#9B9590";
   };
 
   const getRes = p => {
@@ -2470,64 +3096,68 @@ function Asistencias({ patients, setPatients }) {
     return { presentes, faltas, faltasJ, total: presentes * (tarifa + comp), tarifa, comp };
   };
 
-  const fmtDep = dep => {
-    const colors = { Particular:C.terra, BPS:C.info, FONASA:C.green, Mutual:C.purple, Prepaga:C.gold, "Obra social":C.sage };
-    return colors[dep] || C.gray;
-  };
-
   const currency = myPats[0]?.currency || "UYU";
   const granTotal = myPats.reduce((s,p) => s + getRes(p).total, 0);
+
+  // Resumen por dependencia
+  const deps = [...new Set(myPats.map(p => p.dependencia || "Particular"))];
+  const resumenDep = deps.map(dep => {
+    const pacs = myPats.filter(p => (p.dependencia || "Particular") === dep);
+    return { dep, pacs, total: pacs.reduce((s,p) => s + getRes(p).total, 0) };
+  });
 
   return (
     <div className="fu">
       <div style={{marginBottom:14}}>
         <div className="pt">📆 Asistencias y Cobros</div>
-        <div className="ps">Registrá presencias y calculá lo que cobrás</div>
+        <div className="ps">Registrá presencias y calculá lo que cobrás este mes</div>
       </div>
 
-      {/* Selector de mes */}
+      {/* Selector mes */}
       <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16,background:"white",borderRadius:14,padding:"12px 16px",boxShadow:"0 1px 6px rgba(0,0,0,.05)"}}>
-        <button onClick={()=>cambiarMes(-1)} style={{background:C.sand,border:"none",borderRadius:8,width:34,height:34,cursor:"pointer",fontSize:18,fontWeight:700,color:C.charcoal}}>‹</button>
-        <div style={{flex:1,textAlign:"center",fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:700,color:C.charcoal,textTransform:"capitalize"}}>{nomMes}</div>
-        <button onClick={()=>cambiarMes(1)} style={{background:C.sand,border:"none",borderRadius:8,width:34,height:34,cursor:"pointer",fontSize:18,fontWeight:700,color:C.charcoal}}>›</button>
+        <button onClick={()=>cambiarMes(-1)} style={{background:"#EDE0F5",border:"none",borderRadius:8,width:34,height:34,cursor:"pointer",fontSize:18,fontWeight:700}}>‹</button>
+        <div style={{flex:1,textAlign:"center",fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:700,textTransform:"capitalize"}}>{nomMes}</div>
+        <button onClick={()=>cambiarMes(1)} style={{background:"#EDE0F5",border:"none",borderRadius:8,width:34,height:34,cursor:"pointer",fontSize:18,fontWeight:700}}>›</button>
       </div>
 
       {/* Leyenda */}
       <div style={{display:"flex",gap:8,marginBottom:14,flexWrap:"wrap"}}>
-        {[["P","Presente",C.greenF,"#1a7a3c"],["F","Falta",C.dangerF,C.danger],["FJ","Justif.",C.goldF,C.gold],["–","Sin marcar","#F0F0F0","#aaa"]].map(([l,d,bg,c]) => (
-          <div key={l} style={{display:"flex",alignItems:"center",gap:4,fontSize:11,color:C.grayL}}>
+        {[["P","Presente","#E8F8EF","#1a7a3c"],["F","Falta","#FDECEA","#C0392B"],["FJ","Justificada","#FEF3E0","#E8A020"],["–","Sin marcar","#F0F0F0","#aaa"]].map(([l,d,bg,c]) => (
+          <div key={l} style={{display:"flex",alignItems:"center",gap:4,fontSize:11,color:"#9B9590"}}>
             <div style={{width:22,height:22,borderRadius:5,background:bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:700,color:c}}>{l}</div>
             <span>{d}</span>
           </div>
         ))}
-        <span style={{fontSize:11,color:C.grayL}}>· Tocá para cambiar</span>
+        <span style={{fontSize:11,color:"#9B9590"}}>· Tocá para cambiar</span>
       </div>
 
-      {myPats.length === 0 && <div style={{textAlign:"center",padding:"30px 0",color:C.grayL}}>Sin pacientes activos</div>}
+      {myPats.length === 0 && <div style={{textAlign:"center",padding:"30px 0",color:"#9B9590"}}>Sin pacientes activos</div>}
 
       {myPats.map(p => {
         const res = getRes(p);
         const dep = p.dependencia || "Particular";
         const dc  = fmtDep(dep);
         return (
-          <div key={p.id} className="sc" style={{marginBottom:14}}>
-            <div className="sch">
+          <div key={p.id} style={{background:"white",borderRadius:18,overflow:"hidden",boxShadow:"0 2px 12px rgba(0,0,0,.07)",marginBottom:14}}>
+            <div style={{padding:"14px 16px",borderBottom:"1px solid #EDE0F5",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
               <div style={{display:"flex",alignItems:"center",gap:10}}>
-                <div className="av" style={{width:38,height:38,background:p.color||C.terra,fontSize:13,borderRadius:11}}>{p.avatar||p.name?.slice(0,2).toUpperCase()}</div>
+                <div style={{width:38,height:38,borderRadius:11,background:p.color||"#9B7EBD",display:"flex",alignItems:"center",justifyContent:"center",color:"white",fontWeight:700,fontSize:13}}>
+                  {p.avatar||p.name?.slice(0,2).toUpperCase()}
+                </div>
                 <div>
-                  <div style={{fontWeight:700,fontSize:13,color:C.charcoal}}>{p.name}</div>
+                  <div style={{fontWeight:700,fontSize:13}}>{p.name}</div>
                   <div style={{display:"flex",gap:5,alignItems:"center",marginTop:2,flexWrap:"wrap"}}>
                     <span style={{fontSize:10,background:dc+"22",color:dc,borderRadius:6,padding:"1px 7px",fontWeight:700}}>{dep}</span>
-                    <span style={{fontSize:11,color:C.grayL}}>{res.tarifa > 0 ? `$${res.tarifa}/ses.` : "Sin tarifa"}</span>
+                    <span style={{fontSize:11,color:"#9B9590"}}>${res.tarifa.toLocaleString("es-UY")}/ses{res.comp>0?` +$${res.comp.toLocaleString("es-UY")} compl.`:""}</span>
                   </div>
                 </div>
               </div>
               <button onClick={() => { setSelPat(p); setTarifaF({ dependencia:dep, tarifaPorSesion:p.tarifaPorSesion||0, complemento:p.complemento||0, currency:p.currency||"UYU" }); setEditTarifa(true); }}
-                style={{background:C.terraF,border:"none",borderRadius:8,padding:"6px 11px",cursor:"pointer",fontSize:11,fontWeight:700,color:C.terra}}>
+                style={{background:"#F5F0FA",border:"none",borderRadius:8,padding:"6px 11px",cursor:"pointer",fontSize:11,fontWeight:700,color:"#9B7EBD"}}>
                 ⚙️ Tarifa
               </button>
             </div>
-            <div className="scb">
+            <div style={{padding:"14px 16px"}}>
               <div style={{overflowX:"auto",marginBottom:10}}>
                 <div style={{display:"flex",gap:4,minWidth:"max-content",paddingBottom:4}}>
                   {diasHabiles.map(dia => {
@@ -2536,9 +3166,8 @@ function Asistencias({ patients, setPatients }) {
                     const {bg,c,label} = getColor(v);
                     return (
                       <button key={dia} onClick={() => toggleAsis(p.id, dia)}
-                        title={d.toLocaleDateString("es-UY",{weekday:"short",day:"numeric"})}
                         style={{width:30,height:38,borderRadius:7,border:`1px solid ${c}44`,background:bg,cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:1,flexShrink:0}}>
-                        <div style={{fontSize:8,color:C.grayL,lineHeight:1}}>{String(d.getDate()).padStart(2,"0")}</div>
+                        <div style={{fontSize:8,color:"#9B9590",lineHeight:1}}>{String(d.getDate()).padStart(2,"0")}</div>
                         <div style={{fontSize:10,fontWeight:700,color:c,lineHeight:1}}>{label}</div>
                       </button>
                     );
@@ -2546,7 +3175,7 @@ function Asistencias({ patients, setPatients }) {
                 </div>
               </div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:6}}>
-                {[["Presentes",res.presentes,C.greenF,"#1a7a3c"],["Faltas",res.faltas,C.dangerF,C.danger],["Justif.",res.faltasJ,C.goldF,C.gold],["A cobrar",`$${res.total.toLocaleString("es-UY")}`,C.terraF,C.terra]].map(([l,v,bg,c]) => (
+                {[["Presentes",res.presentes,"#E8F8EF","#1a7a3c"],["Faltas",res.faltas,"#FDECEA","#C0392B"],["Justif.",res.faltasJ,"#FEF3E0","#E8A020"],["A cobrar",`$${res.total.toLocaleString("es-UY")}`,`#F5F0FA`,"#9B7EBD"]].map(([l,v,bg,c]) => (
                   <div key={l} style={{background:bg,borderRadius:10,padding:"8px 6px",textAlign:"center"}}>
                     <div style={{fontSize:13,fontWeight:700,color:c,wordBreak:"break-word"}}>{v}</div>
                     <div style={{fontSize:10,color:c,marginTop:2}}>{l}</div>
@@ -2558,66 +3187,102 @@ function Asistencias({ patients, setPatients }) {
         );
       })}
 
+      {/* Resumen por dependencia */}
       {myPats.length > 0 && (
-        <div style={{background:"linear-gradient(135deg,#9B7EBD,#7B5EA7)",borderRadius:16,padding:"16px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",marginTop:8}}>
-          <div>
-            <div style={{fontSize:12,color:"rgba(255,255,255,.8)",marginBottom:2}}>TOTAL A COBRAR ESTE MES</div>
-            <div style={{fontSize:11,color:"rgba(255,255,255,.65)"}}>Todas las dependencias</div>
+        <div style={{marginTop:8}}>
+          <div style={{fontWeight:700,fontSize:14,marginBottom:10}}>📊 Resumen por dependencia</div>
+          {resumenDep.map(({dep, pacs, total}) => {
+            const dc = fmtDep(dep);
+            return (
+              <div key={dep} style={{background:"white",borderRadius:14,padding:"12px 16px",marginBottom:8,border:`1.5px solid ${dc}33`}}>
+                <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8}}>
+                    <div style={{width:10,height:10,borderRadius:"50%",background:dc}}/>
+                    <span style={{fontWeight:700,fontSize:14,color:dc}}>{dep}</span>
+                    <span style={{fontSize:11,color:"#9B9590"}}>({pacs.length} pac.)</span>
+                  </div>
+                  <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontWeight:700,color:dc}}>${total.toLocaleString("es-UY")}</div>
+                </div>
+                {pacs.map(p => {
+                  const r = getRes(p);
+                  return (
+                    <div key={p.id} style={{padding:"5px 0",borderTop:"1px solid #EDE0F5",fontSize:12}}>
+                      <div style={{display:"flex",justifyContent:"space-between"}}>
+                        <span style={{fontWeight:600}}>{p.name}</span>
+                        <span style={{fontWeight:700,color:dc}}>${r.total.toLocaleString("es-UY")}</span>
+                      </div>
+                      <div style={{color:"#9B9590",fontSize:11}}>{r.presentes} ses. × ${r.tarifa.toLocaleString("es-UY")}{r.comp>0?` + $${r.comp.toLocaleString("es-UY")} compl.`:""}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
+          <div style={{background:"linear-gradient(135deg,#9B7EBD,#7B5EA7)",borderRadius:16,padding:"16px 20px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <div>
+              <div style={{fontSize:12,color:"rgba(255,255,255,.8)",marginBottom:2}}>TOTAL A COBRAR ESTE MES</div>
+              <div style={{fontSize:11,color:"rgba(255,255,255,.65)"}}>Todas las dependencias</div>
+            </div>
+            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,fontWeight:700,color:"white"}}>${granTotal.toLocaleString("es-UY")} {currency}</div>
           </div>
-          <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,fontWeight:700,color:"white"}}>${granTotal.toLocaleString("es-UY")} {currency}</div>
         </div>
       )}
 
+      {/* Modal editar tarifa */}
       {editTarifa && selPat && (
-        <Modal title={`⚙️ ${selPat.name}`} onClose={() => { setEditTarifa(false); setSelPat(null); }}>
-          <div className="alert alrti">Configurá dependencia, tarifa y complemento por sesión.</div>
-          <div className="fg">
-            <label className="lbl">Dependencia</label>
-            <select className="inp" value={tarifaF.dependencia} onChange={e => setTarifaF({...tarifaF, dependencia:e.target.value})}>
-              {["Particular","BPS","FONASA","Mutual","Prepaga","Obra social","Otro"].map(d => <option key={d}>{d}</option>)}
-            </select>
-          </div>
-          <div className="fg">
-            <label className="lbl">Moneda</label>
-            <select className="inp" value={tarifaF.currency} onChange={e => setTarifaF({...tarifaF, currency:e.target.value})}>
-              <option value="UYU">UYU</option>
-              <option value="USD">USD</option>
-            </select>
-          </div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+        <div className="overlay" onClick={() => { setEditTarifa(false); setSelPat(null); }}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <button className="xbtn" onClick={() => { setEditTarifa(false); setSelPat(null); }}>✕</button>
+            <div className="modalt">⚙️ {selPat.name}</div>
+            <div className="alert alrti">Configurá dependencia, tarifa y complemento por sesión.</div>
             <div className="fg">
-              <label className="lbl">Tarifa/sesión</label>
-              <input className="inp" type="number" min="0" value={tarifaF.tarifaPorSesion}
-                onChange={e => setTarifaF({...tarifaF, tarifaPorSesion:parseFloat(e.target.value)||0})}/>
+              <label className="lbl">Dependencia</label>
+              <select className="inp" value={tarifaF.dependencia} onChange={e => setTarifaF({...tarifaF, dependencia:e.target.value})}>
+                {["Particular","BPS","FONASA","Mutual","Prepaga","Obra social","Otro"].map(d => <option key={d}>{d}</option>)}
+              </select>
             </div>
             <div className="fg">
-              <label className="lbl">Complemento</label>
-              <input className="inp" type="number" min="0" value={tarifaF.complemento}
-                onChange={e => setTarifaF({...tarifaF, complemento:parseFloat(e.target.value)||0})}/>
+              <label className="lbl">Moneda</label>
+              <select className="inp" value={tarifaF.currency} onChange={e => setTarifaF({...tarifaF, currency:e.target.value})}>
+                <option value="UYU">UYU</option>
+                <option value="USD">USD</option>
+              </select>
             </div>
-          </div>
-          <div style={{background:C.terraF,borderRadius:12,padding:14,marginBottom:12}}>
-            <div style={{fontSize:11,fontWeight:700,color:C.grayL,marginBottom:8,textTransform:"uppercase"}}>Vista previa</div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-              {[
-                ["Tarifa",     `$${(tarifaF.tarifaPorSesion||0).toLocaleString("es-UY")}`],
-                ["Complemento",`$${(tarifaF.complemento||0).toLocaleString("es-UY")}`],
-                ["Total/ses.", `$${((tarifaF.tarifaPorSesion||0)+(tarifaF.complemento||0)).toLocaleString("es-UY")}`],
-                ["12 ses.",    `$${(((tarifaF.tarifaPorSesion||0)+(tarifaF.complemento||0))*12).toLocaleString("es-UY")}`],
-              ].map(([l,v]) => (
-                <div key={l} style={{background:"white",borderRadius:8,padding:"8px 10px"}}>
-                  <div style={{fontSize:10,color:C.grayL}}>{l}</div>
-                  <div style={{fontSize:13,fontWeight:700,color:C.terra}}>{v}</div>
-                </div>
-              ))}
+              <div className="fg">
+                <label className="lbl">Tarifa/sesión</label>
+                <input className="inp" type="number" min="0" value={tarifaF.tarifaPorSesion}
+                  onChange={e => setTarifaF({...tarifaF, tarifaPorSesion:parseFloat(e.target.value)||0})}/>
+              </div>
+              <div className="fg">
+                <label className="lbl">Complemento</label>
+                <input className="inp" type="number" min="0" value={tarifaF.complemento}
+                  onChange={e => setTarifaF({...tarifaF, complemento:parseFloat(e.target.value)||0})}/>
+              </div>
             </div>
+            <div style={{background:"#F5F0FA",borderRadius:12,padding:14,marginBottom:12}}>
+              <div style={{fontSize:11,fontWeight:700,color:"#9B9590",marginBottom:8,textTransform:"uppercase"}}>Vista previa</div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                {[
+                  ["Tarifa",     `$${(tarifaF.tarifaPorSesion||0).toLocaleString("es-UY")}`],
+                  ["Complemento",`$${(tarifaF.complemento||0).toLocaleString("es-UY")}`],
+                  ["Total/ses.", `$${((tarifaF.tarifaPorSesion||0)+(tarifaF.complemento||0)).toLocaleString("es-UY")}`],
+                  ["12 ses.",    `$${(((tarifaF.tarifaPorSesion||0)+(tarifaF.complemento||0))*12).toLocaleString("es-UY")}`],
+                ].map(([l,v]) => (
+                  <div key={l} style={{background:"white",borderRadius:8,padding:"8px 10px"}}>
+                    <div style={{fontSize:10,color:"#9B9590"}}>{l}</div>
+                    <div style={{fontSize:13,fontWeight:700,color:"#9B7EBD"}}>{v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <button className="btn btnp btnfull" onClick={() => {
+              setPatients(prev => prev.map(p => p.id === selPat.id ? {...p,...tarifaF} : p));
+              setEditTarifa(false); setSelPat(null);
+            }}>Guardar tarifa</button>
+            <button className="btn btng btnfull" onClick={() => { setEditTarifa(false); setSelPat(null); }}>Cancelar</button>
           </div>
-          <button className="btn btnp btnfull" onClick={() => {
-            setPatients(prev => prev.map(p => p.id === selPat.id ? {...p,...tarifaF} : p));
-            setEditTarifa(false); setSelPat(null);
-          }}>Guardar tarifa</button>
-          <button className="btn btng btnfull" onClick={() => { setEditTarifa(false); setSelPat(null); }}>Cancelar</button>
-        </Modal>
+        </div>
       )}
     </div>
   );
@@ -2625,33 +3290,33 @@ function Asistencias({ patients, setPatients }) {
 
 // ─── TEA / AUTISMO ────────────────────────────────────────────────────────────
 const TEA_OBJETIVOS = [
-  { area:"Comunicación social",  icon:"💬", color:"#5B8DB8", items:["Mantener contacto visual 5 seg","Responder a su nombre","Iniciar interacción espontánea","Imitar gestos simples","Usar gestos protodeclarativos","Señalar para compartir interés"] },
+  { area:"Comunicación social",  icon:"💬", color:"#5B8DB8", items:["Mantener contacto visual 5 seg","Responder a su nombre","Iniciar interacción espontánea","Imitar gestos simples","Señalar para compartir interés","Usar gestos protodeclarativos"] },
   { area:"Juego",                icon:"🎮", color:"#9B7EBD", items:["Juego funcional con objetos","Juego simbólico básico","Juego paralelo con par","Juego cooperativo simple","Turnos en juego estructurado","Imitar juego de otro niño"] },
   { area:"Regulación sensorial", icon:"🌀", color:"#E8A020", items:["Tolerar estímulos táctiles","Adaptar nivel de activación","Usar herramientas de regulación","Identificar estado sensorial","Solicitar pausa","Tolerar cambios de rutina"] },
   { area:"CAA",                  icon:"🗣️", color:"#2ECC71", items:["Usar pictogramas para elegir","Construir frases con CAA","Hacer pedidos con dispositivo","Rechazar con CAA","Comentar con CAA","Responder preguntas básicas"] },
   { area:"Vida diaria",          icon:"🏠", color:"#E8719C", items:["Seguir rutina visual","Completar secuencia de higiene","Preparar material escolar","Tolerar cambios de ambiente","Comer variedad de texturas","Vestirse con apoyo"] },
   { area:"Conducta",             icon:"🎯", color:"#C0392B", items:["Reducir conducta autolesiva","Aumentar tolerancia a frustración","Responder a No","Esperar turno 30 seg","Aceptar límites","Transicionar entre actividades"] },
-  { area:"Funciones ejecutivas", icon:"🧠", color:"#8B7BB5", items:["Planificar tarea de 2 pasos","Inhibir respuesta impulsiva","Flexibilidad ante cambio de plan","Memoria de trabajo simple","Organización de materiales","Automonitoreo básico"] },
+  { area:"Funciones ejecutivas", icon:"🧠", color:"#8B7BB5", items:["Planificar tarea de 2 pasos","Inhibir respuesta impulsiva","Flexibilidad ante cambio","Memoria de trabajo simple","Organización de materiales","Automonitoreo básico"] },
 ];
 
-const ESTRATEGIAS = [
-  { nombre:"TEACCH",              desc:"Estructuración física y visual del ambiente. Trabajo de izquierda a derecha.",                    icon:"📐" },
-  { nombre:"ABA",                 desc:"Análisis conductual aplicado. Refuerzo positivo sistemático de conductas objetivo.",            icon:"🎯" },
-  { nombre:"PECS",                desc:"Sistema de comunicación por intercambio de imágenes. 6 fases progresivas.",                     icon:"🖼️" },
-  { nombre:"Historias Sociales",  desc:"Narrativas personalizadas que explican situaciones sociales y conductas esperadas.",            icon:"📖" },
-  { nombre:"DIR/Floortime",       desc:"Desarrollo basado en diferencias individuales. Seguir el liderazgo del niño.",                  icon:"🌱" },
-  { nombre:"Integración Sensorial",desc:"Intervención basada en procesamiento sensorial. Actividades de modulación.",                   icon:"🌀" },
+const ESTRATEGIAS_TEA = [
+  { nombre:"TEACCH",              desc:"Estructuración física y visual. Trabajo izquierda a derecha con cestos y cajas.", icon:"📐" },
+  { nombre:"ABA",                 desc:"Análisis conductual aplicado. Refuerzo positivo sistemático de conductas objetivo.", icon:"🎯" },
+  { nombre:"PECS",                desc:"Sistema de comunicación por intercambio de imágenes. 6 fases progresivas.", icon:"🖼️" },
+  { nombre:"Historias Sociales",  desc:"Narrativas personalizadas que explican situaciones sociales y conductas esperadas.", icon:"📖" },
+  { nombre:"DIR/Floortime",       desc:"Desarrollo basado en diferencias individuales. Seguir el liderazgo del niño.", icon:"🌱" },
+  { nombre:"Integración Sensorial",desc:"Intervención basada en procesamiento sensorial. Actividades de modulación.", icon:"🌀" },
 ];
 
-function TEAAutismo({ patients }) {
-  const [tab, setTab]   = useState("objetivos");
+function TEAAutismo() {
+  const [tab, setTab]     = useState("objetivos");
   const [nivel, setNivel] = useState("1");
   const [selArea, setSelArea] = useState(null);
 
   const niveles = [
-    { n:"1", label:"Nivel 1 — Necesita apoyo",           color:C.gold   },
-    { n:"2", label:"Nivel 2 — Necesita apoyo sustancial", color:C.sage   },
-    { n:"3", label:"Nivel 3 — Necesita apoyo muy sustancial",color:C.danger },
+    { n:"1", label:"Nivel 1 — Necesita apoyo",                color:"#E8A020" },
+    { n:"2", label:"Nivel 2 — Apoyo sustancial",              color:"#E8719C" },
+    { n:"3", label:"Nivel 3 — Apoyo muy sustancial",          color:"#C0392B" },
   ];
 
   return (
@@ -2662,7 +3327,7 @@ function TEAAutismo({ patients }) {
       </div>
 
       <div className="atabrow">
-        {[["objetivos","🎯 Objetivos"],["estrategias","🛠 Estrategias"],["recursos","📚 Recursos TEA"]].map(([id,l]) => (
+        {[["objetivos","🎯 Objetivos"],["estrategias","🛠 Estrategias"],["recursos","📚 Recursos"]].map(([id,l]) => (
           <button key={id} className={`atab${tab===id?" active":""}`} onClick={()=>setTab(id)}>{l}</button>
         ))}
       </div>
@@ -2670,28 +3335,28 @@ function TEAAutismo({ patients }) {
       {tab === "objetivos" && (
         <div>
           <div style={{marginBottom:12}}>
-            <label className="lbl">Nivel DSM-5</label>
+            <label style={{fontSize:11,fontWeight:700,color:"#9B9590",textTransform:"uppercase",display:"block",marginBottom:4}}>Nivel DSM-5</label>
             <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
               {niveles.map(nv => (
                 <button key={nv.n} onClick={()=>setNivel(nv.n)}
-                  style={{padding:"7px 12px",borderRadius:20,border:`2px solid ${nivel===nv.n?nv.color:C.sand}`,background:nivel===nv.n?nv.color+"22":"white",color:nivel===nv.n?nv.color:C.gray,fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"sans-serif"}}>
+                  style={{padding:"7px 12px",borderRadius:20,border:`2px solid ${nivel===nv.n?nv.color:"#EDE0F5"}`,background:nivel===nv.n?nv.color+"22":"white",color:nivel===nv.n?nv.color:"#6B6560",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"sans-serif"}}>
                   Nivel {nv.n}
                 </button>
               ))}
             </div>
           </div>
           {TEA_OBJETIVOS.map(a => (
-            <div key={a.area} className="sc" style={{marginBottom:12}}>
-              <div className="sch" style={{cursor:"pointer"}} onClick={()=>setSelArea(selArea===a.area?null:a.area)}>
+            <div key={a.area} style={{background:"white",borderRadius:18,overflow:"hidden",boxShadow:"0 2px 12px rgba(0,0,0,.07)",marginBottom:12}}>
+              <div style={{padding:"14px 16px",borderBottom:"1px solid #EDE0F5",display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}} onClick={()=>setSelArea(selArea===a.area?null:a.area)}>
                 <span style={{fontWeight:700,fontSize:14,color:a.color}}>{a.icon} {a.area}</span>
-                <span style={{fontSize:12,color:C.grayL}}>{a.items.length} objetivos</span>
+                <span style={{fontSize:12,color:"#9B9590"}}>{selArea===a.area?"▲":"▼"} {a.items.length} obj.</span>
               </div>
               {selArea === a.area && (
-                <div className="scb">
+                <div style={{padding:"14px 16px"}}>
                   {a.items.map((obj,i) => (
-                    <div key={i} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"7px 0",borderBottom:i<a.items.length-1?`1px solid ${C.sand}`:"none"}}>
+                    <div key={i} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"7px 0",borderBottom:i<a.items.length-1?"1px solid #EDE0F5":"none"}}>
                       <div style={{width:20,height:20,borderRadius:6,background:a.color+"22",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:700,color:a.color,flexShrink:0,marginTop:1}}>{i+1}</div>
-                      <div style={{fontSize:13,color:C.charcoal,lineHeight:1.4}}>{obj}</div>
+                      <div style={{fontSize:13,color:"#2C2C2C",lineHeight:1.4}}>{obj}</div>
                     </div>
                   ))}
                 </div>
@@ -2703,13 +3368,13 @@ function TEAAutismo({ patients }) {
 
       {tab === "estrategias" && (
         <div>
-          {ESTRATEGIAS.map(e => (
-            <div key={e.nombre} className="card" style={{marginBottom:10}}>
+          {ESTRATEGIAS_TEA.map(e => (
+            <div key={e.nombre} style={{background:"white",borderRadius:14,padding:14,marginBottom:10,boxShadow:"0 1px 8px rgba(0,0,0,.06)"}}>
               <div style={{display:"flex",alignItems:"flex-start",gap:10}}>
                 <div style={{fontSize:24,flexShrink:0}}>{e.icon}</div>
                 <div>
-                  <div style={{fontWeight:700,fontSize:14,color:C.charcoal,marginBottom:4}}>{e.nombre}</div>
-                  <div style={{fontSize:13,color:C.gray,lineHeight:1.5}}>{e.desc}</div>
+                  <div style={{fontWeight:700,fontSize:14,color:"#2C2C2C",marginBottom:4}}>{e.nombre}</div>
+                  <div style={{fontSize:13,color:"#6B6560",lineHeight:1.5}}>{e.desc}</div>
                 </div>
               </div>
             </div>
@@ -2720,19 +3385,19 @@ function TEAAutismo({ patients }) {
       {tab === "recursos" && (
         <div>
           {[
-            { titulo:"Guía DSM-5 TEA", desc:"Criterios diagnósticos oficiales y niveles de apoyo.", link:"https://www.psychiatry.org/psychiatrists/practice/dsm", icon:"📋" },
+            { titulo:"Guía DSM-5 TEA", desc:"Criterios diagnósticos y niveles de apoyo.", link:"https://www.psychiatry.org", icon:"📋" },
             { titulo:"TEACCH Program",  desc:"Recursos y formación en estructuración visual.", link:"https://teacch.com", icon:"📐" },
-            { titulo:"PECS — Pyramid",  desc:"Sistema oficial de comunicación por intercambio.", link:"https://pecsusa.com", icon:"🖼️" },
+            { titulo:"PECS Pyramid",    desc:"Sistema oficial de comunicación por intercambio.", link:"https://pecsusa.com", icon:"🖼️" },
             { titulo:"Autism Speaks",   desc:"Recursos para familias y profesionales.", link:"https://www.autismspeaks.org", icon:"🌈" },
           ].map(r => (
-            <div key={r.titulo} className="card" style={{marginBottom:10,cursor:"pointer"}} onClick={()=>window.open(r.link,"_blank")}>
+            <div key={r.titulo} style={{background:"white",borderRadius:14,padding:14,marginBottom:10,cursor:"pointer",boxShadow:"0 1px 8px rgba(0,0,0,.06)"}} onClick={()=>window.open(r.link,"_blank")}>
               <div style={{display:"flex",alignItems:"center",gap:10}}>
                 <div style={{fontSize:22}}>{r.icon}</div>
                 <div style={{flex:1}}>
-                  <div style={{fontWeight:700,fontSize:13,color:C.charcoal}}>{r.titulo}</div>
-                  <div style={{fontSize:12,color:C.grayL}}>{r.desc}</div>
+                  <div style={{fontWeight:700,fontSize:13,color:"#2C2C2C"}}>{r.titulo}</div>
+                  <div style={{fontSize:12,color:"#9B9590"}}>{r.desc}</div>
                 </div>
-                <div style={{fontSize:12,color:C.terra}}>→</div>
+                <div style={{fontSize:12,color:"#9B7EBD"}}>→</div>
               </div>
             </div>
           ))}
@@ -2741,6 +3406,8 @@ function TEAAutismo({ patients }) {
     </div>
   );
 }
+
+// ─── MODAL SUSCRIPCIÓN VENCIDA ────────────────────────────────────────────────
 
 function Footer() {
   return (
@@ -2766,107 +3433,234 @@ function IAAsistente({patients,C}){
   const [loading,setLoading]=React.useState(false);
   const [result,setResult]=React.useState("");
   const [error,setError]=React.useState("");
+  const [librePrompt,setLibrePrompt]=React.useState("");
+  // Campos para anamnesis y evaluación
+  const [motivo,setMotivo]=React.useState("");
+  const [antecedentes,setAntecedentes]=React.useState("");
+  const [especialidad,setEspecialidad]=React.useState("fonoaudióloga");
 
   const callClaude=async(prompt)=>{
     setLoading(true);setResult("");setError("");
     try{
-      const res=await fetch("https://api.anthropic.com/v1/messages",{
+      const res=await fetch("/.netlify/functions/claude",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({
           model:"claude-sonnet-4-20250514",
-          max_tokens:1000,
+          max_tokens:1500,
           messages:[{role:"user",content:prompt}]
         })
       });
       const data=await res.json();
       if(data.content&&data.content[0])setResult(data.content[0].text);
-      else setError("No se pudo obtener respuesta. Intenta de nuevo.");
-    }catch(e){setError("Error de conexion. Verifica tu internet.");}
+      else setError("No se pudo obtener respuesta. Intentá de nuevo.");
+    }catch(e){setError("Error de conexión. Verificá tu internet.");}
     setLoading(false);
   };
 
+  const getPatientContext=(p)=>{
+    if(!p) return "";
+    return `Paciente: ${p.name}, ${p.age} años, diagnóstico: ${p.diagnosis}, ${p.sessions} sesiones realizadas. Objetivos: ${(p.goals||[]).join(", ")||"no especificados"}. Notas: ${p.notes||"sin notas"}. Anamnesis: ${p.motivo||""}. Antecedentes: ${p.antecedentes||""}. Desarrollo: ${p.desarrollo||""}.`;
+  };
+
   const generarObjetivos=()=>{
-    if(!diagnostico||!edad){setError("Completa diagnostico y edad.");return;}
-    callClaude(`Sos una fonoaudiologa experta en Uruguay. Genera 5 objetivos terapeuticos especificos, concretos y medibles para un paciente de ${edad} anos con diagnostico de ${diagnostico}. Cada objetivo debe tener: descripcion clara, criterio de logro y tiempo estimado. Formato de lista numerada. Responde en espanol, sin asteriscos ni markdown.`);
+    if(!diagnostico||!edad){setError("Completá diagnóstico y edad.");return;}
+    callClaude(`Sos una ${especialidad} experta en Uruguay. Generá 6 objetivos terapéuticos específicos, concretos y medibles para un paciente de ${edad} años con diagnóstico de ${diagnostico}. Para cada objetivo incluí: descripción clara, criterio de logro observable y tiempo estimado. Formato lista numerada. En español, sin asteriscos ni markdown.`);
   };
 
   const generarPlan=()=>{
-    if(!diagnostico||!edad){setError("Completa diagnostico y edad.");return;}
-    callClaude(`Sos una fonoaudiologa experta. Crea un plan terapeutico mensual para un paciente de ${edad} anos con ${diagnostico}. Incluye: semana 1, 2, 3 y 4 con actividades especificas para cada sesion, materiales necesarios y indicaciones para la familia. Responde en espanol claro, sin asteriscos ni markdown.`);
+    if(!diagnostico||!edad){setError("Completá diagnóstico y edad.");return;}
+    callClaude(`Sos una ${especialidad} experta. Creá un plan terapéutico mensual para un paciente de ${edad} años con ${diagnostico}. Incluí: Semana 1, 2, 3 y 4 con actividades específicas, materiales necesarios y estrategias para cada sesión. Al final agregá indicaciones para la familia. En español claro, sin asteriscos ni markdown.`);
   };
 
   const generarInforme=()=>{
     const p=patients.find(x=>x.name===selPat);
-    if(!p){setError("Selecciona un paciente.");return;}
-    callClaude(`Sos una fonoaudiologa redactando un informe de progreso para la familia. El paciente se llama ${p.name}, tiene ${p.age} anos, diagnostico: ${p.diagnosis}. Ha tenido ${p.sessions} sesiones. Sus objetivos son: ${(p.goals||[]).join(", ")}. Redacta un informe claro, positivo y profesional de 3 parrafos para entregar a la familia. Incluye: progreso actual, logros destacados y sugerencias para casa. En espanol, sin asteriscos ni markdown.`);
+    if(!p){setError("Seleccioná un paciente.");return;}
+    callClaude(`Sos una ${especialidad} redactando un informe de progreso para la familia de ${p.name}. ${getPatientContext(p)} Redactá un informe profesional y claro de 4 párrafos: 1) Presentación del paciente y motivo de consulta, 2) Evaluación del progreso actual y logros, 3) Área de trabajo actual y estrategias, 4) Recomendaciones para el hogar y próximos pasos. En español formal, sin asteriscos ni markdown.`);
+  };
+
+  const generarEvaluacion=()=>{
+    const p=patients.find(x=>x.name===selPat);
+    if(!p){setError("Seleccioná un paciente.");return;}
+    callClaude(`Sos una ${especialidad} redactando un informe de evaluación diagnóstica formal. Paciente: ${p.name}, ${p.age} años. Motivo de consulta: ${motivo||p.notes||"no especificado"}. Antecedentes: ${antecedentes||p.antecedentes||"no especificados"}. Diagnóstico: ${p.diagnosis}. Redactá un informe de evaluación completo con las secciones: DATOS DEL PACIENTE, MOTIVO DE CONSULTA, ANTECEDENTES, EVALUACIÓN REALIZADA, RESULTADOS, DIAGNÓSTICO, RECOMENDACIONES. En español formal, para entregar a institución educativa o médica.`);
+  };
+
+  const completarAnamnesis=()=>{
+    const p=patients.find(x=>x.name===selPat);
+    if(!p){setError("Seleccioná un paciente.");return;}
+    callClaude(`Sos una ${especialidad} completando una anamnesis clínica. Con los datos disponibles del paciente: nombre ${p.name}, ${p.age} años, diagnóstico ${p.diagnosis}, motivo de consulta: ${motivo||"no especificado"}, antecedentes: ${antecedentes||"no especificados"}. Completá y expandí la anamnesis con: 1) Historia del desarrollo comunicativo, 2) Antecedentes familiares relevantes, 3) Antecedentes médicos relevantes, 4) Historia escolar, 5) Conducta durante la evaluación, 6) Observaciones clínicas importantes. Formato estructurado, en español, sin asteriscos ni markdown.`);
   };
 
   const generarSeguimiento=()=>{
     const p=patients.find(x=>x.name===selPat);
-    if(!p){setError("Selecciona un paciente.");return;}
-    callClaude(`Sos una fonoaudiologa. Analiza el progreso de ${p.name}, ${p.age} anos, diagnostico ${p.diagnosis}, con ${p.sessions} sesiones realizadas. Genera estos 4 puntos: A. Evaluacion del progreso actual. B. Proximos pasos recomendados. C. Indicadores de logro proximas 4 semanas. D. Actividades prioritarias. En espanol claro, sin asteriscos ni markdown.`);
+    if(!p){setError("Seleccioná un paciente.");return;}
+    callClaude(`Sos una ${especialidad}. Analizá el progreso de ${p.name}, ${p.age} años, diagnóstico ${p.diagnosis}, con ${p.sessions} sesiones realizadas. Objetivos trabajados: ${(p.goals||[]).join(", ")||"no especificados"}. Generá: A) Evaluación del progreso actual, B) Logros alcanzados, C) Dificultades persistentes, D) Próximos pasos recomendados, E) Actividades prioritarias para las próximas 4 semanas. En español claro, sin asteriscos ni markdown.`);
+  };
+
+  const generarLibre=()=>{
+    if(!librePrompt.trim()){setError("Escribí tu consulta.");return;}
+    const ctx = selPat ? `Contexto del paciente: ${getPatientContext(patients.find(x=>x.name===selPat))}` : "";
+    callClaude(`Sos una ${especialidad} experta. ${ctx} ${librePrompt}`);
   };
 
   const tabs=[
-    {id:"objetivos",icon:"🎯",label:"Objetivos"},
-    {id:"plan",icon:"📅",label:"Plan mensual"},
-    {id:"informe",icon:"📄",label:"Informe familia"},
-    {id:"seguimiento",icon:"📊",label:"Seguimiento"},
+    {id:"objetivos",  icon:"🎯", label:"Objetivos"},
+    {id:"plan",       icon:"📅", label:"Plan"},
+    {id:"evaluacion", icon:"📋", label:"Evaluación"},
+    {id:"anamnesis",  icon:"📝", label:"Anamnesis"},
+    {id:"informe",    icon:"📄", label:"Informe"},
+    {id:"seguimiento",icon:"📊", label:"Seguimiento"},
+    {id:"libre",      icon:"💬", label:"Libre"},
   ];
+
+  const PatientSelect = () => (
+    <div className="fg">
+      <label className="lbl">Paciente</label>
+      <select className="inp" value={selPat} onChange={e=>{
+        setSelPat(e.target.value);
+        const p=patients.find(x=>x.name===e.target.value);
+        if(p){ setDiagnostico(p.diagnosis||""); setEdad(String(p.age||"")); setMotivo(p.motivo||""); setAntecedentes(p.antecedentes||""); }
+      }}>
+        <option value="">Seleccioná un paciente...</option>
+        {patients.filter(p=>p.status==="active").map(p=>(
+          <option key={p.id} value={p.name}>{p.name} — {p.age} años — {p.diagnosis}</option>
+        ))}
+      </select>
+    </div>
+  );
 
   return(
     <div className="fu">
       <div style={{marginBottom:14}}>
-        <div className="pt">Asistente IA</div>
-        <div className="ps">Genera objetivos, planes e informes con inteligencia artificial</div>
+        <div className="pt">💡 Asistente IA</div>
+        <div className="ps">Informes, evaluaciones, anamnesis y más con Claude AI</div>
       </div>
 
-      <div style={{background:"linear-gradient(135deg,#9B7EBD,#7B5EA7)",borderRadius:16,padding:16,color:"white",marginBottom:16,display:"flex",gap:12,alignItems:"center"}}>
-        <div style={{fontSize:36}}>🧠</div>
-        <div>
-          <div style={{fontWeight:700,fontSize:15,marginBottom:2}}>Powered by Claude AI</div>
-          <div style={{fontSize:12,opacity:.85}}>Asistencia clinica inteligente para profesionales terapeuticos</div>
+      <div style={{background:"linear-gradient(135deg,#9B7EBD,#7B5EA7)",borderRadius:16,padding:14,color:"white",marginBottom:16,display:"flex",gap:12,alignItems:"center"}}>
+        <div style={{fontSize:32}}>🧠</div>
+        <div style={{flex:1}}>
+          <div style={{fontWeight:700,fontSize:14,marginBottom:2}}>Powered by Claude AI</div>
+          <div style={{fontSize:11,opacity:.85}}>Asistencia clínica inteligente · Resultado editable antes de enviar</div>
         </div>
       </div>
 
-      <div className="atabrow" style={{marginBottom:16}}>
+      {/* Selector de especialidad */}
+      <div className="fg">
+        <label className="lbl">Tu especialidad</label>
+        <select className="inp" value={especialidad} onChange={e=>setEspecialidad(e.target.value)}>
+          {["fonoaudióloga","psicopedagoga","psicóloga","psicomotricista","terapeuta ocupacional","fisioterapeuta"].map(s=><option key={s}>{s}</option>)}
+        </select>
+      </div>
+
+      {/* Tabs scrolleables */}
+      <div style={{display:"flex",gap:6,overflowX:"auto",padding:"4px 0",marginBottom:14}}>
         {tabs.map(t=>(
-          <button key={t.id} className={`atab${tab===t.id?" active":""}`} onClick={()=>{setTab(t.id);setResult("");setError("");}}>
+          <button key={t.id} onClick={()=>{setTab(t.id);setResult("");setError("");}}
+            style={{padding:"8px 12px",borderRadius:20,border:"none",background:tab===t.id?"#9B7EBD":"#EDE0F5",color:tab===t.id?"white":"#6B6560",fontWeight:700,fontSize:12,cursor:"pointer",whiteSpace:"nowrap",fontFamily:"sans-serif",flexShrink:0}}>
             {t.icon} {t.label}
           </button>
         ))}
       </div>
 
-      {(tab==="objetivos"||tab==="plan")&&(
+      {/* OBJETIVOS */}
+      {tab==="objetivos" && (
         <div>
-          <div className="fg">
-            <label className="lbl">Diagnostico</label>
-            <input className="inp" placeholder="ej: TEL, Dislexia, TDAH, Disartria..." value={diagnostico} onChange={e=>setDiagnostico(e.target.value)}/>
+          <div className="fg"><label className="lbl">Diagnóstico</label>
+            <input className="inp" placeholder="ej: TEL, Dislexia, TDAH, Disartria, TEA..." value={diagnostico} onChange={e=>setDiagnostico(e.target.value)}/>
           </div>
-          <div className="fg">
-            <label className="lbl">Edad del paciente</label>
-            <input className="inp" type="number" placeholder="ej: 7" value={edad} onChange={e=>setEdad(e.target.value)} min="2" max="18"/>
+          <div className="fg"><label className="lbl">Edad</label>
+            <input className="inp" type="number" placeholder="años" value={edad} onChange={e=>setEdad(e.target.value)} min="1" max="99"/>
           </div>
-          <button className="btn btnp btnfull" onClick={tab==="objetivos"?generarObjetivos:generarPlan} disabled={loading}>
-            {loading?"⏳ Generando...":tab==="objetivos"?"🎯 Generar objetivos terapeuticos":"📅 Generar plan mensual"}
+          <div className="alert alrti" style={{fontSize:11}}>💡 También podés seleccionar un paciente arriba para autocompletar los datos</div>
+          <PatientSelect/>
+          <button className="btn btnp btnfull" onClick={generarObjetivos} disabled={loading}>
+            {loading?"⏳ Generando...":"🎯 Generar 6 objetivos terapéuticos"}
           </button>
         </div>
       )}
 
-      {(tab==="informe"||tab==="seguimiento")&&(
+      {/* PLAN */}
+      {tab==="plan" && (
         <div>
-          <div className="fg">
-            <label className="lbl">Seleccionar paciente</label>
-            <select className="inp" value={selPat} onChange={e=>setSelPat(e.target.value)}>
-              <option value="">Selecciona un paciente...</option>
-              {patients.filter(p=>p.status==="active").map(p=>(
-                <option key={p.id} value={p.name}>{p.name} - {p.age} años - {p.diagnosis}</option>
-              ))}
-            </select>
+          <div className="fg"><label className="lbl">Diagnóstico</label>
+            <input className="inp" placeholder="ej: TEL, Dislexia..." value={diagnostico} onChange={e=>setDiagnostico(e.target.value)}/>
           </div>
-          <button className="btn btnp btnfull" onClick={tab==="informe"?generarInforme:generarSeguimiento} disabled={loading}>
-            {loading?"⏳ Generando...":tab==="informe"?"📄 Generar informe para familia":"📊 Generar analisis de seguimiento"}
+          <div className="fg"><label className="lbl">Edad</label>
+            <input className="inp" type="number" placeholder="años" value={edad} onChange={e=>setEdad(e.target.value)} min="1" max="99"/>
+          </div>
+          <PatientSelect/>
+          <button className="btn btnp btnfull" onClick={generarPlan} disabled={loading}>
+            {loading?"⏳ Generando...":"📅 Generar plan mensual (4 semanas)"}
+          </button>
+        </div>
+      )}
+
+      {/* EVALUACIÓN */}
+      {tab==="evaluacion" && (
+        <div>
+          <div className="alert alrti" style={{fontSize:11}}>📋 Genera un informe de evaluación diagnóstica formal para entregar a instituciones o médicos.</div>
+          <PatientSelect/>
+          <div className="fg"><label className="lbl">Motivo de consulta</label>
+            <textarea className="inp" style={{minHeight:64}} placeholder="¿Por qué consulta? ¿Qué preocupa a la familia?" value={motivo} onChange={e=>setMotivo(e.target.value)}/>
+          </div>
+          <div className="fg"><label className="lbl">Antecedentes relevantes</label>
+            <textarea className="inp" style={{minHeight:64}} placeholder="Antecedentes médicos, familiares, escolares..." value={antecedentes} onChange={e=>setAntecedentes(e.target.value)}/>
+          </div>
+          <button className="btn btnp btnfull" onClick={generarEvaluacion} disabled={loading}>
+            {loading?"⏳ Generando...":"📋 Generar informe de evaluación"}
+          </button>
+        </div>
+      )}
+
+      {/* ANAMNESIS */}
+      {tab==="anamnesis" && (
+        <div>
+          <div className="alert alrti" style={{fontSize:11}}>📝 Completá los datos que tenés y la IA expande y estructura la anamnesis clínica completa.</div>
+          <PatientSelect/>
+          <div className="fg"><label className="lbl">Motivo de consulta</label>
+            <textarea className="inp" style={{minHeight:64}} placeholder="¿Qué refiere la familia? ¿Cuándo notaron las dificultades?" value={motivo} onChange={e=>setMotivo(e.target.value)}/>
+          </div>
+          <div className="fg"><label className="lbl">Antecedentes (lo que tenés)</label>
+            <textarea className="inp" style={{minHeight:64}} placeholder="Embarazo, parto, hitos del desarrollo, historia médica..." value={antecedentes} onChange={e=>setAntecedentes(e.target.value)}/>
+          </div>
+          <button className="btn btnp btnfull" onClick={completarAnamnesis} disabled={loading}>
+            {loading?"⏳ Completando...":"📝 Completar y estructurar anamnesis"}
+          </button>
+        </div>
+      )}
+
+      {/* INFORME FAMILIA */}
+      {tab==="informe" && (
+        <div>
+          <div className="alert alrti" style={{fontSize:11}}>📄 Informe de progreso claro y positivo para entregar a la familia.</div>
+          <PatientSelect/>
+          <button className="btn btnp btnfull" onClick={generarInforme} disabled={loading || !selPat}>
+            {loading?"⏳ Generando...":"📄 Generar informe para familia"}
+          </button>
+        </div>
+      )}
+
+      {/* SEGUIMIENTO */}
+      {tab==="seguimiento" && (
+        <div>
+          <PatientSelect/>
+          <button className="btn btnp btnfull" onClick={generarSeguimiento} disabled={loading || !selPat}>
+            {loading?"⏳ Analizando...":"📊 Generar análisis de seguimiento"}
+          </button>
+        </div>
+      )}
+
+      {/* LIBRE */}
+      {tab==="libre" && (
+        <div>
+          <PatientSelect/>
+          <div className="fg"><label className="lbl">Tu consulta</label>
+            <textarea className="inp" style={{minHeight:100}}
+              placeholder="Ej: Generame una actividad para trabajar conciencia fonológica con un niño de 6 años con TEL..."
+              value={librePrompt} onChange={e=>setLibrePrompt(e.target.value)}/>
+          </div>
+          <button className="btn btnp btnfull" onClick={generarLibre} disabled={loading}>
+            {loading?"⏳ Procesando...":"💬 Enviar consulta"}
           </button>
         </div>
       )}
@@ -2887,12 +3681,21 @@ function IAAsistente({patients,C}){
             <div style={{fontWeight:700,fontSize:13,color:C.charcoal}}>Resultado generado por IA</div>
             <button className="btn btnsm btno noprint" onClick={()=>window.print()}>🖨️ Imprimir</button>
           </div>
-          <div style={{background:"#F5F0FA",borderRadius:14,padding:16,whiteSpace:"pre-wrap",fontSize:13,color:C.charcoal,lineHeight:1.8,border:"1.5px solid #D4BCE8"}}>
-            {result}
+          <textarea
+            className="inp"
+            value={result}
+            onChange={e=>setResult(e.target.value)}
+            style={{minHeight:200,fontSize:13,lineHeight:1.8,background:"#F5F0FA",border:"1.5px solid #D4BCE8",borderRadius:14,padding:16,color:C.charcoal,resize:"vertical"}}
+          />
+          <div style={{fontSize:11,color:C.grayL,marginTop:2}}>✏️ Podés editar el texto antes de enviarlo o imprimirlo</div>
+          <div style={{display:"flex",gap:8,marginTop:8,flexWrap:"wrap"}}>
+            <button className="btn btng btnsm" onClick={()=>navigator.clipboard?.writeText(result).catch(()=>{})}>📋 Copiar</button>
+            <button className="btn btnsm noprint" style={{background:"#25D366",color:"white"}}
+              onClick={()=>window.open(`https://wa.me/?text=${encodeURIComponent(result)}`,"_blank")}>💬 WhatsApp</button>
+            <button className="btn btnsm noprint" style={{background:"#5B8DB8",color:"white"}}
+              onClick={()=>window.open(`mailto:?subject=${encodeURIComponent("Resultado IA — Hadrion")}&body=${encodeURIComponent(result)}`)}>✉️ Email</button>
+            <button className="btn btno btnsm noprint" onClick={()=>window.print()}>🖨️ Imprimir</button>
           </div>
-          <button className="btn btng btnfull" style={{marginTop:8}} onClick={()=>navigator.clipboard?.writeText(result).catch(()=>{})}>
-            📋 Copiar texto
-          </button>
         </div>
       )}
     </div>
@@ -2918,19 +3721,39 @@ export default function HadrionApp() {
   ]);
   const [plan,             setPlanRaw]    = useState(stored?.plan             || INIT_PLAN);
   const [registerRequests, setRegRaw]     = useState(stored?.registerRequests || []);
+  const [precios, setPreciosRaw] = useState(stored?.precios || {
+    basico:490, pro:1200, clinica:2800, colegio:4500,
+    basicoUSD:12, proUSD:30, clinicaUSD:70, colegioUSD:110,
+    mpLinkBasico:"", mpLinkPro:"", mpLinkClinica:"", stripeLink:""
+  });
+  const setPrecios = v => { setPreciosRaw(v); saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan, registerRequests, precios:v }); };
   const [selPatId,         setSelPatId]   = useState(null);
   const [showQS,           setShowQS]     = useState(false);
-  const [lang,             setLang]       = useState("es");
   const [qsF,              setQsF]        = useState({ patientId:"", note:"" });
+  const [lang,             setLang]       = useState("es");
+  const [sessionKicked,    setSessionKicked] = useState(false);
+
+  // ── Sesión única: verificar cada 60s que el token sigue vigente ──
+  useEffect(() => {
+    if (!user) return;
+    const check = setInterval(() => {
+      const stored = loadFromStorage();
+      if (!stored?.user || stored.user.id !== user.id) { clearInterval(check); setUser(null); return; }
+      if (stored.user.sessionToken && user.sessionToken && stored.user.sessionToken !== user.sessionToken) {
+        clearInterval(check);
+        setSessionKicked(true);
+        setTimeout(() => { setUser(null); setSessionKicked(false); }, 4000);
+      }
+    }, 60000);
+    return () => clearInterval(check);
+  }, [user]);
 
   // Wrappers que persisten automáticamente
-  // NOTA: persist usa snapshot de estado en el momento del render.
-  // Para actualizaciones encadenadas, usar los setX individuales.
   const persist = useCallback((key, val) => {
     saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan, registerRequests, [key]:val });
   }, [users, user, patients, sessions, payments, agendaItems, plan, registerRequests]);
 
-  const setUsers    = v => { setUsersRaw(v);    saveToStorage({ users:typeof v==="function"?v(users):v, user, patients, sessions, payments, agendaItems, plan, registerRequests }); };
+  const setUsers    = v => { setUsersRaw(v);    saveToStorage({ users:typeof v==="function"?v(users):v, user, patients, sessions, payments, agendaItems, plan, registerRequests, precios }); };
   const setPatients = v => { setPatientsRaw(v); saveToStorage({ users, user, patients:typeof v==="function"?v(patients):v, sessions, payments, agendaItems, plan, registerRequests }); };
   const setSessions = v => { setSessionsRaw(v); saveToStorage({ users, user, patients, sessions:typeof v==="function"?v(sessions):v, payments, agendaItems, plan, registerRequests }); };
   const setPayments = v => { setPaymentsRaw(v); saveToStorage({ users, user, patients, sessions, payments:typeof v==="function"?v(payments):v, agendaItems, plan, registerRequests }); };
@@ -2957,8 +3780,13 @@ export default function HadrionApp() {
   };
 
   const setUserAndPersist = (u) => {
-    setUser(u);
-    saveToStorage({ users, user:u, patients, sessions, payments, agendaItems, plan, registerRequests });
+    const token = makeId();
+    const userWithToken = { ...u, sessionToken: token, lastLogin: new Date().toLocaleString("es-UY") };
+    // Actualizar token en lista de usuarios
+    const updatedUsers = users.map(x => x.id === u.id ? userWithToken : x);
+    setUsersRaw(updatedUsers);
+    setUser(userWithToken);
+    saveToStorage({ users:updatedUsers, user:userWithToken, patients, sessions, payments, agendaItems, plan, registerRequests });
   };
 
   const pages = {
@@ -2967,27 +3795,30 @@ export default function HadrionApp() {
     patients:   <Patients   patients={patients} setPatients={setPatients} setActive={setActive} setSelPatId={setSelPatId} sessions={sessions} />,
     payments:   <Payments   patients={patients} payments={payments} setPayments={setPayments} />,
     sessions:   <Sessions   patients={patients} sessions={sessions} setSessions={setSessions} setPatients={setPatients} />,
-    history:    <History    patients={patients} sessions={sessions} selectedPatientId={selPatId} />,
+    history:    <History    patients={patients} sessions={sessions} selectedPatientId={selPatId} setPatients={setPatients} />,
     objectives: <Activities />,
     activities: <Activities />,
     phonology:  <Phonology />,
     reports:    <Reports    patients={patients} sessions={sessions} payments={payments} />,
     plan:       <PlanColaborativo patients={patients} users={users} plan={plan} setPlan={setPlan} />,
     resources:  <Resources />,
-    tea:        <TEAAutismo patients={patients} />,
+    tea:        <TEAAutismo />,
     asistencias:<Asistencias patients={patients} setPatients={setPatients} />,
+    organizaciones: user?.role === "admin"
+      ? <Organizaciones users={users} setUsers={setUsers} />
+      : <div className="fu"><div className="alert alrtd">🔐 Solo administradores.</div></div>,
     admin:      user?.role === "admin"
-      ? <Admin users={users} setUsers={setUsers} registerRequests={registerRequests} setRegisterRequests={setReg} currentUser={user} />
+      ? <Admin users={users} setUsers={setUsers} registerRequests={registerRequests} setRegisterRequests={setReg} currentUser={user} precios={precios} setPrecios={setPrecios} />
       : <div className="fu"><div className="alert alrtd">🔐 Solo administradores.</div></div>,
     ia:         <IAAsistente patients={patients} C={C}/>,
     profile:    <Profile user={user} onLogout={logout} setUser={u => { setUser(u); saveToStorage({ users, user:u, patients, sessions, payments, agendaItems, plan, registerRequests }); }} />,
   };
 
   const bnItems = [
-    { id:"dashboard",                                          l:"Panel",    i:"🏠" },
-    { id:"patients",                                           l:"Pacientes",i:"👥" },
-    { id:"agenda",                                             l:"Agenda",   i:"📅" },
-    { id:"sessions",                                           l:"Clinico",  i:"📝" },
+    { id:"dashboard",  l:"Panel",    i:"🏠" },
+    { id:"patients",   l:"Pacientes",i:"👥" },
+    { id:"asistencias",l:"Cobros",   i:"📆" },
+    { id:"ia",         l:"IA",       i:"🧠" },
     { id:user?.role==="admin"?"admin":"profile", l:user?.role==="admin"?"Admin":"Perfil", i:user?.role==="admin"?"🔐":"👤" },
   ];
 
@@ -2998,26 +3829,39 @@ export default function HadrionApp() {
     </>
   );
 
-  // Modal bloqueante: suscripción vencida
+  // Modal bloqueante suscripción vencida
   const diasRestantes = user.subscriptionEnd
-    ? Math.ceil((new Date(user.subscriptionEnd+"T00:00:00") - new Date()) / (1000*60*60*24))
+    ? daysUntil(user.subscriptionEnd)
     : null;
-  if (diasRestantes !== null && diasRestantes < 0) return (
+  if (user.role !== "admin" && diasRestantes !== null && diasRestantes < 0) return (
     <>
       <style>{CSS}</style>
       <div style={{minHeight:"100vh",background:"linear-gradient(135deg,#FDF0E8,#FAF8F5)",display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
         <div style={{background:"white",borderRadius:24,padding:"36px 26px",width:"100%",maxWidth:400,textAlign:"center",boxShadow:"0 8px 40px rgba(0,0,0,.12)"}}>
           <div style={{fontSize:48,marginBottom:12}}>🔒</div>
-          <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:24,fontWeight:700,color:C.charcoal,marginBottom:8}}>Suscripción vencida</div>
-          <div style={{fontSize:14,color:C.grayL,lineHeight:1.6,marginBottom:20}}>
-            Tu período de acceso ha finalizado. Para renovar, contactá a Adriana.
+          <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:24,fontWeight:700,color:"#2C2C2C",marginBottom:8}}>Suscripción vencida</div>
+          <div style={{fontSize:14,color:"#9B9590",lineHeight:1.6,marginBottom:20}}>
+            Tu acceso ha finalizado. Para renovar, contactá a Adriana por WhatsApp.
           </div>
-          <a href="https://wa.me/59899926775?text=Hola%20Adriana%2C%20quiero%20renovar%20Hadrion"
+          <a href="https://wa.me/59899926775?text=Hola%20Adriana%2C%20quiero%20renovar%20mi%20suscripci%C3%B3n%20a%20Hadrion"
             target="_blank" rel="noopener noreferrer"
             style={{display:"block",background:"#25D366",color:"white",borderRadius:12,padding:"12px 20px",fontWeight:700,fontSize:14,textDecoration:"none",marginBottom:10}}>
             💬 Renovar por WhatsApp
           </a>
-          <button className="btn btng btnfull" onClick={logout}>← Cerrar sesión</button>
+          <button onClick={logout} style={{background:"#EDE0F5",border:"none",borderRadius:12,padding:"10px 20px",fontWeight:700,fontSize:13,cursor:"pointer",width:"100%",fontFamily:"sans-serif"}}>← Cerrar sesión</button>
+        </div>
+      </div>
+    </>
+  );
+
+  if (sessionKicked) return (
+    <>
+      <style>{CSS}</style>
+      <div style={{minHeight:"100vh",background:"linear-gradient(135deg,#FDF0E8,#FAF8F5)",display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+        <div style={{background:"white",borderRadius:24,padding:"36px 26px",width:"100%",maxWidth:380,textAlign:"center",boxShadow:"0 8px 40px rgba(0,0,0,.12)"}}>
+          <div style={{fontSize:48,marginBottom:12}}>📱</div>
+          <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:700,color:"#2C2C2C",marginBottom:8}}>Sesión iniciada en otro dispositivo</div>
+          <div style={{fontSize:14,color:"#9B9590",lineHeight:1.6}}>Tu sesión fue cerrada porque iniciaste sesión en otro dispositivo. Volvé a ingresar.</div>
         </div>
       </div>
     </>
@@ -3027,13 +3871,13 @@ export default function HadrionApp() {
     <>
       <style>{CSS}</style>
       <div className="app">
-        <Sidebar active={active} setActive={setActive} user={user} />
+        <Sidebar active={active} setActive={setActive} user={user} registerRequests={registerRequests} />
         <div className="mwrap">
           <div className="tbar">
             <div style={{ display:"flex", alignItems:"center", justifyContent:"flex-end", paddingBottom:6 }}>
               <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                 <button onClick={()=>setLang(l=>l==="es"?"en":"es")}
-                  style={{padding:"5px 11px",borderRadius:20,border:`1.5px solid ${C.sand}`,background:"white",fontWeight:700,fontSize:11,cursor:"pointer",color:C.terra,fontFamily:"sans-serif"}}>
+                  style={{padding:"5px 11px",borderRadius:20,border:"1.5px solid #EDE0F5",background:"white",fontWeight:700,fontSize:11,cursor:"pointer",color:"#9B7EBD",fontFamily:"sans-serif",letterSpacing:".5px"}}>
                   {lang==="es"?"EN":"ES"}
                 </button>
                 <div style={{ textAlign:"right" }}>
