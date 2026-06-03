@@ -2211,6 +2211,14 @@ function Phonology() {
         <div style={{ marginLeft:"auto", background:C.terraF, borderRadius:10, padding:"6px 12px", fontSize:13, fontWeight:700, color:C.terra }}>⭐ {score}</div>
       </div>
 
+      {!sel && (
+        <div style={{background:"#F5F0FA",borderRadius:14,padding:"14px 16px",marginBottom:12,textAlign:"center"}}>
+          <div style={{fontSize:28,marginBottom:6}}>👆</div>
+          <div style={{fontWeight:700,fontSize:13,color:"#7B5EA7",marginBottom:4}}>Seleccioná un fonema de la grilla</div>
+          <div style={{fontSize:12,color:"#9B9590"}}>Tocá cualquier letra o vocal para comenzar el ejercicio de <strong>{stage}</strong></div>
+        </div>
+      )}
+
       {sel && (
         <div style={{ background:C.terraF, borderRadius:16, padding:16, marginBottom:12, border:`2px solid ${C.terraL}` }}>
           <div style={{ textAlign:"center", marginBottom:12 }}>
@@ -4054,13 +4062,48 @@ function Asistencias({ patients, setPatients }) {
 
 // ─── TEA / AUTISMO ────────────────────────────────────────────────────────────
 const TEA_OBJETIVOS = [
-  { area:"Comunicación social",  icon:"💬", color:"#5B8DB8", items:["Mantener contacto visual 5 seg","Responder a su nombre","Iniciar interacción espontánea","Imitar gestos simples","Señalar para compartir interés","Usar gestos protodeclarativos"] },
-  { area:"Juego",                icon:"🎮", color:"#9B7EBD", items:["Juego funcional con objetos","Juego simbólico básico","Juego paralelo con par","Juego cooperativo simple","Turnos en juego estructurado","Imitar juego de otro niño"] },
-  { area:"Regulación sensorial", icon:"🌀", color:"#E8A020", items:["Tolerar estímulos táctiles","Adaptar nivel de activación","Usar herramientas de regulación","Identificar estado sensorial","Solicitar pausa","Tolerar cambios de rutina"] },
-  { area:"CAA",                  icon:"🗣️", color:"#2ECC71", items:["Usar pictogramas para elegir","Construir frases con CAA","Hacer pedidos con dispositivo","Rechazar con CAA","Comentar con CAA","Responder preguntas básicas"] },
-  { area:"Vida diaria",          icon:"🏠", color:"#E8719C", items:["Seguir rutina visual","Completar secuencia de higiene","Preparar material escolar","Tolerar cambios de ambiente","Comer variedad de texturas","Vestirse con apoyo"] },
-  { area:"Conducta",             icon:"🎯", color:"#C0392B", items:["Reducir conducta autolesiva","Aumentar tolerancia a frustración","Responder a No","Esperar turno 30 seg","Aceptar límites","Transicionar entre actividades"] },
-  { area:"Funciones ejecutivas", icon:"🧠", color:"#8B7BB5", items:["Planificar tarea de 2 pasos","Inhibir respuesta impulsiva","Flexibilidad ante cambio","Memoria de trabajo simple","Organización de materiales","Automonitoreo básico"] },
+  { area:"Comunicación social", icon:"💬", color:"#5B8DB8",
+    niveles:{
+      "1":["Mantener contacto visual 3-5 seg en contexto natural","Responder a su nombre al primer llamado","Señalar para pedir y compartir interés","Usar gestos protodeclarativos (mostrar, dar)","Iniciar interacción con par familiar","Imitar gestos simples con modelo"],
+      "2":["Sostener contacto visual en conversación","Iniciar interacción espontánea con adulto","Usar lenguaje funcional para necesidades básicas","Responder preguntas simples Sí/No","Saludar y despedirse con apoyo","Usar 2-3 palabras para comunicar"],
+      "3":["Responder a nombre con apoyo físico","Establecer contacto visual ocasional","Tolerar proximidad del adulto","Aceptar juego cara a cara brevemente","Comunicar rechazo de forma funcional","Usar un medio CAA para pedir"],
+    }},
+  { area:"Juego", icon:"🎮", color:"#9B7EBD",
+    niveles:{
+      "1":["Juego simbólico espontáneo con objetos","Juego paralelo sostenido 5+ min","Turnos en juego de mesa simple","Juego cooperativo con reglas básicas","Invitar a par al juego","Tolerar cambio de actividad lúdica"],
+      "2":["Juego funcional con objetos reales","Juego simbólico con modelo adulto","Turno simple en juego estructurado (2 pers.)","Juego paralelo con tolerancia","Seguir una regla de juego","Imitar juego de otro niño"],
+      "3":["Explorar objetos de forma funcional","Tolerar presencia de otro niño","Aceptar juego propuesto por adulto","Participar en actividad sensoriomotriz","Juego de causa-efecto simple","Mantener actividad 2-3 min"],
+    }},
+  { area:"Regulación sensorial", icon:"🌀", color:"#E8A020",
+    niveles:{
+      "1":["Identificar y comunicar estado sensorial","Usar herramientas de regulación de forma autónoma","Solicitar pausa en ambiente escolar","Tolerar cambios de rutina con anticipación","Adaptar nivel de activación a la demanda","Transicionar entre ambientes con mínimo apoyo"],
+      "2":["Usar herramienta de regulación con señal","Tolerar estímulos táctiles cotidianos","Aceptar cambio de actividad con aviso previo","Identificar sensación de sobreestimulación","Solicitar pausa con apoyo","Reducir conductas sensoriales disruptivas"],
+      "3":["Tolerar contacto físico necesario (higiene)","Aceptar estímulos auditivos cotidianos","Permanecer en espacio cerrado sin crisis","Tolerar luz artificial","Aceptar texturas alimenticias básicas","Reducir conductas autoestimulatorias en sesión"],
+    }},
+  { area:"CAA", icon:"🗣️", color:"#2ECC71",
+    niveles:{
+      "1":["Construir frases de 4+ elementos con CAA","Comentar espontáneamente con dispositivo","Hacer preguntas con CAA","Narrar evento reciente con apoyo","Rechazar y negociar con CAA","Usar CAA en contexto escolar"],
+      "2":["Usar pictogramas para elegir entre 2 opciones","Construir frases SVO con CAA","Hacer pedidos completos con dispositivo","Rechazar con CAA","Responder preguntas básicas con apoyo","Iniciar comunicación con CAA"],
+      "3":["Usar 1 símbolo para pedir objeto deseado","Responder a DAME con imagen","Intercambiar imagen por objeto (PECS fase 1-2)","Elegir entre 2 opciones con pictograma","Indicar NO con imagen o gesto","Usar dispositivo para rutina diaria"],
+    }},
+  { area:"Vida diaria", icon:"🏠", color:"#E8719C",
+    niveles:{
+      "1":["Seguir rutina visual de forma autónoma","Completar secuencia de higiene independiente","Preparar material escolar solo","Comer variedad de texturas","Vestirse y desvestirse solo","Tolerar cambios de ambiente sin crisis"],
+      "2":["Seguir rutina visual con apoyo mínimo","Completar secuencia de higiene con guía verbal","Preparar mochila con lista visual","Comer 5+ alimentos variados","Vestirse con apoyo en pasos difíciles","Aceptar cambio anticipado con pictograma"],
+      "3":["Seguir rutina visual de 3 pasos con apoyo","Tolerar higiene básica (lavado de manos, dientes)","Comer alimentos de textura aceptada","Cooperar en vestido","Participar en actividades de casa básicas","Transicionar entre actividades con apoyo físico"],
+    }},
+  { area:"Conducta", icon:"🎯", color:"#C0392B",
+    niveles:{
+      "1":["Tolerar frustración moderada sin crisis","Aceptar No con regulación","Esperar turno 2 min","Responder a límites verbales","Transicionar entre actividades sin oposición","Reparar interacción luego de conflicto"],
+      "2":["Reducir frecuencia de rabietas a 1/semana","Esperar turno 30-60 seg con apoyo","Aceptar No con regulación parcial","Transicionar con aviso previo","Reducir conducta repetitiva en sesión","Seguir instrucción de 2 pasos"],
+      "3":["Reducir conducta autolesiva con plan de intervención","Tolerar demora de 10 seg antes de recibir reforzador","Aceptar redirección física","Esperar turno 10 seg con objeto preferido","Seguir instrucción de 1 paso","Reducir estereotipias que interfieren con aprendizaje"],
+    }},
+  { area:"Funciones ejecutivas", icon:"🧠", color:"#8B7BB5",
+    niveles:{
+      "1":["Planificar tarea de 3 pasos de forma autónoma","Inhibir respuesta ante distractor","Flexibilidad ante cambio de plan","Memoria de trabajo para 2-3 elementos","Organizar materiales independientemente","Automonitorear progreso en tarea"],
+      "2":["Planificar tarea de 2 pasos con soporte visual","Inhibir respuesta impulsiva con señal","Aceptar cambio de plan con anticipación","Recordar 2 instrucciones consecutivas","Organizar materiales con lista","Reconocer error propio con apoyo"],
+      "3":["Completar tarea de 1 paso con apoyo","Inhibir conducta ante señal física","Aceptar cambio con objeto de transición","Recordar 1 instrucción simple","Buscar material necesario con guía","Mantener atención en tarea 3-5 min"],
+    }},
 ];
 
 const ESTRATEGIAS_TEA = [
@@ -4117,8 +4160,8 @@ function TEAAutismo() {
               </div>
               {selArea === a.area && (
                 <div style={{padding:"14px 16px"}}>
-                  {a.items.map((obj,i) => (
-                    <div key={i} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"7px 0",borderBottom:i<a.items.length-1?"1px solid #EDE0F5":"none"}}>
+                  {(a.niveles?.[nivel] || a.items || []).map((obj,i) => (
+                    <div key={i} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"7px 0",borderBottom:i<(a.niveles?.[nivel]||a.items||[]).length-1?"1px solid #EDE0F5":"none"}}>
                       <div style={{width:20,height:20,borderRadius:6,background:a.color+"22",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:700,color:a.color,flexShrink:0,marginTop:1}}>{i+1}</div>
                       <div style={{fontSize:13,color:"#2C2C2C",lineHeight:1.4}}>{obj}</div>
                     </div>
@@ -4189,6 +4232,245 @@ function Footer() {
 // ═══════════════════════════════════════
 // IA TERAPEUTICA - Powered by Claude API
 // ═══════════════════════════════════════
+// ─── BANCO DE OBJETIVOS ───────────────────────────────────────────────────────
+const GOALS_DB = {
+  "Fonoaudiología": [
+    { area:"Articulación", color:"#5B8DB8", icon:"🗣️", goals:[
+      "Producir /s/ en posición inicial en palabras aisladas con 80% de precisión",
+      "Producir /r/ vibrante en posición intervocálica en palabras aisladas",
+      "Discriminar auditivamente pares mínimos con /p/-/b/ en el 80% de los intentos",
+      "Corregir procesos de simplificación fonológica en habla espontánea",
+      "Producir grupos consonánticos /pl/, /bl/, /cl/ en sílabas y palabras",
+      "Generalizar fonema trabajado a nivel de frase en contexto clínico",
+    ]},
+    { area:"Lenguaje comprensivo", color:"#9B7EBD", icon:"👂", goals:[
+      "Seguir instrucciones de 2 pasos en el 80% de los intentos",
+      "Comprender preguntas ¿qué?, ¿quién?, ¿dónde? en cuentos escuchados",
+      "Identificar absurdos verbales en oraciones simples",
+      "Comprender relaciones causales en textos narrados",
+      "Responder preguntas inferenciales sobre texto escuchado",
+      "Ejecutar instrucciones con conceptos espaciales (arriba, abajo, adelante)",
+    ]},
+    { area:"Lenguaje expresivo", color:"#2ECC71", icon:"💬", goals:[
+      "Producir frases de 4-5 palabras con estructura sujeto-verbo-objeto",
+      "Usar conectores causales (porque, entonces) en narración espontánea",
+      "Narrar secuencia de 3 eventos en orden cronológico",
+      "Usar morfemas de género y número de forma consistente",
+      "Describir objetos con 3 atributos (color, forma, función)",
+      "Ampliar vocabulario de categorías semánticas a 20 ítems por categoría",
+    ]},
+    { area:"Lectoescritura", color:"#E8719C", icon:"📖", goals:[
+      "Leer texto de nivel escolar con fluidez de 60+ palabras por minuto",
+      "Discriminar letras de grafía similar (b/d, p/q) sin errores",
+      "Escribir palabras con grupos consonánticos sin omisiones",
+      "Comprender texto leído respondiendo 3 preguntas literales",
+      "Segmentar palabras en sílabas de forma autónoma",
+      "Identificar idea principal de párrafo corto",
+    ]},
+    { area:"Conciencia fonológica", color:"#E8A020", icon:"🔤", goals:[
+      "Identificar el sonido inicial de palabras con 90% de precisión",
+      "Segmentar palabras bisilábicas en sílabas de forma autónoma",
+      "Producir rimas con palabras dadas en el 80% de los intentos",
+      "Fusionar sílabas para formar palabras de 3 sílabas",
+      "Identificar y suprimir sílaba inicial o final de palabra",
+      "Manipular fonemas en palabras monosilábicas",
+    ]},
+    { area:"Comunicación aumentativa", color:"#C0392B", icon:"🗺️", goals:[
+      "Usar sistema CAA para hacer pedidos en contexto clínico",
+      "Construir frases de 2 elementos con pictogramas",
+      "Usar CAA para rechazar de forma funcional",
+      "Generalizar uso de CAA a contexto familiar",
+      "Ampliar vocabulario en dispositivo CAA a 50+ símbolos",
+      "Comentar eventos con CAA en sesión",
+    ]},
+  ],
+  "Psicología": [
+    { area:"Regulación emocional", color:"#5B8DB8", icon:"🌡️", goals:[
+      "Identificar y nombrar 5 emociones básicas en situaciones ficticias",
+      "Aplicar técnica de respiración diafragmática de forma autónoma",
+      "Reducir intensidad de ansiedad de 8 a 4 (escala 0-10) en 20 min",
+      "Usar al menos 1 estrategia de regulación ante situación estresante",
+      "Registrar estado emocional diario durante 4 semanas",
+      "Identificar disparadores de ansiedad en situaciones cotidianas",
+    ]},
+    { area:"Pensamientos y cognición", color:"#9B7EBD", icon:"🧠", goals:[
+      "Identificar pensamientos automáticos negativos en 3 situaciones por semana",
+      "Aplicar reestructuración cognitiva de forma guiada en sesión",
+      "Generar 3 pensamientos alternativos ante evento negativo",
+      "Reconocer al menos 2 distorsiones cognitivas propias",
+      "Reducir creencia en pensamiento negativo de 90% a 40%",
+      "Completar registro ABC de forma autónoma por 4 semanas",
+    ]},
+    { area:"Conducta y hábitos", color:"#E8A020", icon:"🎯", goals:[
+      "Mantener rutina de sueño consistente durante 3 semanas",
+      "Reducir conductas evitativas de 5 a 2 por semana",
+      "Completar exposición al ítem más bajo de jerarquía",
+      "Aumentar actividades placenteras a 3 por semana",
+      "Cumplir tarea para el hogar en el 80% de las sesiones",
+      "Establecer horario de estudio/trabajo consistente",
+    ]},
+    { area:"Vínculos y habilidades sociales", color:"#2ECC71", icon:"🤝", goals:[
+      "Iniciar conversación con persona conocida 3 veces por semana",
+      "Expresar opinión propia en situación de grupo",
+      "Establecer límite verbal ante petición excesiva",
+      "Sostener conversación de 5 minutos con par",
+      "Reducir conductas de sumisión excesiva",
+      "Comunicar necesidad emocional a persona de confianza",
+    ]},
+  ],
+  "Psicopedagogía": [
+    { area:"Lectura y comprensión", color:"#5B8DB8", icon:"📖", goals:[
+      "Leer texto de nivel con fluidez de 80+ palabras por minuto",
+      "Identificar idea principal de 3 párrafos consecutivos",
+      "Responder preguntas inferenciales con 70% de precisión",
+      "Subrayar información relevante de forma autónoma",
+      "Construir mapa conceptual a partir de texto leído",
+      "Resumir texto en 3-5 oraciones propias",
+    ]},
+    { area:"Escritura y expresión", color:"#E8719C", icon:"✍️", goals:[
+      "Producir texto de 5 oraciones sobre tema dado sin apoyo",
+      "Respetar concordancia de género y número en escrito",
+      "Organizar ideas en inicio-desarrollo-cierre",
+      "Revisar y corregir propio texto escrito",
+      "Usar signos de puntuación básicos de forma consistente",
+      "Ampliar vocabulario escrito a nivel de edad",
+    ]},
+    { area:"Matemática", color:"#E8A020", icon:"🔢", goals:[
+      "Resolver operaciones básicas de nivel escolar sin apoyo",
+      "Resolver problemas de 1 paso con enunciado escrito",
+      "Aplicar estrategia de resolución de problemas de 4 pasos",
+      "Reconocer valor posicional hasta los miles",
+      "Calcular área y perímetro de figuras simples",
+      "Interpretar gráficos de barras y torta",
+    ]},
+    { area:"Aprendizaje y hábitos", color:"#9B7EBD", icon:"🗂️", goals:[
+      "Copiar tarea en agenda diariamente durante 4 semanas",
+      "Organizar carpetas por materia de forma autónoma",
+      "Estudiar usando técnica de repaso espaciado",
+      "Mantener atención en tarea por 20 min sin distracción",
+      "Completar trabajo escolar antes de actividades recreativas",
+      "Buscar ayuda cuando no comprende la consigna",
+    ]},
+  ],
+  "Terapia Ocupacional": [
+    { area:"Motricidad fina", color:"#5B8DB8", icon:"✋", goals:[
+      "Completar laberinto de 10 cm sin salir del camino",
+      "Recortar en línea curva con tijera con precisión del 80%",
+      "Copiar figura geométrica compleja sin modelo",
+      "Abrochar 5 botones en menos de 2 minutos",
+      "Sostener lápiz en trípode dinámico de forma consistente",
+      "Escribir nombre propio con tamaño y presión adecuados",
+    ]},
+    { area:"AVD e independencia", color:"#2ECC71", icon:"🏠", goals:[
+      "Vestirse completamente en 10 minutos de forma independiente",
+      "Atar cordones de zapatillas sin asistencia",
+      "Preparar desayuno simple de 2 elementos",
+      "Realizar higiene matutina completa con lista visual",
+      "Desplazarse en entorno conocido de forma independiente",
+      "Usar transporte escolar de forma autónoma",
+    ]},
+    { area:"Integración sensorial", color:"#E8A020", icon:"🌀", goals:[
+      "Tolerar texturas táctiles cotidianas sin reacción adversa",
+      "Permanecer en ambiente ruidoso 20 min con estrategia",
+      "Usar herramienta de regulación sensorial de forma autónoma",
+      "Reducir conductas de búsqueda sensorial disruptivas",
+      "Tolerar cambios de temperatura en actividades de rutina",
+      "Participar en actividades físicas variadas sin negativa",
+    ]},
+  ],
+};
+
+function GoalBank({ user }) {
+  const [selEspecialidad, setSelEspecialidad] = useState(null);
+  const [selArea, setSelArea] = useState(null);
+  const [copied, setCopied] = useState(null);
+  const [search, setSearch] = useState("");
+
+  const specKey = Object.keys(GOALS_DB).find(k =>
+    (user?.specialty||"").toLowerCase().includes(k.toLowerCase().split("/")[0].toLowerCase())
+  ) || "Fonoaudiología";
+
+  const activeSpec = selEspecialidad || specKey;
+  const areas = GOALS_DB[activeSpec] || [];
+
+  const filtered = selArea
+    ? areas.filter(a => a.area === selArea)
+    : areas;
+
+  const searchFiltered = search
+    ? filtered.map(a => ({...a, goals: a.goals.filter(g => g.toLowerCase().includes(search.toLowerCase()))})).filter(a => a.goals.length > 0)
+    : filtered;
+
+  const copyGoal = (goal, i) => {
+    navigator.clipboard?.writeText(goal);
+    setCopied(i);
+    setTimeout(() => setCopied(null), 1500);
+  };
+
+  return (
+    <div className="fu">
+      <div style={{marginBottom:14}}>
+        <div className="pt">🎯 Objetivos Terapéuticos</div>
+        <div className="ps">Banco de objetivos por especialidad — tocá para copiar</div>
+      </div>
+
+      {/* Selector especialidad */}
+      <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
+        {Object.keys(GOALS_DB).map(k => (
+          <button key={k} onClick={()=>{setSelEspecialidad(k);setSelArea(null);}}
+            className={`filbtn${activeSpec===k?" active":""}`}>{k}</button>
+        ))}
+      </div>
+
+      {/* Búsqueda */}
+      <input className="inp" style={{marginBottom:12}}
+        placeholder="🔍 Buscar objetivo..." value={search}
+        onChange={e=>setSearch(e.target.value)}/>
+
+      {/* Filtro de área */}
+      <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:14}}>
+        <button className={`filbtn${!selArea?" active":""}`} onClick={()=>setSelArea(null)}>Todas las áreas</button>
+        {areas.map(a => (
+          <button key={a.area} className={`filbtn${selArea===a.area?" active":""}`}
+            onClick={()=>setSelArea(selArea===a.area?null:a.area)}>{a.icon} {a.area}</button>
+        ))}
+      </div>
+
+      {/* Objetivos */}
+      {searchFiltered.map(area => (
+        <div key={area.area} style={{background:"white",borderRadius:18,overflow:"hidden",boxShadow:"0 2px 12px rgba(0,0,0,.07)",marginBottom:12}}>
+          <div style={{padding:"12px 16px",borderBottom:"1px solid #EDE0F5",display:"flex",alignItems:"center",gap:10}}>
+            <div style={{width:34,height:34,borderRadius:10,background:area.color+"22",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>{area.icon}</div>
+            <div style={{fontWeight:700,fontSize:14,color:area.color}}>{area.area}</div>
+            <div style={{marginLeft:"auto",fontSize:11,color:"#9B9590"}}>{area.goals.length} objetivos</div>
+          </div>
+          <div style={{padding:"10px 16px"}}>
+            {area.goals.map((g,i) => {
+              const gKey = area.area+i;
+              return (
+                <div key={i} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"8px 0",borderBottom:i<area.goals.length-1?"1px solid #F5F0FA":"none"}}>
+                  <div style={{flex:1,fontSize:13,color:"#2C2C2C",lineHeight:1.5}}>{g}</div>
+                  <button onClick={()=>copyGoal(g,gKey)}
+                    style={{background:copied===gKey?"#E8F8EF":"#F5F0FA",border:"none",borderRadius:8,padding:"5px 10px",fontSize:11,fontWeight:700,cursor:"pointer",color:copied===gKey?"#1a7a3c":"#9B7EBD",flexShrink:0,fontFamily:"sans-serif",transition:"all .15s"}}>
+                    {copied===gKey?"✅ Copiado":"📋 Copiar"}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+
+      {searchFiltered.length === 0 && (
+        <div style={{textAlign:"center",padding:"32px 0",color:"#9B9590",fontSize:13}}>
+          Sin resultados para "{search}"
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 // ─── IA CHAT TERAPÉUTICO ──────────────────────────────────────────────────────
 function IAAsistente({ patients, C, documentos=[], setDocumentos=()=>{}, chatHistory=null, setChatHistory=null }) {
   const defaultMsg = [{ role:"assistant", content:"Hola! Soy tu asistente clínico. Podés cargar los datos de un paciente y pedirme informes, objetivos, anamnesis, o lo que necesites. ¿Con qué empezamos?" }];
@@ -4288,7 +4570,20 @@ Si tenés datos del paciente en el contexto los usás para personalizar completa
           }, ...prev].slice(0,100)); // max 100 docs
         }
       } else if (data.error) {
-        setMessages(prev => [...prev, { role:"assistant", content:`❌ Error: ${data.error.message || "No se pudo obtener respuesta."}` }]);
+        const errMsg = data.error.message || "No se pudo obtener respuesta.";
+        const isKeyError = errMsg.toLowerCase().includes("api-key") || errMsg.toLowerCase().includes("api_key") || errMsg.toLowerCase().includes("authentication");
+        setMessages(prev => [...prev, { role:"assistant", content:isKeyError
+          ? `❌ Error de API Key.
+
+Para solucionar:
+1. Entrá a app.netlify.com
+2. Tu sitio → Site configuration → Environment variables
+3. Buscá ANTHROPIC_API_KEY
+4. Actualizá con la nueva key de console.anthropic.com
+5. Trigger deploy
+
+Contactá a Adriana: comunipro12@gmail.com si necesitás ayuda.`
+          : `❌ Error: ${errMsg}` }]);
       }
     } catch(e) {
       setMessages(prev => [...prev, { role:"assistant", content:"❌ Error de conexión. Verificá tu internet." }]);
@@ -5649,7 +5944,7 @@ export default function HadrionApp() {
     payments:   <Payments   patients={patients} payments={payments} setPayments={setPayments} />,
     sessions:   <Sessions   patients={patients} sessions={sessions} setSessions={setSessions} setPatients={setPatients} />,
     history:    <History    patients={patients} sessions={sessions} selectedPatientId={selPatId} setPatients={setPatients} />,
-    objectives: <Activities user={user}/>,
+    objectives: <GoalBank user={user}/>,
     activities: <Activities user={user}/>,
     phonology:  <Phonology />,
     reports:    <Reports    patients={patients} sessions={sessions} payments={payments} />,
