@@ -1,27 +1,37 @@
 // Hadrion — Cloudflare Pages Function
 // Ruta: functions/claude.js
-// Usa Groq API (gratuita) con modelo Llama 3
 
-export async function onRequestPost(context) {
-  const GROQ_API_KEY = context.env.GROQ_API_KEY;
+export async function onRequest(context) {
+  const { request, env } = context;
 
   const corsHeaders = {
-    "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "*"
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
   };
 
+  // Manejar preflight CORS
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: corsHeaders });
+  }
+
+  if (request.method !== "POST") {
+    return new Response("Method Not Allowed", { status: 405, headers: corsHeaders });
+  }
+
+  const GROQ_API_KEY = env.GROQ_API_KEY;
   if (!GROQ_API_KEY) {
     return new Response(
       JSON.stringify({ error: { message: "GROQ_API_KEY no configurada" } }),
-      { status: 500, headers: corsHeaders }
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 
   let body;
   try {
-    body = await context.request.json();
+    body = await request.json();
   } catch {
-    return new Response("Invalid JSON", { status: 400 });
+    return new Response("Invalid JSON", { status: 400, headers: corsHeaders });
   }
 
   const { messages = [], system = "" } = body;
@@ -34,7 +44,6 @@ export async function onRequestPost(context) {
     "Si tenés datos del paciente en el contexto los usás para personalizar la respuesta.";
 
   const groqMessages = [{ role: "system", content: systemPrompt }];
-
   const recentMessages = messages.slice(-20);
   for (const msg of recentMessages) {
     if (msg.role === "user" || msg.role === "assistant") {
@@ -59,10 +68,9 @@ export async function onRequestPost(context) {
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error("Groq error:", errText);
       return new Response(
         JSON.stringify({ error: { message: `Error de Groq: ${response.status}` } }),
-        { status: response.status, headers: corsHeaders }
+        { status: response.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -71,26 +79,13 @@ export async function onRequestPost(context) {
 
     return new Response(
       JSON.stringify({ content: [{ type: "text", text }] }),
-      { status: 200, headers: corsHeaders }
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
   } catch (err) {
-    console.error("Error:", err);
     return new Response(
       JSON.stringify({ error: { message: "Error de conexión con Groq" } }),
-      { status: 500, headers: corsHeaders }
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
-}
-
-// Manejar preflight CORS
-export async function onRequestOptions() {
-  return new Response(null, {
-    status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-    }
-  });
 }
