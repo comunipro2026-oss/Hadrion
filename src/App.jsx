@@ -2544,7 +2544,7 @@ function Resources({ plantillas=[], setPlantillas=()=>{}, documentos=[], setDocu
     if (!iaQuery.trim()) return;
     setIaLoading(true); setIaResult("");
     try {
-      const res = await fetch("/.netlify/functions/claude", {
+      const res = await fetch("/functions/claude", {
         method:"POST", headers:{"Content-Type":"application/json"},
         body: JSON.stringify({ messages:[{role:"user",content:`Sos una terapeuta experta. ${iaQuery}. Respondé en español, sin asteriscos ni markdown, texto listo para imprimir.`}] })
       });
@@ -4549,7 +4549,7 @@ Si tenés datos del paciente en el contexto los usás para personalizar completa
         content: m.content
       }));
 
-      const res = await fetch("/.netlify/functions/claude", {
+      const res = await fetch("/functions/claude", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ system, messages: msgHistory })
