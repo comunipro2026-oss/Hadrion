@@ -388,6 +388,300 @@ const ACTIVITIES_DB = [
     }, printable:true },
 ];
 
+
+// ─── ACTIVIDADES POR ESPECIALIDAD ─────────────────────────────────────────────
+// Agrega especialidad a las actividades existentes (fonoaudiología)
+const ACTIVITIES_DB_EXTRA = [
+  // ─── PSICOLOGÍA ──────────────────────────────────────────────────────────────
+  { id:20, name:"Técnica de relajación muscular", category:"Ansiedad", target:"Ansiedad generalizada",
+    specialty:["Psicología"], type:"Clinica", age:"8-99", ageGroup:"Escolar/Adulto",
+    description:"Relajación muscular progresiva de Jacobson para reducir tensión física y ansiedad.",
+    materials:"Colchoneta o silla cómoda, audio guía opcional",
+    niveles:{
+      facil:{ titulo:"Respiración diafragmática",
+        instrucciones:"Inhalar 4 seg por nariz, sostener 2 seg, exhalar 6 seg por boca. 5 repeticiones.",
+        ejemplos:["Mano en el pecho, mano en la panza — solo sube la panza","Contar mentalmente para distraer el pensamiento"],
+        apoyo:"Guía verbal del profesional, música suave de fondo" },
+      medio:{ titulo:"Tensión y relajación por grupos musculares",
+        instrucciones:"Tensar cada grupo 5 seg, soltar y notar la diferencia. Manos → brazos → hombros → cara → abdomen → piernas.",
+        ejemplos:["Apreta el puño fuerte... ahora soltá... notá la diferencia","Arrugá la cara como limón... relajá"],
+        apoyo:"Guía verbal, pausas de 10 seg entre grupos" },
+      dificil:{ titulo:"Relajación autógena sin guía",
+        instrucciones:"El paciente realiza el recorrido corporal de forma autónoma, registrando sensaciones en un diario.",
+        ejemplos:["Práctica diaria 10 min antes de dormir","Uso en situaciones de ansiedad anticipatoria"],
+        apoyo:"Solo registros semanales con el terapeuta" },
+    }, printable:true },
+
+  { id:21, name:"Reestructuración cognitiva básica", category:"Pensamientos", target:"Depresión/Ansiedad",
+    specialty:["Psicología"], type:"Clinica", age:"12-99", ageGroup:"Adolescente/Adulto",
+    description:"Identificar y cuestionar pensamientos automáticos negativos con evidencia.",
+    materials:"Hoja de registro de pensamientos, lapicera",
+    niveles:{
+      facil:{ titulo:"Identificar el pensamiento",
+        instrucciones:"Situación → ¿qué pensaste? → ¿cómo te sentiste? Registrar sin cuestionar todavía.",
+        ejemplos:["Situación: me ignoraron en el trabajo. Pensamiento: no les caigo bien. Emoción: tristeza 70%"],
+        apoyo:"Ejemplos del terapeuta, registro conjunto" },
+      medio:{ titulo:"Buscar evidencia a favor y en contra",
+        instrucciones:"¿Qué evidencia tenés de que ese pensamiento es cierto? ¿Qué evidencia tenés de que NO es cierto?",
+        ejemplos:["A favor: no me saludaron. En contra: sí me saludaron ayer, pueden haber tenido un mal día"],
+        apoyo:"Preguntas guía del terapeuta" },
+      dificil:{ titulo:"Pensamiento alternativo equilibrado",
+        instrucciones:"Generar un pensamiento alternativo más realista y medir cómo cambia la emoción.",
+        ejemplos:["'Puede haber muchas razones por las que no me saludaron. No tengo datos suficientes.' Emoción: tristeza 30%"],
+        apoyo:"Práctica autónoma con registro semanal" },
+    }, printable:true },
+
+  { id:22, name:"Técnica de resolución de problemas", category:"Habilidades", target:"TDAH/Ansiedad",
+    specialty:["Psicología"], type:"Clinica", age:"10-99", ageGroup:"Escolar/Adulto",
+    description:"Metodología paso a paso para abordar problemas de forma sistemática.",
+    materials:"Hoja de trabajo, lapicera",
+    niveles:{
+      facil:{ titulo:"Definir el problema",
+        instrucciones:"¿Cuál es el problema exactamente? Escribirlo en una oración concreta. Evitar vagüedades.",
+        ejemplos:["Vago: 'tengo problemas en el colegio'. Concreto: 'me olvido de entregar las tareas los viernes'"],
+        apoyo:"Apoyo del terapeuta para concretar" },
+      medio:{ titulo:"Generar alternativas sin juzgar",
+        instrucciones:"Lluvia de ideas de al menos 5 soluciones posibles, sin descartar ninguna todavía.",
+        ejemplos:["Alarma los jueves a la noche","Nota en la mochila","Pedirle a un compañero que me recuerde"],
+        apoyo:"Terapeuta suma ideas si se tranca" },
+      dificil:{ titulo:"Evaluar, elegir e implementar",
+        instrucciones:"Pros y contras de cada opción, elegir la mejor, implementarla y revisar en la próxima sesión.",
+        ejemplos:["Elegí la alarma. Resultado: funcionó 3 de 5 veces. ¿Qué pasó las otras 2?"],
+        apoyo:"Solo seguimiento semanal" },
+    }, printable:true },
+
+  { id:23, name:"Exposición gradual a situaciones temidas", category:"Fobias/Ansiedad", target:"Fobia/Ansiedad social",
+    specialty:["Psicología"], type:"Clinica", age:"8-99", ageGroup:"Todos",
+    description:"Construir jerarquía de situaciones y exponerse gradualmente sin evitar.",
+    materials:"Jerarquía de exposición (ver módulo TCC), hoja de registro",
+    niveles:{
+      facil:{ titulo:"Psicoeducación sobre la ansiedad",
+        instrucciones:"Explicar la curva de ansiedad: sube, llega al pico y baja sola si no huimos. Dibujar juntos.",
+        ejemplos:["Analogía del extintor: si escapás, el fuego nunca se apaga","La ansiedad no es peligrosa, es incómoda"],
+        apoyo:"Material visual, analogías del cotidiano" },
+      medio:{ titulo:"Exposición con apoyo",
+        instrucciones:"Comenzar por el ítem de ansiedad más baja (20-30/100). Mantenerse hasta que baje a la mitad.",
+        ejemplos:["Ansiedad social: saludar al vecino mientras el terapeuta espera afuera"],
+        apoyo:"Terapeuta presente o disponible por teléfono" },
+      dificil:{ titulo:"Exposición autónoma",
+        instrucciones:"El paciente realiza exposiciones solo, registra la ansiedad inicial y final, y lo reporta.",
+        ejemplos:["Ir al supermercado solo","Hacer una llamada telefónica","Hablar en clase"],
+        apoyo:"Registro y revisión semanal" },
+    }, printable:true },
+
+  // ─── PSICOPEDAGOGÍA ───────────────────────────────────────────────────────────
+  { id:30, name:"Estrategias de comprensión lectora", category:"Lectura", target:"Dificultades de aprendizaje",
+    specialty:["Psicopedagogía"], type:"Clinica", age:"7-14", ageGroup:"Escolar",
+    description:"Técnicas para mejorar la comprensión de textos escritos en distintos niveles.",
+    materials:"Textos graduados, fichas de comprensión, subrayadores de colores",
+    niveles:{
+      facil:{ titulo:"Subrayado selectivo",
+        instrucciones:"Leer el párrafo y subrayar solo la idea principal. Máximo una oración por párrafo.",
+        ejemplos:["Verde: idea principal. Amarillo: palabras clave","¿De qué trata este párrafo en una palabra?"],
+        apoyo:"Modelado del adulto, párrafos cortos de 3-4 oraciones" },
+      medio:{ titulo:"Mapa de ideas",
+        instrucciones:"Leer el texto y construir un mapa con idea central y 3-5 ideas secundarias.",
+        ejemplos:["Título en el centro, flechas hacia ideas secundarias","Usar imágenes además de palabras"],
+        apoyo:"Estructura del mapa pre-dibujada" },
+      dificil:{ titulo:"Resumen propio",
+        instrucciones:"Leer el texto, cerrarlo, y escribir un resumen sin mirarlo. Comparar con el original.",
+        ejemplos:["Textos de nivel escolar en área de interés del alumno"],
+        apoyo:"Solo revisión con rúbrica simple" },
+    }, printable:true },
+
+  { id:31, name:"Cálculo mental y operatoria básica", category:"Matemática", target:"Discalculia",
+    specialty:["Psicopedagogía"], type:"Clinica", age:"6-12", ageGroup:"Escolar",
+    description:"Estrategias concretas y semi-concretas para afianzar el cálculo matemático.",
+    materials:"Regletas de Cuisenaire, fichas de puntos, tabla del 100",
+    niveles:{
+      facil:{ titulo:"Material concreto",
+        instrucciones:"Usar regletas, palitos o fichas para representar la operación antes de escribirla.",
+        ejemplos:["5+3: poner 5 cubos, agregar 3, contar el total","10-4: poner 10, sacar 4, contar los que quedan"],
+        apoyo:"Material siempre visible, operaciones con números al 10" },
+      medio:{ titulo:"Dibujo y semi-concreto",
+        instrucciones:"Representar la operación con dibujo de puntos o palitos antes de resolverla en abstracto.",
+        ejemplos:["12+5: dibujar 12 puntos, agregar 5, contar","Tabla de 100 como apoyo visual"],
+        apoyo:"Tabla de 100 disponible" },
+      dificil:{ titulo:"Cálculo mental con estrategias",
+        instrucciones:"Usar estrategias: descomponer, redondear, usar dobles, complementos al 10.",
+        ejemplos:["8+6: 8+2=10, +4=14","19+5: 20+5-1=24"],
+        apoyo:"Recordatorio de estrategias plastificado" },
+    }, printable:true },
+
+  { id:32, name:"Organización y planificación escolar", category:"Hábitos", target:"TDAH/Dificultades de aprendizaje",
+    specialty:["Psicopedagogía"], type:"Clinica", age:"8-16", ageGroup:"Escolar",
+    description:"Herramientas para organizar el trabajo escolar y los tiempos de estudio.",
+    materials:"Agenda, tablero semanal, carpetas de colores, temporizador",
+    niveles:{
+      facil:{ titulo:"Agenda visual diaria",
+        instrucciones:"Copiar las tareas en la agenda con colores por materia. Marcar al completar.",
+        ejemplos:["Rojo: Matemática. Azul: Lengua. Tilde cuando se hace","Foto de la agenda con el celular como respaldo"],
+        apoyo:"Adulto revisa la agenda diariamente" },
+      medio:{ titulo:"Planificador semanal",
+        instrucciones:"Los domingos planificar la semana: qué día se estudia qué, tiempo estimado.",
+        ejemplos:["Lunes 30 min Matemática, Martes 20 min Lengua...","Tiempo de estudio ≤ 45 min con descanso"],
+        apoyo:"Adulto ayuda a estimar tiempos" },
+      dificil:{ titulo:"Autorregulación del estudio",
+        instrucciones:"El alumno planifica, estudia con temporizador y evalúa si cumplió. Registra semanalmente.",
+        ejemplos:["¿Cuánto planeé? ¿Cuánto hice? ¿Qué me dificultó?"],
+        apoyo:"Revisión quincenal con el profesional" },
+    }, printable:true },
+
+  // ─── TERAPIA OCUPACIONAL ──────────────────────────────────────────────────────
+  { id:40, name:"Integración sensorial — modulación táctil", category:"Sensorial", target:"TEA/Hipersensibilidad",
+    specialty:["Terapia Ocupacional"], type:"Clinica", age:"2-12", ageGroup:"Preescolar/Escolar",
+    description:"Actividades graduadas para mejorar la tolerancia a estímulos táctiles.",
+    materials:"Cajas de texturas, arroz, arena kinética, cremas, pintura dactilar",
+    niveles:{
+      facil:{ titulo:"Exploración con preferencia",
+        instrucciones:"Ofrecer texturas elegidas por el niño. No forzar. Modelar el adulto primero.",
+        ejemplos:["Caja de arroz: buscar objetos escondidos","Jugar con agua tibia y esponja blanda"],
+        apoyo:"Total control del niño, adulto modela sin presionar" },
+      medio:{ titulo:"Exposición gradual controlada",
+        instrucciones:"Presentar texturas de menor a mayor intensidad. El niño puede parar cuando quiera.",
+        ejemplos:["Arena seca → arena húmeda → barro","Tocar con un dedo → palma → ambas manos"],
+        apoyo:"Señal de parada acordada ('stop' o señal con mano)" },
+      dificil:{ titulo:"Actividades funcionales con textura",
+        instrucciones:"Realizar actividades de vida diaria con texturas variadas: amasar, pintar, moldear.",
+        ejemplos:["Amasar masas de diferentes texturas","Pintura dactilar para producir una obra"],
+        apoyo:"Actividad significativa elegida por el niño" },
+    }, printable:true },
+
+  { id:41, name:"Actividades de vida diaria — vestido", category:"AVD", target:"TEA/Retraso del desarrollo",
+    specialty:["Terapia Ocupacional"], type:"Clinica", age:"3-10", ageGroup:"Preescolar/Escolar",
+    description:"Secuencia de aprendizaje para vestirse y desvestirse de forma independiente.",
+    materials:"Ropa real o tablero de práctica, pictogramas de secuencia",
+    niveles:{
+      facil:{ titulo:"Desvestirse con mínima ayuda",
+        instrucciones:"Empezar por lo más fácil: quitar medias, zapatos. Usar técnica de encadenamiento hacia atrás.",
+        ejemplos:["Adulto hace todo menos el último paso: el niño solo quita el pie de la media"],
+        apoyo:"Ropa amplia y cómoda, sin botones ni cordones" },
+      medio:{ titulo:"Vestirse con apoyo pictográfico",
+        instrucciones:"Secuencia visual: bombacha/calzón → remera → pantalón → medias → zapatos. El niño sigue los pictogramas.",
+        ejemplos:["Tabla con fotos reales de la secuencia en el cuarto","Velcro en lugar de botones"],
+        apoyo:"Pictogramas plastificados en el cuarto" },
+      dificil:{ titulo:"Independencia funcional",
+        instrucciones:"El niño se viste solo para la escuela con mínima supervisión. Incluye botones simples.",
+        ejemplos:["Cronómetro: ¿en cuánto tiempo me puedo vestir?","Lista de cotejo que marca el niño"],
+        apoyo:"Solo recordatorio verbal inicial" },
+    }, printable:true },
+
+  { id:42, name:"Coordinación visomotora — grafomotricidad", category:"Motricidad fina", target:"Dificultades motoras/escritura",
+    specialty:["Terapia Ocupacional","Psicomotricidad"], type:"Clinica", age:"4-10", ageGroup:"Preescolar/Escolar",
+    description:"Actividades para mejorar el control del trazo y la coordinación ojo-mano.",
+    materials:"Papel, lápices, tijeras, plasticina, pinzas",
+    niveles:{
+      facil:{ titulo:"Trazado libre y precortado",
+        instrucciones:"Trazar líneas rectas, curvas y zigzag. Rasgar papel en tiras. No usar tijera todavía.",
+        ejemplos:["Unir puntos con línea","Trazar por dentro de un camino ancho"],
+        apoyo:"Lápiz grueso, papel grande, guía física de la mano si necesario" },
+      medio:{ titulo:"Corte con tijera y trazados dirigidos",
+        instrucciones:"Cortar por línea recta, luego curva. Copiar figuras geométricas simples.",
+        ejemplos:["Cortar flecos en papel","Trazar letras en puntos punteados"],
+        apoyo:"Tijera de seguridad ergonómica" },
+      dificil:{ titulo:"Escritura funcional",
+        instrucciones:"Escribir nombre propio, letras de molde y cursiva básica con buena presión y tamaño.",
+        ejemplos:["Carta a familiar","Completar ficha con datos personales"],
+        apoyo:"Pauta Montessori o cuaderno especial" },
+    }, printable:true },
+
+  // ─── PSICOMOTRICIDAD ──────────────────────────────────────────────────────────
+  { id:50, name:"Esquema corporal y lateralidad", category:"Corporal", target:"Retraso psicomotor/Dislexia",
+    specialty:["Psicomotricidad"], type:"Clinica", age:"3-8", ageGroup:"Preescolar/Escolar",
+    description:"Actividades para afianzar el conocimiento del cuerpo y la lateralización.",
+    materials:"Espejo grande, pelotas, aros, cinta adhesiva en el suelo",
+    niveles:{
+      facil:{ titulo:"Reconocimiento de partes del cuerpo",
+        instrucciones:"Nombrar y tocar partes del cuerpo frente al espejo. Juego de 'Simón dice'.",
+        ejemplos:["Simón dice: tocate la rodilla izquierda","¿Dónde está tu codo? ¿Y el del compañero?"],
+        apoyo:"Espejo, movimiento lento, repetición" },
+      medio:{ titulo:"Dominancia lateral",
+        instrucciones:"Actividades que requieran definir lado dominante: lanzar, patear, cortar. Registrar cuál usa.",
+        ejemplos:["Lanzar pelota al aro: ¿qué mano usás?","Patear: ¿qué pie?","Mirar por telescopio: ¿qué ojo?"],
+        apoyo:"Sin forzar lateralidad, solo registrar" },
+      dificil:{ titulo:"Coordinación cruzada",
+        instrucciones:"Actividades que crucen la línea media corporal: mano derecha toca rodilla izquierda.",
+        ejemplos:["Marcha cruzada: codo derecho — rodilla izquierda","Lanzar y atrapar con la mano no dominante"],
+        apoyo:"Ritmo lento, puede haber música" },
+    }, printable:true },
+
+  { id:51, name:"Equilibrio y coordinación dinámica", category:"Motricidad gruesa", target:"Retraso psicomotor",
+    specialty:["Psicomotricidad","Terapia Ocupacional"], type:"Clinica", age:"2-8", ageGroup:"Preescolar",
+    description:"Circuito de actividades para desarrollar equilibrio estático y dinámico.",
+    materials:"Colchonetas, vigas de equilibrio, aros, conos, piscina de pelotas",
+    niveles:{
+      facil:{ titulo:"Equilibrio estático",
+        instrucciones:"Mantenerse en una pierna 5 seg, luego 10 seg. En punta de pies. Con ojos cerrados.",
+        ejemplos:["Estatua: no caerse cuando la música para","Flamenco: 5 seg en un pie"],
+        apoyo:"Cerca de la pared, adulto cerca" },
+      medio:{ titulo:"Equilibrio dinámico",
+        instrucciones:"Caminar por viga de equilibrio, saltar en aros, caminar en línea con pie frente a pie.",
+        ejemplos:["Circuito: viga → 3 saltos → giro → volver"],
+        apoyo:"Adulto a un lado, velocidad lenta" },
+      dificil:{ titulo:"Coordinación con objeto",
+        instrucciones:"Realizar los mismos circuitos llevando una pelota, lanzando y recibiendo.",
+        ejemplos:["Viga de equilibrio con pelota en mano","Correr y patear al arco sin detenerse"],
+        apoyo:"Solo observación del profesional" },
+    }, printable:true },
+
+  // ─── FISIOTERAPIA ─────────────────────────────────────────────────────────────
+  { id:60, name:"Ejercicios de movilidad articular — miembro superior", category:"Movilidad", target:"Rehabilitación",
+    specialty:["Fisioterapia"], type:"Clinica", age:"6-99", ageGroup:"Todos",
+    description:"Ejercicios activos y pasivos para mantener o recuperar rango articular en hombro, codo y muñeca.",
+    materials:"Pelota blanda, bastón de madera, theraband",
+    niveles:{
+      facil:{ titulo:"Movilización pasiva suave",
+        instrucciones:"El profesional moviliza la articulación dentro del rango indoloro. 10 repeticiones, movimiento lento.",
+        ejemplos:["Flexo-extensión de muñeca con soporte","Circunducción de hombro asistida"],
+        apoyo:"Paciente relajado, temperatura local previa" },
+      medio:{ titulo:"Ejercicio activo-asistido",
+        instrucciones:"El paciente inicia el movimiento y el profesional lo completa si necesario. 3 series de 10.",
+        ejemplos:["Elevación de brazo con bastón","Apertura de dedo contra resistencia suave"],
+        apoyo:"Espejo para feedback visual" },
+      dificil:{ titulo:"Ejercicio resistido funcional",
+        instrucciones:"Movimientos funcionales con resistencia de theraband o peso libre ligero.",
+        ejemplos:["Remo con theraband","Prono-supinación con pelota blanda"],
+        apoyo:"Corrección postural, 3x15 repeticiones" },
+    }, printable:true },
+
+  // ─── MÚSICA TERAPIA ───────────────────────────────────────────────────────────
+  { id:70, name:"Improvisación musical libre", category:"Expresión", target:"TEA/Comunicación",
+    specialty:["Musicoterapia"], type:"Clinica", age:"2-99", ageGroup:"Todos",
+    description:"Uso de instrumentos de percusión para la comunicación no verbal y el vínculo terapéutico.",
+    materials:"Tambor, xilofón, maracas, pandero, claves",
+    niveles:{
+      facil:{ titulo:"Exploración libre de instrumentos",
+        instrucciones:"Ofrecer instrumentos sin instrucción. Observar qué elige, cómo lo usa, si hay contacto visual.",
+        ejemplos:["Sesión de 20 min de exploración sin consigna","Imitar al paciente para crear diálogo"],
+        apoyo:"Sin corrección, máxima permisividad" },
+      medio:{ titulo:"Diálogo musical",
+        instrucciones:"Terapeuta responde musicalmente lo que hace el paciente. Crear turnos pregunta-respuesta.",
+        ejemplos:["Paciente toca fuerte → terapeuta responde suave","Alternancia de turnos en el tambor"],
+        apoyo:"Seguir siempre el liderazgo del paciente" },
+      dificil:{ titulo:"Canción con significado personal",
+        instrucciones:"Crear o adaptar una canción sobre algo significativo para el paciente. Trabajar letra y melodía.",
+        ejemplos:["Canción sobre su familia","Adaptar canción conocida con nueva letra"],
+        apoyo:"Grabación para llevar a casa" },
+    }, printable:true },
+];
+
+// Especialidades de cada actividad base (ACTIVITIES_DB ya tiene target para fono)
+const SPECIALTY_MAP = {
+  "Fonoaudiología":  ["TEL","Dislexia","Disartria","Lenguaje","Lectoescritura","Articulacion","Fonologia"],
+  "Psicología":      ["Ansiedad","Depresión","TDAH","Pensamientos","Habilidades","Fobias/Ansiedad"],
+  "Psicopedagogía":  ["Dislexia","TDAH","Lectura","Matemática","Hábitos","Dificultades de aprendizaje"],
+  "Terapia Ocupacional": ["Sensorial","AVD","Motricidad fina"],
+  "Psicomotricidad": ["Corporal","Motricidad gruesa","Motricidad fina"],
+  "Fisioterapia":    ["Movilidad","Rehabilitación"],
+  "Musicoterapia":   ["Expresión","Comunicación"],
+};
+
+// Combinar todas las actividades
+const ALL_ACTIVITIES = [
+  ...ACTIVITIES_DB.map(a => ({...a, specialty:["Fonoaudiología"]})),
+  ...ACTIVITIES_DB_EXTRA
+];
+
 // ─── ANAMNESIS ────────────────────────────────────────────────────────────────
 const ANAMNESIS = [
   { t:"Antecedentes relevantes", i:"📊", q:["Antecedentes del embarazo, parto o periodo neonatal?","Hitos del desarrollo motor y del habla-lenguaje?","Antecedentes medicos, neurologicos o geneticos?","Antecedentes familiares de dificultades similares?","Historia familiar: composicion, dinamica del hogar?"] },
@@ -588,11 +882,22 @@ const NAV = [
   { id:"tea",        l:"TEA / Autismo",      i:"🌈" },
   { id:"asistencias",l:"Asistencias",        i:"📆" },
   { id:"ia",         l:"Asistente IA",       i:"🧠", s:"Herramientas" },
+  { id:"psicologia", l:"Psicología",         i:"🧬" },
+  { id:"tcc",        l:"TCC",                i:"🔵" },
   { id:"resources",  l:"Recursos",          i:"📚" },
   { id:"organizaciones", l:"Organizaciones",  i:"🏫", s:"Admin", adminOnly:true },
+  { id:"liquidacion",    l:"Liquidación",      i:"💰", adminOnly:true },
   { id:"admin",      l:"Administracion",    i:"🔐", adminOnly:true, badge:true },
   { id:"profile",    l:"Mi Perfil",         i:"👤" },
 ];
+
+// ─── ACCESO POR PLAN ─────────────────────────────────────────────────────────
+const isClinica = (user) => ["Clinica","Colegio"].includes(user?.plan) || user?.role === "admin";
+const isProOrMore = (user) => ["Pro","Clinica","Colegio"].includes(user?.plan) || user?.role === "admin";
+
+// Nav items filtrados por plan
+const NAV_CLINICA_ONLY = ["organizaciones","liquidacion","plan"]; // solo para planes clínica
+const NAV_PRO_ONLY = ["ia","psicologia","tcc","reports"]; // requieren al menos Pro
 
 function Sidebar({ active, setActive, user, registerRequests=[] }) {
   return (
@@ -601,7 +906,12 @@ function Sidebar({ active, setActive, user, registerRequests=[] }) {
         <div className="slogoicon">H</div>
         <div><div className="slogoname">Hadrion</div><div className="slogosub">Plataforma Clinica</div></div>
       </div>
-      {NAV.filter(n => !n.adminOnly || user?.role === "admin").map(n => (
+      {NAV.filter(n => {
+        if (n.adminOnly && user?.role !== "admin") return false;
+        if (NAV_CLINICA_ONLY.includes(n.id) && !isClinica(user)) return false;
+        if (n.id === "ia" && !isProOrMore(user)) return false;
+        return true;
+      }).map(n => (
         <div key={n.id}>
           {n.s && <div className="ssec">{n.s}</div>}
           <div className={`sitem${active === n.id ? " active" : ""}`} onClick={() => setActive(n.id)}>
@@ -757,9 +1067,23 @@ function Dashboard({ user, patients, sessions, payments, setActive, setShowQS, a
         </div>
       )}
       <div className="welcome">
-        <div style={{ fontSize:12, opacity:.7, marginBottom:3 }}>{cap(todayStr())}</div>
-        <div className="wname">Hola, {user.name.split(" ")[0]} 👋</div>
-        <div style={{ fontSize:13, opacity:.82, marginTop:3 }}>Bienvenida a tu plataforma clinica</div>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
+          <div>
+            <div style={{ fontSize:12, opacity:.7, marginBottom:3 }}>{cap(todayStr())}</div>
+            <div className="wname">Hola, {user.name.split(" ")[0]} 👋</div>
+            <div style={{ fontSize:13, opacity:.82, marginTop:3 }}>Bienvenida a tu plataforma clínica</div>
+          </div>
+          <div style={{background:"rgba(255,255,255,.2)",borderRadius:20,padding:"4px 12px",fontSize:11,fontWeight:700,color:"white",flexShrink:0,marginTop:4}}>
+            {user.plan || "Básico"}
+          </div>
+        </div>
+        {isClinica(user) && (
+          <div style={{marginTop:10,display:"flex",gap:6,flexWrap:"wrap"}}>
+            {["👥 Multiusuario","💰 Liquidación","🏫 Organización"].map(f=>(
+              <span key={f} style={{background:"rgba(255,255,255,.15)",borderRadius:20,padding:"3px 10px",fontSize:10,color:"rgba(255,255,255,.9)"}}>{f}</span>
+            ))}
+          </div>
+        )}
       </div>
       <div className="sgrid">
         <div className="sc2"><div className="snum">{patients.length}</div><div className="slbl">Pacientes</div></div>
@@ -785,6 +1109,30 @@ function Dashboard({ user, patients, sessions, payments, setActive, setShowQS, a
           </div>
         ))}
       </div>
+      {patients.length === 0 && (
+        <div style={{background:"linear-gradient(135deg,#F5F0FA,#EDE0F5)",borderRadius:18,padding:20,marginBottom:16,border:"2px dashed #D4BCE8"}}>
+          <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontWeight:700,color:"#7B5EA7",marginBottom:8}}>👋 ¡Bienvenida a Hadrion!</div>
+          <div style={{fontSize:13,color:"#6B6560",lineHeight:1.8,marginBottom:12}}>
+            Para empezar, te recomendamos estos 3 pasos:
+          </div>
+          {[
+            ["1️⃣","Agregá tu primer paciente","Tocá 'Pacientes' en el menú y luego '+ Nuevo'","patients"],
+            ["2️⃣","Registrá una sesión","Después de crear el paciente, usá 'Sesión rápida'","sessions"],
+            ["3️⃣","Probá el Asistente IA","Pedile que te genere un informe o plan de trabajo","ia"],
+          ].map(([n,t,d,page])=>(
+            <div key={n} onClick={()=>setActive(page)}
+              style={{display:"flex",gap:12,padding:"10px 14px",background:"white",borderRadius:12,marginBottom:8,cursor:"pointer",border:"1px solid #EDE0F5"}}>
+              <div style={{fontSize:20,flexShrink:0}}>{n}</div>
+              <div>
+                <div style={{fontWeight:700,fontSize:13,color:"#2C2C2C"}}>{t}</div>
+                <div style={{fontSize:11,color:"#9B9590"}}>{d}</div>
+              </div>
+              <div style={{marginLeft:"auto",color:"#9B7EBD",fontSize:16,alignSelf:"center"}}>→</div>
+            </div>
+          ))}
+        </div>
+      )}
+
       <SC title="📅 Citas de hoy" action={<button className="btn btno btnsm" onClick={() => setActive("agenda")}>Ver agenda</button>}>
         {agendaItems.filter(a => a.date === todayKey).length === 0
           ? <div style={{ color:C.grayL, fontSize:12 }}>Sin citas para hoy</div>
@@ -1010,7 +1358,7 @@ function Patients({ patients, setPatients, setActive, setSelPatId, sessions }) {
         <div><div className="pt">Pacientes</div><div className="ps">{filtered.length} activos</div></div>
         <button className="btn btnp btnsm noprint" onClick={() => setShowNew(true)}>+ Nuevo</button>
       </div>
-      <input className="inp" placeholder="🔍 Buscar por nombre o diagnostico..." value={search} onChange={e => setSearch(e.target.value)} style={{ marginBottom:12 }} />
+      <input className="inp" placeholder="🔍 Buscar por nombre o diagnóstico..." value={search} onChange={e => setSearch(e.target.value)} style={{ marginBottom:12 }} />
       {filtered.map(p => (
         <div key={p.id} className="card" style={{ marginBottom:10, cursor:"pointer" }} onClick={() => { setSel(p); setEditing(false); }}>
           <div style={{ display:"flex", alignItems:"center", gap:12 }}>
@@ -1277,7 +1625,14 @@ function Sessions({ patients, sessions, setSessions, setPatients }) {
         <div><div className="pt">Registros Clinicos</div><div className="ps">Historial de sesiones</div></div>
         <button className="btn btnp btnsm noprint" onClick={() => setShowNew(true)}>+ Registrar</button>
       </div>
-      {sessions.length === 0 && <div style={{ textAlign:"center", padding:"32px 0", color:C.grayL }}>📝 Sin registros aun</div>}
+      {sessions.length === 0 && (
+        <div style={{background:"#F5F0FA",borderRadius:16,padding:24,textAlign:"center",marginBottom:12}}>
+          <div style={{fontSize:36,marginBottom:8}}>📝</div>
+          <div style={{fontWeight:700,fontSize:15,color:"#7B5EA7",marginBottom:6}}>Sin sesiones registradas</div>
+          <div style={{fontSize:13,color:"#9B9590",marginBottom:14}}>Tocá el botón <strong>"+ Registrar"</strong> para documentar tu primera sesión.</div>
+          <div style={{fontSize:12,color:"#9B9590"}}>También podés usar <strong>Sesión rápida</strong> desde el Panel para registrar sin completar todos los campos.</div>
+        </div>
+      )}
       {sessions.map(s => (
         <div key={s.id} className="sc">
           <div className="sch">
@@ -1356,6 +1711,7 @@ function History({ patients, sessions, selectedPatientId, setPatients }) {
   const [pid, setPid] = useState(selectedPatientId || "");
   const [ans, setAns] = useState({});
   const [tab, setTab] = useState("anamnesis");
+  const [htab, setHtab] = useState("evoluciones");
   const patient = patients.find(p => p.id === parseInt(pid));
   const pSess   = sessions.filter(s => s.patientId === parseInt(pid));
   return (
@@ -1613,15 +1969,28 @@ comunipro12@gmail.com`;
 }
 
 // ─── ACTIVITIES ───────────────────────────────────────────────────────────────
-function Activities() {
+function Activities({ user }) {
   const [fil, setFil]         = useState("all");
   const [ageGroup, setAgeGroup] = useState("all");
   const [sel, setSel]         = useState(null);
   const [nivel, setNivel]     = useState("facil");
+  const [showAll, setShowAll] = useState(false);
   const tC      = { Clinica:{ bg:C.sageF, c:C.forest }, Familia:{ bg:C.terraF, c:C.terra } };
   const nivelC  = { facil:{ bg:"#E8F8EF", c:"#27AE60" }, medio:{ bg:C.goldF, c:C.gold }, dificil:{ bg:C.dangerF, c:C.danger } };
 
-  const filtered = ACTIVITIES_DB.filter(a => {
+  // Detectar especialidad del usuario
+  const userSpecialty = user?.specialty || "";
+  const specKey = Object.keys(SPECIALTY_MAP).find(k => 
+    userSpecialty.toLowerCase().includes(k.toLowerCase().split("/")[0].toLowerCase())
+  ) || "Fonoaudiología";
+
+  // Ordenar: primero las de la especialidad del usuario, luego el resto
+  const sortedActivities = [
+    ...ALL_ACTIVITIES.filter(a => a.specialty?.includes(specKey)),
+    ...(showAll ? ALL_ACTIVITIES.filter(a => !a.specialty?.includes(specKey)) : [])
+  ];
+
+  const filtered = sortedActivities.filter(a => {
     const matchFil   = fil === "all" || a.type === fil || a.target === fil || a.category === fil;
     const matchAge   = ageGroup === "all" || a.ageGroup?.includes(ageGroup);
     return matchFil && matchAge;
@@ -1630,8 +1999,21 @@ function Activities() {
   return (
     <div className="fu">
       <div style={{ marginBottom:14 }}><div className="pt">Banco de Actividades</div><div className="ps">Actividades con 3 niveles de dificultad y grupo etario</div></div>
+      {/* Banner de especialidad */}
+      <div style={{background:"linear-gradient(135deg,#9B7EBD,#7B5EA7)",borderRadius:14,padding:"10px 14px",marginBottom:12,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <div>
+          <div style={{fontSize:12,color:"rgba(255,255,255,.8)"}}>Actividades para</div>
+          <div style={{fontWeight:700,fontSize:14,color:"white"}}>{specKey}</div>
+        </div>
+        <button onClick={()=>setShowAll(s=>!s)}
+          style={{background:"rgba(255,255,255,.2)",border:"none",borderRadius:20,padding:"5px 12px",fontSize:11,color:"white",cursor:"pointer",fontFamily:"sans-serif",fontWeight:600}}>
+          {showAll ? "Solo mi área" : "Ver todas las especialidades"}
+        </button>
+      </div>
       <div className="filrow">
-        {["all","Clinica","Familia","Lenguaje","Lectoescritura","Articulacion","Regulacion","Atencion","TEL","Dislexia","TDAH","Disartria"].map(f => (
+        {["all","Clinica","Familia",
+          ...new Set(sortedActivities.map(a=>a.category).filter(Boolean))
+        ].slice(0,12).map(f => (
           <button key={f} className={`filbtn${fil===f?" active":""}`} onClick={() => setFil(f)}>{f==="all"?"Todas":f}</button>
         ))}
       </div>
@@ -1855,6 +2237,7 @@ function Phonology() {
             </div>
           )}
 
+
           {stage === "Letra" && (
             <div style={{background:"white",borderRadius:12,padding:12,marginBottom:10}}>
               <div style={{fontWeight:700,fontSize:13,color:C.terraD,marginBottom:8}}>🔤 Toca la letra correcta</div>
@@ -1990,16 +2373,23 @@ function Reports({ patients, sessions, payments }) {
   const patient = patients.find(p => p.id === parseInt(pid));
   const pSess   = sessions.filter(s => s.patientId === parseInt(pid));
   const totalC  = payments.filter(p => p.status === "pagado").reduce((a, b) => a + b.amount, 0);
+  const pendiente = payments.filter(p => p.status === "pendiente").reduce((a,b)=>a+b.amount,0);
+  const mesActual = new Date().toLocaleDateString("es-UY",{month:"long",year:"numeric"});
+
+  // Últimas 5 sesiones
+  const ultimasSesiones = [...sessions].sort((a,b)=>b.id-a.id).slice(0,5);
+
   return (
     <div className="fu">
-      <div style={{ marginBottom:14 }}><div className="pt">Reportes</div><div className="ps">Estadisticas e informes</div></div>
+      <div style={{ marginBottom:14 }}><div className="pt">Reportes</div><div className="ps">Estadisticas e informes — {mesActual}</div></div>
       <div className="sgrid">
         <div className="sc2"><div className="snum">{patients.length}</div><div className="slbl">Pacientes</div></div>
         <div className="sc2"><div className="snum">{sessions.length}</div><div className="slbl">Sesiones</div></div>
         <div className="sc2"><div className="snum">${(totalC/1000).toFixed(0)}k</div><div className="slbl">Cobrado</div></div>
-        <div className="sc2"><div className="snum">{payments.filter(p => p.status==="pendiente").length}</div><div className="slbl">Pendientes</div></div>
+        <div className="sc2"><div className="snum">${(pendiente/1000).toFixed(0)}k</div><div className="slbl">Pendiente</div></div>
       </div>
-      <SC title="⚙️ Generar informe">
+
+      <SC title="⚙️ Generar informe por paciente">
         <div className="fg"><label className="lbl">Paciente</label>
           <select className="inp" value={pid} onChange={e => setPid(e.target.value)}>
             <option value="">Selecciona...</option>
@@ -2008,21 +2398,121 @@ function Reports({ patients, sessions, payments }) {
         </div>
         {patient && (
           <>
+            <div style={{background:C.terraF,borderRadius:12,padding:12,marginBottom:10}}>
+              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}>
+                <div className="av" style={{width:38,height:38,background:patient.color,fontSize:13,borderRadius:11}}>{patient.avatar}</div>
+                <div>
+                  <div style={{fontWeight:700,fontSize:13}}>{patient.name}</div>
+                  <div style={{fontSize:11,color:C.grayL}}>{patient.age} años — {patient.diagnosis} — {pSess.length} sesiones</div>
+                </div>
+              </div>
+              {pSess.length > 0 && (
+                <div style={{fontSize:12,color:C.charcoal,background:"white",borderRadius:8,padding:"8px 10px"}}>
+                  <div style={{fontWeight:600,marginBottom:3}}>Última sesión: {pSess[0]?.date}</div>
+                  <div style={{color:C.grayL,lineHeight:1.5}}>{pSess[0]?.note?.slice(0,120)}...</div>
+                </div>
+              )}
+            </div>
             <div className="alert alrts">✅ {pSess.length} sesiones registradas — listo para generar</div>
             <div style={{ display:"flex", gap:7, flexWrap:"wrap" }}>
               <button className="btn btnp btnsm" onClick={() => window.print()}>🖨️ Evolutivo</button>
-              <button className="btn btno btnsm" onClick={() => window.print()}>📄 Derivacion</button>
-              <button className="btn btng btnsm" onClick={() => window.print()}>👨‍👩‍👧 Para familias</button>
+              <button className="btn btno btnsm" onClick={() => {
+                const w = window.open("","_blank");
+                const txt = `INFORME DE DERIVACIÓN
+─────────────────────
+Paciente: ${patient.name} | Edad: ${patient.age} años
+Diagnóstico: ${patient.diagnosis}
+Sesiones realizadas: ${pSess.length}
+
+A quien corresponda:
+
+Por medio de la presente, comunico que el/la paciente ${patient.name} se encuentra en tratamiento terapéutico desde la fecha de inicio, habiendo realizado ${pSess.length} sesiones.
+
+${pSess.length>0?`Última evolución (${pSess[0]?.date}): ${pSess[0]?.note}`:""}
+
+Objetivos en trabajo: ${(patient.goals||[]).join(", ")||"Ver historia clínica"}
+
+Se solicita coordinación con el equipo tratante para continuidad del proceso terapéutico.
+
+Profesional: ___________________
+comunipro12@gmail.com`;
+                w.document.write(`<pre style="font-family:Georgia;font-size:14px;line-height:1.8;max-width:700px;margin:40px auto;white-space:pre-wrap;">${txt}</pre>`);
+                w.document.close(); w.print();
+              }}>📄 Derivación</button>
+              <button className="btn btng btnsm" onClick={() => {
+                const w = window.open("","_blank");
+                const txt = `Estimada familia de ${patient.name}:
+
+Les escribo para informarles sobre el progreso terapéutico de ${patient.name.split(" ")[0]}.
+
+Durante las ${pSess.length} sesiones realizadas, hemos trabajado en:
+${(patient.goals||[]).map(g=>`• ${g}`).join("")||"• Ver historia clínica"}
+
+${pSess.length>0?`En la última sesión (${pSess[0]?.date}): ${pSess[0]?.note}`:""}
+
+Recomendaciones para el hogar:
+• Mantener la rutina y los horarios establecidos
+• Practicar las actividades indicadas en sesión
+• Ante cualquier duda, no duden en contactarme
+
+Quedo a disposición para cualquier consulta.
+
+Un saludo,
+comunipro12@gmail.com`;
+                w.document.write(`<pre style="font-family:Georgia;font-size:14px;line-height:1.8;max-width:700px;margin:40px auto;white-space:pre-wrap;">${txt}</pre>`);
+                w.document.close(); w.print();
+              }}>👨‍👩‍👧 Para familias</button>
             </div>
           </>
         )}
+        {!patient && <div style={{fontSize:12,color:C.grayL}}>Seleccioná un paciente para generar su informe.</div>}
       </SC>
+
+      <SC title="📝 Últimas sesiones">
+        {ultimasSesiones.length === 0
+          ? <div style={{fontSize:12,color:C.grayL}}>Sin sesiones registradas.</div>
+          : ultimasSesiones.map(s => (
+            <div key={s.id} style={{padding:"9px 0",borderBottom:`1px solid ${C.sand}`}}>
+              <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
+                <span style={{fontWeight:700,fontSize:13,color:C.charcoal}}>{s.patient}</span>
+                <span style={{fontSize:11,color:C.grayL}}>{s.date}</span>
+              </div>
+              {s.objective && <span className="badge" style={{background:C.terraF,color:C.terra,fontSize:10,marginBottom:3,display:"inline-block"}}>{s.objective}</span>}
+              <div style={{fontSize:12,color:C.grayL,lineHeight:1.4}}>{s.note?.slice(0,100)}{s.note?.length>100?"...":""}</div>
+              <div style={{display:"flex",alignItems:"center",gap:6,marginTop:5}}>
+                <div className="prog" style={{flex:1,height:5}}><div className="progf" style={{width:`${s.progress}%`}}/></div>
+                <span style={{fontSize:10,fontWeight:700,color:C.terra}}>{s.progress}%</span>
+              </div>
+            </div>
+          ))
+        }
+      </SC>
+
       <SC title="📊 Diagnosticos">
-        {Object.entries(patients.reduce((a, p) => { a[p.diagnosis]=(a[p.diagnosis]||0)+1; return a; }, {})).map(([d, n]) => (
+        {patients.length === 0
+          ? <div style={{fontSize:12,color:C.grayL}}>Sin pacientes.</div>
+          : Object.entries(patients.reduce((a, p) => { a[p.diagnosis]=(a[p.diagnosis]||0)+1; return a; }, {})).map(([d, n]) => (
           <div key={d} style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 0", borderBottom:`1px solid ${C.sand}` }}>
             <div style={{ flex:1, fontWeight:500, fontSize:13 }}>{d}</div>
             <div className="prog" style={{ width:90 }}><div className="progf" style={{ width:`${(n/patients.length)*100}%` }} /></div>
             <div style={{ fontSize:13, fontWeight:700, color:C.terra, minWidth:20 }}>{n}</div>
+          </div>
+        ))}
+      </SC>
+
+      <SC title="💳 Pagos recientes">
+        {payments.length === 0
+          ? <div style={{fontSize:12,color:C.grayL}}>Sin pagos registrados.</div>
+          : payments.slice(0,5).map(p => (
+          <div key={p.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:`1px solid ${C.sand}`}}>
+            <div>
+              <div style={{fontWeight:600,fontSize:13}}>{p.patient}</div>
+              <div style={{fontSize:11,color:C.grayL}}>{p.date} — {p.method}</div>
+            </div>
+            <div style={{textAlign:"right"}}>
+              <div style={{fontWeight:700,fontSize:14}}>${p.amount.toLocaleString("es-UY")}</div>
+              <span className="badge" style={{background:p.status==="pagado"?C.greenF:C.goldF,color:p.status==="pagado"?C.forest:C.gold,fontSize:10}}>{p.status}</span>
+            </div>
           </div>
         ))}
       </SC>
@@ -2031,18 +2521,42 @@ function Reports({ patients, sessions, payments }) {
 }
 
 // ─── RESOURCES ────────────────────────────────────────────────────────────────
-function Resources() {
-  const [sel, setSel] = useState(null);
-  const recursos = [
-    { i:"📋", t:"Plantilla de anamnesis", d:"Formulario completo de historia clinica inicial", c:"Evaluacion",
-      contenido:`PLANTILLA DE ANAMNESIS
-──────────────────────────────────────
+function Resources({ plantillas=[], setPlantillas=()=>{}, documentos=[], setDocumentos=()=>{} }) {
+  const [tab, setTab] = useState("plantillas");
+  const [selPlantilla, setSelPlantilla] = useState(null);
+  const [completando, setCompletando] = useState(null);
+  const [editando, setEditando] = useState(null);
+  const [nombreNueva, setNombreNueva] = useState("");
+  // Panel IA
+  const [iaQuery, setIaQuery] = useState("");
+  const [iaResult, setIaResult] = useState("");
+  const [iaLoading, setIaLoading] = useState(false);
+
+  const askIA = async () => {
+    if (!iaQuery.trim()) return;
+    setIaLoading(true); setIaResult("");
+    try {
+      const res = await fetch("/.netlify/functions/claude", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ messages:[{role:"user",content:`Sos una terapeuta experta. ${iaQuery}. Respondé en español, sin asteriscos ni markdown, texto listo para imprimir.`}] })
+      });
+      const data = await res.json();
+      setIaResult(data.content?.[0]?.text || "No se pudo obtener respuesta.");
+    } catch(e) { setIaResult("Error de conexión."); }
+    setIaLoading(false);
+  };
+
+  // Plantillas base del sistema
+  const BASE_PLANTILLAS = [
+    { id:"anamnesis", icon:"📋", titulo:"Anamnesis clínica", categoria:"Evaluación",
+      contenido:`ANAMNESIS CLÍNICA
+─────────────────────────────────────
 DATOS DEL PACIENTE
 Nombre: _______________________________________________
 Fecha de nacimiento: ________________  Edad: _____ años
-Diagnostico: __________________________________________
+Diagnóstico: __________________________________________
 Tutor/Responsable: ____________________________________
-Telefono: _____________________________________________
+Teléfono: _____________________________________________
 Email: ________________________________________________
 
 MOTIVO DE CONSULTA
@@ -2053,7 +2567,7 @@ ANTECEDENTES
 Embarazo y parto: _____________________________________
 Hitos del desarrollo motor: ___________________________
 Hitos del habla-lenguaje: _____________________________
-Antecedentes medicos/neurologicos: ____________________
+Antecedentes médicos/neurológicos: ____________________
 Historia familiar: ____________________________________
 
 OBSERVACIONES INICIALES
@@ -2061,259 +2575,463 @@ _______________________________________________________
 _______________________________________________________
 
 Profesional: ___________________  Fecha: ______________
-Hadrion — comunipro12@gmail.com` },
+comunipro12@gmail.com` },
 
-    { i:"🎯", t:"Guia de objetivos TEL", d:"Objetivos terapeuticos por nivel para TEL", c:"Lenguaje",
-      contenido:`OBJETIVOS TERAPEUTICOS — TEL
-──────────────────────────────────────
-NIVEL INICIAL (0-12 meses de intervencion)
-□ Comprension de consignas simples (1 paso)
-□ Vocabulario basico receptivo/expresivo (50-100 palabras)
-□ Emision de palabras aisladas
-□ Contacto visual y atencion compartida
+    { id:"objetivos_tel", icon:"🎯", titulo:"Objetivos para TEL", categoria:"Lenguaje",
+      contenido:`OBJETIVOS TERAPÉUTICOS — TEL
+─────────────────────────────────────
+Paciente: ____________________________________________
+Período: _____________________________________________
 
-NIVEL MEDIO (12-24 meses)
-□ Produccion de frases de 2-3 palabras
-□ Vocabulario de 200+ palabras
-□ Discriminacion auditiva de fonemas
-□ Comprension de consignas de 2 pasos
+OBJETIVOS ACTIVOS:
+□ Producción de fonemas en posición inicial
+□ Discriminación auditiva de pares mínimos
+□ Comprensión de instrucciones de 2 pasos
+□ Vocabulario receptivo/expresivo (200+ palabras)
+□ Frases de 3-4 palabras con estructura SVO
+□ Narración de secuencias de 3 eventos
 
-NIVEL AVANZADO (+24 meses)
-□ Oraciones completas con estructura SVO
-□ Narrativa secuenciada (3-4 vinetas)
-□ Conciencia fonologica nivel silabico
-□ Comprension de preguntas wh- (quien, donde, que)
+CRITERIO DE LOGRO: 80% en 3 sesiones consecutivas
 
-Profesional: ___________________  Fecha: ______________
-Hadrion — comunipro12@gmail.com` },
+Profesional: ___________________  Fecha: ______________` },
 
-    { i:"📊", t:"Escala de progreso", d:"Seguimiento visual del avance por objetivo", c:"Seguimiento",
-      contenido:`ESCALA DE PROGRESO TERAPEUTICO
-──────────────────────────────────────
-Paciente: _____________________________________________
-Periodo: _____________________________________________
-Profesional: _________________________________________
+    { id:"informe_progreso", icon:"📄", titulo:"Informe de progreso", categoria:"Informes",
+      contenido:`INFORME DE PROGRESO TERAPÉUTICO
+─────────────────────────────────────
+Paciente: ____________________________________________
+Período evaluado: ____________________________________
+Profesional: ________________________________________
 
-OBJETIVO 1: ___________________________________________
-Progreso: [ ]10% [ ]25% [ ]50% [ ]75% [ ]90% [ ]100%
-Logrado: SI / NO   Fecha logro: ________________________
-Observaciones: _______________________________________
-
-OBJETIVO 2: ___________________________________________
-Progreso: [ ]10% [ ]25% [ ]50% [ ]75% [ ]90% [ ]100%
-Logrado: SI / NO   Fecha logro: ________________________
-Observaciones: _______________________________________
-
-OBJETIVO 3: ___________________________________________
-Progreso: [ ]10% [ ]25% [ ]50% [ ]75% [ ]90% [ ]100%
-Logrado: SI / NO   Fecha logro: ________________________
-Observaciones: _______________________________________
-
-Firma profesional: __________________ RUT: ____________
-Hadrion — comunipro12@gmail.com` },
-
-    { i:"🏠", t:"Guia actividades en casa", d:"Manual para familias con actividades diarias", c:"Familia",
-      contenido:`GUIA DE ESTIMULACION EN CASA
-──────────────────────────────────────
-Queridas familias:
-Estas actividades se hacen durante el dia, de forma
-natural y divertida. Solo 5-10 minutos por actividad.
-
-DURANTE EL BAÑO
-✓ Nombrar partes del cuerpo mientras se banan
-✓ Cantar canciones con gestos (cabeza, hombros, pies)
-✓ Describir lo que sienten (frio/caliente, suave/aspero)
-
-EN LA COCINA
-✓ Nombrar ingredientes, colores y formas
-✓ Describir lo que hacemos: "ahora mezclamos..."
-✓ Pedir ayuda con instrucciones simples
-
-EN EL AUTO / CAMINANDO
-✓ Buscar letras o colores en carteles
-✓ Contar objetos de un color
-✓ Narrar lo que ven por la ventana
-
-ANTES DE DORMIR (IMPRESCINDIBLE)
-✓ Leer un cuento en voz alta 10 minutos
-✓ Preguntar: ¿que paso en el cuento?
-✓ Nombrar 3 cosas lindas del dia
-
-REGLAS DE ORO
-✗ No corregir directamente ("no se dice eso")
-✓ Modelar: repetir correctamente y agregar mas
-✓ Celebrar cada intento comunicativo
-✓ Hablar despacio y con frases cortas
-
-Contacto profesional: comunipro12@gmail.com
-Hadrion — Plataforma Terapeutica Uruguay` },
-
-    { i:"🔤", t:"Laminas fonologicas", d:"Guia de fonemas con emojis y palabras clave", c:"Fonologia",
-      contenido:`LAMINAS FONOLOGICAS — HADRION
-──────────────────────────────────────
-Ver la seccion CONCIENCIA FONOLOGICA en la app
-para acceder a las laminas interactivas con audio.
-
-FONEMAS Y PALABRAS CLAVE:
-/A/ ✈️ AVION  🌳 ARBOL  🐝 ABEJA  🦅 AGUILA
-/E/ 🐘 ELEFANTE  ⭐ ESTRELLA  🪞 ESPEJO
-/I/ ⛪ IGLESIA  🦎 IGUANA  🏝️ ISLA  🧲 IMAN
-/O/ 🐻 OSO  🐑 OVEJA  👁️ OJO  🪣 OLLA
-/U/ 🍇 UVA  👔 UNIFORME  🦄 UNICORNIO
-
-/B/ 🚢 BARCO  🚲 BICICLETA  🐋 BALLENA
-/C/ 🏠 CASA  🐇 CONEJO  🚛 CAMION
-/CH/ 🍫 CHOCOLATE  🐷 CHANCHO
-/D/ 🎲 DADO  🦕 DINOSAURIO  🐉 DRAGON
-/F/ 🌸 FLOR  🔥 FUEGO  🍓 FRESA
-/G/ 🐱 GATO  🎈 GLOBO  🌻 GIRASOL
-/L/ 🌙 LUNA  ✏️ LAPIZ  📚 LIBRO
-/M/ 🦋 MARIPOSA  🍎 MANZANA  🐒 MONO
-/N/ ☁️ NUBE  🍊 NARANJA  ❄️ NIEVE
-/P/ 🦆 PATO  ⚽ PELOTA  🚪 PUERTA
-/R/ 🌹 ROSA  ⌚ RELOJ  🐸 RANA
-/S/ ☀️ SOL  🪑 SILLA  🐸 SAPO
-/T/ ✂️ TIJERAS  🚂 TREN  🐢 TORTUGA
-/V/ 🐄 VACA  🎻 VIOLIN  ⛵ VELERO
-/Z/ 👟 ZAPATO  🦊 ZORRO  🥕 ZANAHORIA
-
-Hadrion — comunipro12@gmail.com` },
-
-    { i:"📝", t:"Registro de sesion", d:"Plantilla editable para documentar sesiones", c:"Administracion",
-      contenido:`REGISTRO DE SESION CLINICA
-──────────────────────────────────────
-Paciente: _____________________________________________
-Fecha: _________________  Sesion N°: _________________
-Profesional: _________________________________________
-Duracion: ___________  Modalidad: Presencial / Virtual
-
-OBJETIVO TRABAJADO HOY
+RESUMEN DE LA INTERVENCIÓN:
 _______________________________________________________
 
-ESTADO DEL PACIENTE
-Estado general:  □ Regulado  □ Cansado  □ Hiperactivo
-Atencion:       □ Sostenida □ Fluctuante □ Dispersa
-Participacion:  □ Buena    □ Parcial   □ Rechazo inicial
+LOGROS ALCANZADOS:
+• ____________________________________________________
+• ____________________________________________________
+• ____________________________________________________
 
-ACTIVIDADES REALIZADAS
-1. ____________________________________________________
-2. ____________________________________________________
-3. ____________________________________________________
+ÁREAS EN TRABAJO:
+• ____________________________________________________
+• ____________________________________________________
 
-LOGROS DE LA SESION
+RECOMENDACIONES PARA EL HOGAR:
+1. ___________________________________________________
+2. ___________________________________________________
+3. ___________________________________________________
+
+PRÓXIMOS OBJETIVOS:
 _______________________________________________________
 
-DIFICULTADES OBSERVADAS
-_______________________________________________________
+Firma: ___________________
+comunipro12@gmail.com` },
 
-PROGRESO (0-100%): _____
-
-TAREA PARA CASA
-_______________________________________________________
-
-PROXIMA SESION
-Fecha: ____________________  Hora: __________________
-
-Firma: ____________________
-Hadrion — comunipro12@gmail.com` },
-
-    { i:"📬", t:"Carta para la escuela", d:"Modelo de comunicacion para derivaciones escolares", c:"Derivacion",
+    { id:"carta_escuela", icon:"📬", titulo:"Carta para la escuela", categoria:"Derivación",
       contenido:`INFORME PARA ESTABLECIMIENTO EDUCATIVO
-──────────────────────────────────────
+─────────────────────────────────────
 Lugar y fecha: ________________________________________
 
-Sr./Sra. Director/a del establecimiento:
-___________________________________
+Sr./Sra. Director/a:
 
-Me dirijo a usted en mi caracter de profesional
-especialista en ______________, para informar que
-el/la alumno/a _________________________, que concurre
-a ________ grado/año, se encuentra actualmente en
-tratamiento de _________________ desde ______________.
+Me dirijo a usted en mi carácter de profesional especialista
+en ______________, para informar que el/la alumno/a
+_________________________, que concurre a ________ grado,
+se encuentra actualmente en tratamiento desde ____________.
 
-El/la paciente ha mostrado avances en:
-• _________________________________________________
-• _________________________________________________
+AVANCES OBSERVADOS:
+• ____________________________________________________
+• ____________________________________________________
 
-Se solicita al equipo docente tener en cuenta las
-siguientes adecuaciones:
-• _________________________________________________
-• _________________________________________________
+ADECUACIONES SOLICITADAS:
 • Tiempo adicional en evaluaciones escritas
-• Ubicacion preferencial en el aula
+• Ubicación preferencial en el aula
+• ____________________________________________________
 
-Quedo a su disposicion para ampliar la informacion
-o coordinar una reunion si lo considera necesario.
+Quedo a disposición para ampliar información.
 
 Atentamente,
 ___________________________________
-Especialidad: __________________________
-Matricula profesional N°: _______________
-Telefono: _____________________________
-Email: ________________________________
+Matrícula profesional: _______________
+Teléfono: ___________________________
+comunipro12@gmail.com` },
 
-Hadrion — comunipro12@gmail.com` },
+    { id:"sesion_registro", icon:"📝", titulo:"Registro de sesión", categoria:"Clínico",
+      contenido:`REGISTRO DE SESIÓN
+─────────────────────────────────────
+Paciente: ____________________________________________
+Fecha: _________________  Sesión N°: ________________
+Duración: ____________  Modalidad: Presencial / Virtual
 
-    { i:"💡", t:"Estrategias TDAH", d:"Guia completa para docentes y familia", c:"TDAH",
+OBJETIVO TRABAJADO:
+_______________________________________________________
+
+ESTADO DEL PACIENTE:
+Estado general:  □ Regulado  □ Cansado  □ Hiperactivo
+Atención:       □ Sostenida  □ Fluctuante  □ Dispersa
+Participación:  □ Buena  □ Parcial  □ Rechazo inicial
+
+ACTIVIDADES REALIZADAS:
+1. ___________________________________________________
+2. ___________________________________________________
+
+LOGROS:
+_______________________________________________________
+
+DIFICULTADES:
+_______________________________________________________
+
+TAREA PARA CASA:
+_______________________________________________________
+
+Progreso: _______%
+Firma: ___________________` },
+
+    { id:"entrevista_familia", icon:"👨‍👩‍👧", titulo:"Entrevista familiar inicial", categoria:"Evaluación",
+      contenido:`ENTREVISTA FAMILIAR INICIAL
+─────────────────────────────────────
+Fecha: ________________  Entrevistador: _______________
+Familiar presente: ____________________________________
+
+MOTIVO DE CONSULTA:
+_______________________________________________________
+_______________________________________________________
+
+¿DESDE CUÁNDO NOTA LAS DIFICULTADES?
+_______________________________________________________
+
+¿CÓMO AFECTA EN EL DÍA A DÍA?
+□ En casa  □ En la escuela  □ Con amigos  □ Otro: _____
+_______________________________________________________
+
+TRATAMIENTOS ANTERIORES:
+_______________________________________________________
+
+¿QUÉ ESPERA DE ESTE TRATAMIENTO?
+_______________________________________________________
+
+DINÁMICA FAMILIAR:
+Con quién vive: _______________________________________
+Relación entre hermanos: ______________________________
+
+OBSERVACIONES:
+_______________________________________________________
+
+Firma familiar: _______________  Firma prof.: ________` },
+
+    { id:"estrategias_tdah", icon:"💡", titulo:"Estrategias para TDAH", categoria:"TDAH",
       contenido:`ESTRATEGIAS PARA TDAH
-──────────────────────────────────────
-PARA EL AULA
-✓ Ubicar al alumno cerca del docente y de la pizarra
-✓ Instrucciones cortas: una sola consigna a la vez
+─────────────────────────────────────
+Paciente: ____________________________________________
+Para entregar a: □ Familia  □ Docentes  □ Ambos
+
+PARA EL AULA:
+✓ Ubicar cerca del docente y la pizarra
+✓ Instrucciones cortas: una consigna a la vez
 ✓ Dividir tareas largas en pasos numerados
-✓ Usar senales visuales: carteles, colores, imagenes
-✓ Tiempo extra en evaluaciones (50% adicional)
-✓ Permitir movimiento: borrar la pizarra, repartir
-✓ Uso de organizadores graficos y mapas conceptuales
+✓ Usar señales visuales: carteles, colores
+✓ Tiempo extra en evaluaciones
+✓ Permitir movimiento regulado
 
-PARA LA FAMILIA
-✓ Rutinas fijas y predecibles (mismo horario siempre)
-✓ Espacio de estudio sin distractores (sin TV ni cel)
+PARA LA FAMILIA:
+✓ Rutinas fijas y predecibles
+✓ Espacio de estudio sin distractores
 ✓ Descansos cada 20 minutos de estudio
-✓ Reforzar positivamente los logros, por pequenos que sean
-✓ Agenda visual con pictogramas para anticipar el dia
-✓ Pautas de sueno: horario regular, sin pantallas 1h antes
+✓ Reforzar positivamente los logros
+✓ Agenda visual con pictogramas
 
-ESTRATEGIAS DE AUTORREGULACION
-✓ Semaforo de emociones (ver actividad en la app)
-✓ Respiracion consciente: inhalar 4 seg, exhalar 6 seg
-✓ Tiempo fuera positivo (no punitivo): 5 min de calma
-✓ Termometro del enojo: identificar la escala 1-10
-✓ Tarjeta de estrategias en el estuche/mochila
+ESTRATEGIAS DE AUTORREGULACIÓN:
+✓ Semáforo de emociones
+✓ Respiración: inhalar 4 seg / exhalar 6 seg
+✓ Tarjeta de estrategias en el estuche
 
-SEÑALES DE ALERTA — CONSULTAR AL PROFESIONAL
-! Aumento marcado de la impulsividad
-! Dificultades para dormir persistentes
-! Baja autoestima o frases de "soy tonto/a"
-! Rechazo escolar sostenido
+Profesional: ___________________  Fecha: ______________` },
 
-Contacto: comunipro12@gmail.com
-Hadrion — Plataforma Terapeutica Uruguay` },
+    { id:"plan_casa", icon:"🏠", titulo:"Actividades en casa", categoria:"Familia",
+      contenido:`GUÍA DE ESTIMULACIÓN EN CASA
+─────────────────────────────────────
+Paciente: ____________________________________________
+Semana del: __________________________________________
+
+ACTIVIDADES RECOMENDADAS:
+(Solo 5-10 minutos por actividad)
+
+DURANTE EL BAÑO:
+□ ___________________________________________________
+
+EN LA COCINA:
+□ ___________________________________________________
+
+ANTES DE DORMIR (IMPRESCINDIBLE — 10 min):
+□ Leer un cuento en voz alta
+□ Preguntar: ¿de qué trató el cuento?
+
+REGLAS DE ORO:
+✗ No corregir directamente
+✓ Repetir la palabra correctamente y agregar más
+✓ Celebrar cada intento
+
+Próxima sesión: _______________________________________
+Consultas: comunipro12@gmail.com` },
   ];
+
+  // Combinar plantillas base con las personalizadas del usuario
+  const todasPlantillas = [
+    ...BASE_PLANTILLAS.map(p => ({...p, esBase:true})),
+    ...plantillas
+  ];
+
+  const categorias = [...new Set(todasPlantillas.map(p=>p.categoria))];
+
+  const guardarModelo = (plantilla, nuevoContenido, nuevoTitulo) => {
+    // Si es base, crea una copia personalizada
+    // Si ya es personalizada, la actualiza
+    if (plantilla.esBase) {
+      const nueva = {
+        id: makeId(),
+        icon: plantilla.icon,
+        titulo: nuevoTitulo || `${plantilla.titulo} (mi versión)`,
+        categoria: plantilla.categoria,
+        contenido: nuevoContenido,
+        esPersonalizada: true,
+        fechaCreacion: new Date().toLocaleDateString("es-UY"),
+        basadaEn: plantilla.id
+      };
+      setPlantillas(prev => [...prev, nueva]);
+      return nueva;
+    } else {
+      setPlantillas(prev => prev.map(p => p.id===plantilla.id ? {...p, contenido:nuevoContenido, titulo:nuevoTitulo||p.titulo} : p));
+      return {...plantilla, contenido:nuevoContenido};
+    }
+  };
+
+  const eliminarPersonalizada = (id) => {
+    setPlantillas(prev => prev.filter(p => p.id !== id));
+  };
+
+  // Documentos guardados filtrados (solo informes, no sesiones)
+  const informesGuardados = documentos.filter(d => d.tipo === "plantilla");
 
   return (
     <div className="fu">
-      <div style={{ marginBottom:14 }}><div className="pt">Recursos</div><div className="ps">Guias, plantillas y materiales imprimibles</div></div>
-      <div className="alert alrti">Toca cualquier recurso para ver el contenido completo e imprimirlo.</div>
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))", gap:10 }}>
-        {recursos.map((r, i) => (
-          <div key={i} className="card" style={{ cursor:"pointer", padding:12 }} onClick={() => setSel(r)}>
-            <div style={{ fontSize:26, marginBottom:6 }}>{r.i}</div>
-            <div style={{ fontWeight:700, fontSize:12, color:C.charcoal, marginBottom:3 }}>{r.t}</div>
-            <div style={{ fontSize:11, color:C.grayL, marginBottom:7 }}>{r.d}</div>
-            <div style={{ display:"flex", justifyContent:"space-between" }}>
-              <span className="badge" style={{ background:C.terraF, color:C.terra, fontSize:10 }}>{r.c}</span>
-              <span style={{ fontSize:10, color:C.info }}>ver →</span>
-            </div>
-          </div>
+      <div style={{marginBottom:14}}>
+        <div className="pt">📚 Recursos</div>
+        <div className="ps">Plantillas editables y guardadas como tus modelos</div>
+      </div>
+
+      <div className="atabrow">
+        {[["plantillas","📋 Plantillas"],["mis_modelos","⭐ Mis modelos"],["guardados","💾 Guardados"]].map(([id,l])=>(
+          <button key={id} className={`atab${tab===id?" active":""}`} onClick={()=>setTab(id)}>{l}</button>
         ))}
       </div>
-      {sel && (
-        <Modal title={`${sel.i} ${sel.t}`} onClose={() => setSel(null)}>
-          <div style={{ background:C.cream, borderRadius:12, padding:14, marginBottom:12, whiteSpace:"pre-wrap", fontSize:12, color:C.charcoal, lineHeight:1.8, maxHeight:"55vh", overflowY:"auto", fontFamily:"monospace" }}>
-            {sel.contenido}
+
+      {/* PANEL IA */}
+      <div style={{background:"linear-gradient(135deg,#9B7EBD,#7B5EA7)",borderRadius:16,padding:14,marginBottom:14}}>
+        <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
+          <div style={{fontSize:24}}>🧠</div>
+          <div>
+            <div style={{fontWeight:700,fontSize:14,color:"white"}}>Pedile un recurso a la IA</div>
+            <div style={{fontSize:11,color:"rgba(255,255,255,.7)"}}>Actividades, guías, estrategias personalizadas para tu paciente</div>
           </div>
-          <button className="btn btnp btnfull noprint" onClick={() => window.print()}>🖨️ Imprimir / Guardar PDF</button>
+        </div>
+        <textarea className="inp" style={{minHeight:64,background:"rgba(255,255,255,.15)",border:"1.5px solid rgba(255,255,255,.3)",color:"white",borderRadius:12,marginBottom:8}}
+          placeholder="Ej: Actividad de conciencia fonológica para niño de 5 años con TEL leve..."
+          value={iaQuery} onChange={e=>setIaQuery(e.target.value)}
+          onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();askIA();}}}/>
+        <button className="btn btnfull" style={{background:"white",color:"#7B5EA7",fontWeight:700}}
+          onClick={askIA} disabled={iaLoading}>
+          {iaLoading?"⏳ Generando...":"✨ Generar con IA"}
+        </button>
+        {iaResult && (
+          <div style={{marginTop:12}}>
+            <textarea value={iaResult} onChange={e=>setIaResult(e.target.value)}
+              style={{width:"100%",minHeight:140,background:"rgba(255,255,255,.12)",border:"1px solid rgba(255,255,255,.2)",
+                borderRadius:12,padding:12,fontSize:12,color:"white",lineHeight:1.7,resize:"vertical",
+                fontFamily:"sans-serif",outline:"none"}}/>
+            <div style={{display:"flex",gap:8,marginTop:8,flexWrap:"wrap"}}>
+              <button className="btn btnsm" style={{background:"rgba(255,255,255,.2)",color:"white"}}
+                onClick={()=>navigator.clipboard?.writeText(iaResult)}>📋 Copiar</button>
+              <button className="btn btnsm noprint" style={{background:"rgba(255,255,255,.2)",color:"white"}}
+                onClick={()=>{const w=window.open("","_blank");w.document.write(`<pre style="font-family:Georgia;font-size:14px;line-height:1.8;max-width:700px;margin:40px auto;white-space:pre-wrap;">${iaResult}</pre>`);w.document.close();w.print();}}>🖨️ Imprimir</button>
+              <button className="btn btnsm noprint" style={{background:"#25D366",color:"white"}}
+                onClick={()=>window.open(`https://wa.me/?text=${encodeURIComponent(iaResult)}`,"_blank")}>💬 WhatsApp</button>
+              <button className="btn btnsm" style={{background:"rgba(255,255,255,.2)",color:"white"}}
+                onClick={()=>{
+                  setDocumentos(prev=>[{id:makeId(),tipo:"plantilla",titulo:"Recurso IA - "+new Date().toLocaleDateString("es-UY"),contenido:iaResult,fecha:new Date().toLocaleDateString("es-UY"),paciente:""},...prev].slice(0,200));
+                  alert("✅ Guardado en Guardados");
+                }}>💾 Guardar</button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* PLANTILLAS BASE */}
+      {tab==="plantillas" && (
+        <div>
+          <div className="alert alrti" style={{marginBottom:12}}>
+            Tocá cualquier plantilla para abrirla, editarla y guardarla como tu modelo personal.
+          </div>
+          {categorias.map(cat => {
+            const items = todasPlantillas.filter(p=>p.categoria===cat);
+            return (
+              <div key={cat} style={{marginBottom:16}}>
+                <div style={{fontSize:11,fontWeight:700,color:C.grayL,textTransform:"uppercase",letterSpacing:1,marginBottom:8}}>{cat}</div>
+                <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:8}}>
+                  {items.map(p=>(
+                    <div key={p.id} className="card" style={{cursor:"pointer",padding:12,border:p.esPersonalizada?`2px solid ${C.terra}`:"1px solid #EDE0F5",position:"relative"}}
+                      onClick={()=>setCompletando({...p, contenidoEditado:p.contenido, tituloEditado:p.titulo})}>
+                      {p.esPersonalizada && <div style={{position:"absolute",top:8,right:8,fontSize:9,background:C.terraF,color:C.terra,borderRadius:10,padding:"1px 6px",fontWeight:700}}>MI MODELO</div>}
+                      <div style={{fontSize:24,marginBottom:6}}>{p.icon}</div>
+                      <div style={{fontWeight:700,fontSize:12,color:C.charcoal,marginBottom:3}}>{p.titulo}</div>
+                      <div style={{fontSize:10,color:C.grayL}}>{p.categoria}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* MIS MODELOS */}
+      {tab==="mis_modelos" && (
+        <div>
+          {plantillas.length === 0 ? (
+            <div style={{background:"#F5F0FA",borderRadius:16,padding:24,textAlign:"center"}}>
+              <div style={{fontSize:36,marginBottom:8}}>⭐</div>
+              <div style={{fontWeight:700,fontSize:15,color:C.terra,marginBottom:6}}>Todavía no tenés modelos guardados</div>
+              <div style={{fontSize:13,color:C.grayL,marginBottom:14,lineHeight:1.7}}>
+                Andá a <strong>Plantillas</strong>, abrí una, modificala a tu gusto<br/>y tocá <strong>"Guardar como mi modelo"</strong>.
+              </div>
+              <button className="btn btnp btnsm" onClick={()=>setTab("plantillas")}>Ver plantillas →</button>
+            </div>
+          ) : (
+            <div>
+              <div style={{fontSize:13,color:C.grayL,marginBottom:12}}>{plantillas.length} modelo{plantillas.length!==1?"s":""} guardado{plantillas.length!==1?"s":""}</div>
+              {plantillas.map(p=>(
+                <div key={p.id} style={{background:"white",borderRadius:14,padding:14,marginBottom:10,border:`1.5px solid ${C.terraL}`}}>
+                  <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}>
+                    <div style={{fontSize:22}}>{p.icon}</div>
+                    <div style={{flex:1}}>
+                      <div style={{fontWeight:700,fontSize:13}}>{p.titulo}</div>
+                      <div style={{fontSize:11,color:C.grayL}}>Guardado el {p.fechaCreacion} · {p.categoria}</div>
+                    </div>
+                    <div style={{display:"flex",gap:6}}>
+                      <button className="btn btnp btnsm" onClick={()=>setCompletando({...p,contenidoEditado:p.contenido,tituloEditado:p.titulo})}>Usar</button>
+                      <button className="btn btnd btnsm" onClick={()=>{ if(window.confirm("¿Eliminar este modelo?")) eliminarPersonalizada(p.id); }}>🗑️</button>
+                    </div>
+                  </div>
+                  <div style={{fontSize:11,color:C.grayL,background:C.cream,borderRadius:8,padding:"6px 10px",maxHeight:60,overflow:"hidden",whiteSpace:"pre-wrap",fontFamily:"monospace"}}>
+                    {p.contenido.slice(0,200)}...
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* DOCUMENTOS GUARDADOS */}
+      {tab==="guardados" && (
+        <div>
+          {informesGuardados.length === 0 ? (
+            <div style={{background:"#F5F0FA",borderRadius:16,padding:24,textAlign:"center"}}>
+              <div style={{fontSize:36,marginBottom:8}}>💾</div>
+              <div style={{fontWeight:700,fontSize:15,color:C.terra,marginBottom:6}}>Sin documentos guardados</div>
+              <div style={{fontSize:13,color:C.grayL}}>Cuando completes una plantilla y toques "Guardar documento", aparece acá.</div>
+            </div>
+          ) : (
+            <div>
+              {informesGuardados.sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(d=>(
+                <div key={d.id} style={{background:"white",borderRadius:14,padding:14,marginBottom:10,border:"1px solid #EDE0F5"}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
+                    <div>
+                      <div style={{fontWeight:700,fontSize:13}}>{d.titulo}</div>
+                      <div style={{fontSize:11,color:C.grayL}}>{d.fecha} {d.paciente?`· ${d.paciente}`:""}</div>
+                    </div>
+                    <div style={{display:"flex",gap:6}}>
+                      <button className="btn btno btnsm" onClick={()=>setCompletando({icon:"💾",titulo:d.titulo,contenido:d.contenido,contenidoEditado:d.contenido,tituloEditado:d.titulo,esGuardado:true,docId:d.id})}>Abrir</button>
+                    </div>
+                  </div>
+                  <div style={{fontSize:11,color:C.grayL,background:C.cream,borderRadius:8,padding:"6px 10px",maxHeight:50,overflow:"hidden",whiteSpace:"pre-wrap",fontFamily:"monospace"}}>
+                    {d.contenido.slice(0,150)}...
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* MODAL COMPLETAR/EDITAR PLANTILLA */}
+      {completando && (
+        <Modal title={`${completando.icon} ${completando.tituloEditado}`} onClose={()=>setCompletando(null)}>
+          <div style={{marginBottom:10}}>
+            <label className="lbl">Título del documento</label>
+            <input className="inp" value={completando.tituloEditado}
+              onChange={e=>setCompletando({...completando,tituloEditado:e.target.value})}/>
+          </div>
+          <div style={{background:C.terraF,borderRadius:10,padding:"8px 12px",marginBottom:10,fontSize:12,color:C.terraD}}>
+            ✏️ <strong>Editá el texto</strong> — completá los espacios en blanco, agregá o quitá secciones. El documento queda exactamente como lo escribas.
+          </div>
+          <textarea
+            style={{width:"100%",minHeight:320,background:"white",borderRadius:12,padding:14,
+              fontSize:12,lineHeight:1.8,fontFamily:"monospace",
+              border:`1.5px solid ${C.sand}`,resize:"vertical",outline:"none"}}
+            value={completando.contenidoEditado}
+            onChange={e=>setCompletando({...completando,contenidoEditado:e.target.value})}
+          />
+          <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:10}}>
+            <button className="btn btnp btnsm"
+              onClick={()=>{
+                const doc = {
+                  id: completando.docId || makeId(),
+                  tipo: "plantilla",
+                  titulo: completando.tituloEditado,
+                  contenido: completando.contenidoEditado,
+                  fecha: new Date().toLocaleDateString("es-UY"),
+                  paciente: ""
+                };
+                if (completando.docId) {
+                  setDocumentos(prev => prev.map(d => d.id===completando.docId ? doc : d));
+                } else {
+                  setDocumentos(prev => [doc, ...prev].slice(0,200));
+                }
+                alert(`✅ Guardado en "Guardados"`);
+                setTab("guardados");
+                setCompletando(null);
+              }}>
+              💾 Guardar documento
+            </button>
+            <button className="btn btnsm" style={{background:"#25D366",color:"white"}}
+              onClick={()=>window.open(`https://wa.me/?text=${encodeURIComponent(completando.contenidoEditado)}`,"_blank")}>
+              💬 WhatsApp
+            </button>
+            <button className="btn btno btnsm noprint" onClick={()=>{
+              const w=window.open("","_blank");
+              w.document.write(`<!DOCTYPE html><html><body><pre style="font-family:Georgia,serif;font-size:14px;line-height:1.8;max-width:700px;margin:40px auto;white-space:pre-wrap;">${completando.contenidoEditado}</pre></body></html>`);
+              w.document.close(); w.print();
+            }}>🖨️ Imprimir</button>
+            <button className="btn btnsm" style={{background:C.info,color:"white"}}
+              onClick={()=>navigator.clipboard?.writeText(completando.contenidoEditado)}>
+              📋 Copiar
+            </button>
+          </div>
+
+          {/* Guardar como mi modelo */}
+          {!completando.esGuardado && (
+            <div style={{marginTop:14,paddingTop:14,borderTop:`1px solid ${C.sand}`}}>
+              <div style={{fontSize:12,color:C.grayL,marginBottom:8}}>
+                ¿Querés guardar esta versión editada como <strong>tu modelo personal</strong> para reutilizarla siempre?
+              </div>
+              <button className="btn btno btnsm" onClick={()=>{
+                const guardada = guardarModelo(completando, completando.contenidoEditado, completando.tituloEditado);
+                alert(`✅ Guardado como "${guardada.titulo}" en Mis modelos`);
+                setCompletando(null);
+                setTab("mis_modelos");
+              }}>
+                ⭐ Guardar como mi modelo
+              </button>
+            </div>
+          )}
         </Modal>
       )}
     </div>
@@ -2855,10 +3573,14 @@ function Profile({ user, onLogout, setUser }) {
 // ─── FOOTER ───────────────────────────────────────────────────────────────────
 // ─── ORGANIZACIONES ───────────────────────────────────────────────────────────
 const PLANES_ORG_BASE = [
-  { id:"basico",   label:"Básico",  maxUsers:1,  color:"#9B7EBD" },
-  { id:"pro",      label:"Pro",     maxUsers:3,  color:"#5B8DB8" },
-  { id:"clinica",  label:"Clínica", maxUsers:10, color:"#2ECC71" },
-  { id:"colegio",  label:"Colegio", maxUsers:30, color:"#E8A020" },
+  { id:"basico",   label:"Básico",       maxUsers:1,  color:"#9B7EBD", tipo:"individual",
+    features:["Historia clínica","Registro de sesiones","Asistencias y cobros","Conciencia fonológica","TEA/Autismo","Recursos y plantillas"] },
+  { id:"pro",      label:"Pro",          maxUsers:1,  color:"#5B8DB8", tipo:"individual",
+    features:["Todo el plan Básico","Asistente IA (chat clínico)","Psicología y TCC","Reportes avanzados","Exportar informes"] },
+  { id:"clinica",  label:"Clínica",      maxUsers:10, color:"#2ECC71", tipo:"clinica",
+    features:["Todo el plan Pro","Hasta 10 usuarios","Organización multiusuario","Liquidación de sueldos","Panel de administración"] },
+  { id:"colegio",  label:"Colegio/Centro",maxUsers:30, color:"#E8A020", tipo:"clinica",
+    features:["Todo el plan Clínica","Hasta 30 usuarios","Estadísticas del equipo","Soporte prioritario"] },
 ];
 
 function Organizaciones({ users, setUsers, precios={} }) {
@@ -2900,12 +3622,25 @@ function Organizaciones({ users, setUsers, precios={} }) {
       </div>
 
       {/* Planes disponibles */}
-      <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:16}}>
-        {PLANES_ORG.map(p => (
+      <div style={{marginBottom:4,fontSize:11,fontWeight:700,color:C.grayL,textTransform:"uppercase",letterSpacing:1}}>Planes individuales</div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:12}}>
+        {PLANES_ORG.filter(p=>p.tipo==="individual").map(p => (
           <div key={p.id} style={{background:"white",borderRadius:12,padding:"12px 14px",border:`2px solid ${p.color}33`}}>
             <div style={{fontWeight:700,fontSize:13,color:p.color}}>{p.label}</div>
-            <div style={{fontSize:11,color:"#9B9590",marginTop:2}}>Hasta {p.maxUsers} usuario{p.maxUsers>1?"s":""}</div>
+            <div style={{fontSize:10,color:"#9B9590",marginTop:2}}>1 usuario — acceso individual</div>
             <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:700,color:"#2C2C2C",marginTop:4}}>${p.precio.toLocaleString("es-UY")} UYU/mes</div>
+            {p.features && <div style={{marginTop:6}}>{p.features.slice(0,3).map(f=><div key={f} style={{fontSize:9,color:"#9B9590"}}>✓ {f}</div>)}</div>}
+          </div>
+        ))}
+      </div>
+      <div style={{marginBottom:4,fontSize:11,fontWeight:700,color:C.grayL,textTransform:"uppercase",letterSpacing:1}}>Planes para clínicas y centros</div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:16}}>
+        {PLANES_ORG.filter(p=>p.tipo==="clinica").map(p => (
+          <div key={p.id} style={{background:"white",borderRadius:12,padding:"12px 14px",border:`2px solid ${p.color}33`}}>
+            <div style={{fontWeight:700,fontSize:13,color:p.color}}>{p.label}</div>
+            <div style={{fontSize:10,color:"#9B9590",marginTop:2}}>Hasta {p.maxUsers} usuarios — multiusuario</div>
+            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:700,color:"#2C2C2C",marginTop:4}}>${p.precio.toLocaleString("es-UY")} UYU/mes</div>
+            {p.features && <div style={{marginTop:6}}>{p.features.slice(0,3).map(f=><div key={f} style={{fontSize:9,color:"#9B9590"}}>✓ {f}</div>)}</div>}
           </div>
         ))}
       </div>
@@ -3012,6 +3747,47 @@ function Organizaciones({ users, setUsers, precios={} }) {
             })()}
           </div>
           <button className="btn btnp btnfull" onClick={addOrg}>Crear organización</button>
+        </Modal>
+      )}
+
+      {selOrg && (
+        <Modal title={`⚙️ ${selOrg.nombre}`} onClose={()=>setSelOrg(null)}>
+          <div className="alert alrti" style={{marginBottom:12}}>Configuración de la organización</div>
+          <div className="fg"><label className="lbl">Nombre</label>
+            <input className="inp" value={selOrg.nombre}
+              onChange={e=>setSelOrg({...selOrg,nombre:e.target.value})}/>
+          </div>
+          <div className="fg"><label className="lbl">Plan</label>
+            <select className="inp" value={selOrg.plan}
+              onChange={e=>{
+                const p=PLANES_ORG.find(pl=>pl.id===e.target.value);
+                setSelOrg({...selOrg,plan:e.target.value,maxUsers:p?.maxUsers||3});
+              }}>
+              {PLANES_ORG.map(p=><option key={p.id} value={p.id}>{p.label} — {p.maxUsers} usuarios — ${p.precio.toLocaleString("es-UY")} UYU/mes</option>)}
+            </select>
+          </div>
+          <div className="fg"><label className="lbl">Estado</label>
+            <select className="inp" value={selOrg.activa?"activa":"inactiva"}
+              onChange={e=>setSelOrg({...selOrg,activa:e.target.value==="activa"})}>
+              <option value="activa">Activa</option>
+              <option value="inactiva">Inactiva</option>
+            </select>
+          </div>
+          <div className="fg"><label className="lbl">Email de contacto</label>
+            <input className="inp" value={selOrg.contacto||""}
+              onChange={e=>setSelOrg({...selOrg,contacto:e.target.value})}/>
+          </div>
+          <button className="btn btnp btnfull" onClick={()=>{
+            setOrgs(prev=>prev.map(o=>o.id===selOrg.id?selOrg:o));
+            setSelOrg(null);
+          }}>Guardar cambios</button>
+          <button className="btn btnd btnfull" onClick={()=>{
+            if(window.confirm("¿Eliminar esta organización?")) {
+              setOrgs(prev=>prev.filter(o=>o.id!==selOrg.id));
+              setSelOrg(null);
+            }
+          }}>🗑️ Eliminar organización</button>
+          <button className="btn btng btnfull" onClick={()=>setSelOrg(null)}>Cancelar</button>
         </Modal>
       )}
     </div>
@@ -3413,276 +4189,1337 @@ function Footer() {
 // ═══════════════════════════════════════
 // IA TERAPEUTICA - Powered by Claude API
 // ═══════════════════════════════════════
-function IAAsistente({patients,C}){
-  const [tab,setTab]=React.useState("objetivos");
-  const [selPat,setSelPat]=React.useState("");
-  const [diagnostico,setDiagnostico]=React.useState("");
-  const [edad,setEdad]=React.useState("");
-  const [loading,setLoading]=React.useState(false);
-  const [result,setResult]=React.useState("");
-  const [error,setError]=React.useState("");
-  const [librePrompt,setLibrePrompt]=React.useState("");
-  // Campos para anamnesis y evaluación
-  const [motivo,setMotivo]=React.useState("");
-  const [antecedentes,setAntecedentes]=React.useState("");
-  const [especialidad,setEspecialidad]=React.useState("fonoaudióloga");
+// ─── IA CHAT TERAPÉUTICO ──────────────────────────────────────────────────────
+function IAAsistente({ patients, C, documentos=[], setDocumentos=()=>{}, chatHistory=null, setChatHistory=null }) {
+  const defaultMsg = [{ role:"assistant", content:"Hola! Soy tu asistente clínico. Podés cargar los datos de un paciente y pedirme informes, objetivos, anamnesis, o lo que necesites. ¿Con qué empezamos?" }];
+  const [messages, setMessagesLocal] = React.useState(chatHistory || defaultMsg);
+  const setMessages = (v) => {
+    const val = typeof v === "function" ? v(messages) : v;
+    setMessagesLocal(val);
+    if (setChatHistory) setChatHistory(val);
+  };
+  const [input, setInput] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const [selPat, setSelPat] = React.useState("");
+  const [especialidad, setEspecialidad] = React.useState("fonoaudióloga");
+  const [editIdx, setEditIdx] = React.useState(null);
+  const [editText, setEditText] = React.useState("");
+  const bottomRef = React.useRef(null);
 
-  const callClaude=async(prompt)=>{
-    setLoading(true);setResult("");setError("");
-    try{
-      const res=await fetch("/.netlify/functions/claude",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({
-          model:"claude-sonnet-4-20250514",
-          max_tokens:1500,
-          messages:[{role:"user",content:prompt}]
-        })
+  React.useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior:"smooth" });
+  }, [messages, loading]);
+
+  const getPatientCtx = (p) => {
+    if (!p) return "";
+    return `[DATOS DEL PACIENTE]
+Nombre: ${p.name} | Edad: ${p.age} años | Diagnóstico: ${p.diagnosis}
+Sesiones realizadas: ${p.sessions || 0}
+Tutor: ${p.guardian || "no especificado"}
+Teléfono: ${p.phone || "no especificado"}
+Notas clínicas: ${p.notes || "sin notas"}
+Objetivos: ${(p.goals||[]).join(", ") || "no especificados"}
+Motivo de consulta: ${p.motivo || "no especificado"}
+Antecedentes: ${p.antecedentes || "no especificados"}
+Desarrollo: ${p.desarrollo || "no especificado"}
+Conducta en sesión: ${p.conducta || "no especificado"}
+Diagnóstico presuntivo: ${p.diagnosticoP || "no especificado"}
+[FIN DATOS]`;
+  };
+
+  const loadPatient = () => {
+    const p = patients.find(x => x.name === selPat);
+    if (!p) return;
+    const ctx = getPatientCtx(p);
+    const msg = { role:"user", content:`Cargá estos datos del paciente para el contexto de la consulta:
+
+${ctx}` };
+    const resp = { role:"assistant", content:`✅ Datos de **${p.name}** cargados. Tengo en contexto su diagnóstico (${p.diagnosis}), ${p.sessions || 0} sesiones, objetivos y toda la historia clínica disponible.
+
+¿Qué querés que genere? Por ejemplo:
+• "Haceme un informe de progreso para la familia"
+• "Generame 6 objetivos terapéuticos"
+• "Completá la anamnesis"
+• "Redactá un informe de evaluación formal"` };
+    setMessages(prev => [...prev, msg, resp]);
+  };
+
+  const send = async () => {
+    if (!input.trim() || loading) return;
+    const userMsg = { role:"user", content: input.trim() };
+    const newMessages = [...messages, userMsg];
+    setMessages(newMessages);
+    setInput("");
+    setLoading(true);
+
+    try {
+      // Build system prompt
+      const system = `Sos una ${especialidad} experta con amplia experiencia clínica en Uruguay. 
+Respondés siempre en español, de forma profesional pero clara.
+Cuando generás informes los hacés completos, formales y listos para entregar.
+Cuando el usuario pide ajustes los hacés directamente sin explicar lo que vas a hacer.
+No usás asteriscos ni markdown. Usás formato de texto plano con saltos de línea.
+Si tenés datos del paciente en el contexto los usás para personalizar completamente la respuesta.`;
+
+      // Only send last 20 messages to avoid token limits
+      const msgHistory = newMessages.slice(-20).map(m => ({
+        role: m.role,
+        content: m.content
+      }));
+
+      const res = await fetch("/.netlify/functions/claude", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ system, messages: msgHistory })
       });
-      const data=await res.json();
-      if(data.content&&data.content[0])setResult(data.content[0].text);
-      else setError("No se pudo obtener respuesta. Intentá de nuevo.");
-    }catch(e){setError("Error de conexión. Verificá tu internet.");}
+      const data = await res.json();
+      if (data.content?.[0]?.text) {
+        const respText = data.content[0].text;
+        setMessages(prev => [...prev, { role:"assistant", content: respText }]);
+        // Auto-guardar si parece un informe (más de 200 chars)
+        if (respText.length > 200) {
+          const p = patients.find(x=>x.name===selPat);
+          const titulo = `${new Date().toLocaleDateString("es-UY")} — ${tab}${p?" — "+p.name:""}`;
+          setDocumentos(prev => [{
+            id: makeId(), tipo:"ia", titulo,
+            contenido: respText,
+            fecha: new Date().toLocaleDateString("es-UY"),
+            paciente: selPat || ""
+          }, ...prev].slice(0,100)); // max 100 docs
+        }
+      } else if (data.error) {
+        setMessages(prev => [...prev, { role:"assistant", content:`❌ Error: ${data.error.message || "No se pudo obtener respuesta."}` }]);
+      }
+    } catch(e) {
+      setMessages(prev => [...prev, { role:"assistant", content:"❌ Error de conexión. Verificá tu internet." }]);
+    }
     setLoading(false);
   };
 
-  const getPatientContext=(p)=>{
-    if(!p) return "";
-    return `Paciente: ${p.name}, ${p.age} años, diagnóstico: ${p.diagnosis}, ${p.sessions} sesiones realizadas. Objetivos: ${(p.goals||[]).join(", ")||"no especificados"}. Notas: ${p.notes||"sin notas"}. Anamnesis: ${p.motivo||""}. Antecedentes: ${p.antecedentes||""}. Desarrollo: ${p.desarrollo||""}.`;
+  const startEdit = (i, text) => { setEditIdx(i); setEditText(text); };
+  const saveEdit = (i) => {
+    setMessages(prev => prev.map((m,idx) => idx===i ? {...m, content:editText} : m));
+    setEditIdx(null);
   };
 
-  const generarObjetivos=()=>{
-    if(!diagnostico||!edad){setError("Completá diagnóstico y edad.");return;}
-    callClaude(`Sos una ${especialidad} experta en Uruguay. Generá 6 objetivos terapéuticos específicos, concretos y medibles para un paciente de ${edad} años con diagnóstico de ${diagnostico}. Para cada objetivo incluí: descripción clara, criterio de logro observable y tiempo estimado. Formato lista numerada. En español, sin asteriscos ni markdown.`);
+  const clearChat = () => {
+    const fresh = [{ role:"assistant", content:"Chat reiniciado. ¿Con qué empezamos?" }];
+    setMessagesLocal(fresh);
+    if (setChatHistory) setChatHistory(fresh);
+    setSelPat("");
   };
 
-  const generarPlan=()=>{
-    if(!diagnostico||!edad){setError("Completá diagnóstico y edad.");return;}
-    callClaude(`Sos una ${especialidad} experta. Creá un plan terapéutico mensual para un paciente de ${edad} años con ${diagnostico}. Incluí: Semana 1, 2, 3 y 4 con actividades específicas, materiales necesarios y estrategias para cada sesión. Al final agregá indicaciones para la familia. En español claro, sin asteriscos ni markdown.`);
-  };
-
-  const generarInforme=()=>{
-    const p=patients.find(x=>x.name===selPat);
-    if(!p){setError("Seleccioná un paciente.");return;}
-    callClaude(`Sos una ${especialidad} redactando un informe de progreso para la familia de ${p.name}. ${getPatientContext(p)} Redactá un informe profesional y claro de 4 párrafos: 1) Presentación del paciente y motivo de consulta, 2) Evaluación del progreso actual y logros, 3) Área de trabajo actual y estrategias, 4) Recomendaciones para el hogar y próximos pasos. En español formal, sin asteriscos ni markdown.`);
-  };
-
-  const generarEvaluacion=()=>{
-    const p=patients.find(x=>x.name===selPat);
-    if(!p){setError("Seleccioná un paciente.");return;}
-    callClaude(`Sos una ${especialidad} redactando un informe de evaluación diagnóstica formal. Paciente: ${p.name}, ${p.age} años. Motivo de consulta: ${motivo||p.notes||"no especificado"}. Antecedentes: ${antecedentes||p.antecedentes||"no especificados"}. Diagnóstico: ${p.diagnosis}. Redactá un informe de evaluación completo con las secciones: DATOS DEL PACIENTE, MOTIVO DE CONSULTA, ANTECEDENTES, EVALUACIÓN REALIZADA, RESULTADOS, DIAGNÓSTICO, RECOMENDACIONES. En español formal, para entregar a institución educativa o médica.`);
-  };
-
-  const completarAnamnesis=()=>{
-    const p=patients.find(x=>x.name===selPat);
-    if(!p){setError("Seleccioná un paciente.");return;}
-    callClaude(`Sos una ${especialidad} completando una anamnesis clínica. Con los datos disponibles del paciente: nombre ${p.name}, ${p.age} años, diagnóstico ${p.diagnosis}, motivo de consulta: ${motivo||"no especificado"}, antecedentes: ${antecedentes||"no especificados"}. Completá y expandí la anamnesis con: 1) Historia del desarrollo comunicativo, 2) Antecedentes familiares relevantes, 3) Antecedentes médicos relevantes, 4) Historia escolar, 5) Conducta durante la evaluación, 6) Observaciones clínicas importantes. Formato estructurado, en español, sin asteriscos ni markdown.`);
-  };
-
-  const generarSeguimiento=()=>{
-    const p=patients.find(x=>x.name===selPat);
-    if(!p){setError("Seleccioná un paciente.");return;}
-    callClaude(`Sos una ${especialidad}. Analizá el progreso de ${p.name}, ${p.age} años, diagnóstico ${p.diagnosis}, con ${p.sessions} sesiones realizadas. Objetivos trabajados: ${(p.goals||[]).join(", ")||"no especificados"}. Generá: A) Evaluación del progreso actual, B) Logros alcanzados, C) Dificultades persistentes, D) Próximos pasos recomendados, E) Actividades prioritarias para las próximas 4 semanas. En español claro, sin asteriscos ni markdown.`);
-  };
-
-  const generarLibre=()=>{
-    if(!librePrompt.trim()){setError("Escribí tu consulta.");return;}
-    const ctx = selPat ? `Contexto del paciente: ${getPatientContext(patients.find(x=>x.name===selPat))}` : "";
-    callClaude(`Sos una ${especialidad} experta. ${ctx} ${librePrompt}`);
-  };
-
-  const tabs=[
-    {id:"objetivos",  icon:"🎯", label:"Objetivos"},
-    {id:"plan",       icon:"📅", label:"Plan"},
-    {id:"evaluacion", icon:"📋", label:"Evaluación"},
-    {id:"anamnesis",  icon:"📝", label:"Anamnesis"},
-    {id:"informe",    icon:"📄", label:"Informe"},
-    {id:"seguimiento",icon:"📊", label:"Seguimiento"},
-    {id:"libre",      icon:"💬", label:"Libre"},
+  const quickPrompts = [
+    "Informe de progreso para la familia",
+    "6 objetivos terapéuticos",
+    "Completar anamnesis",
+    "Informe de evaluación formal",
+    "Plan terapéutico mensual",
+    "Carta para la escuela",
+    "Recomendaciones para el hogar",
+    "Análisis de seguimiento",
   ];
 
-  const PatientSelect = () => (
-    <div className="fg">
-      <label className="lbl">Paciente</label>
-      <select className="inp" value={selPat} onChange={e=>{
-        setSelPat(e.target.value);
-        const p=patients.find(x=>x.name===e.target.value);
-        if(p){ setDiagnostico(p.diagnosis||""); setEdad(String(p.age||"")); setMotivo(p.motivo||""); setAntecedentes(p.antecedentes||""); }
-      }}>
-        <option value="">Seleccioná un paciente...</option>
-        {patients.filter(p=>p.status==="active").map(p=>(
-          <option key={p.id} value={p.name}>{p.name} — {p.age} años — {p.diagnosis}</option>
+  return (
+    <div className="fu" style={{display:"flex",flexDirection:"column",height:"calc(100vh - 120px)",minHeight:500}}>
+      {/* Header */}
+      <div style={{marginBottom:10}}>
+        <div className="pt">🧠 Asistente IA</div>
+        <div className="ps">Chat clínico con memoria — Powered by Claude AI</div>
+      <div style={{background:"#F5F0FA",borderRadius:12,padding:"10px 14px",marginBottom:10,fontSize:12,color:"#6B6560",lineHeight:1.6}}>
+        💡 <strong>Cómo usarlo:</strong> Seleccioná un paciente → tocá "Cargar datos" → escribí lo que necesitás (ej: <em>"haceme un informe para la familia"</em>) → la IA genera el texto → lo editás y lo enviás.
+      </div>
+      </div>
+
+      {/* Config bar */}
+      <div style={{background:"white",borderRadius:14,padding:12,marginBottom:10,display:"flex",gap:8,flexWrap:"wrap",alignItems:"center",boxShadow:"0 1px 6px rgba(0,0,0,.06)"}}>
+        <select className="inp" style={{flex:1,minWidth:140,maxWidth:200}} value={especialidad} onChange={e=>setEspecialidad(e.target.value)}>
+          {["fonoaudióloga","psicóloga","psicopedagoga","psicomotricista","terapeuta ocupacional","fisioterapeuta"].map(s=><option key={s}>{s}</option>)}
+        </select>
+        <select className="inp" style={{flex:2,minWidth:160}} value={selPat} onChange={e=>setSelPat(e.target.value)}>
+          <option value="">Seleccioná paciente (opcional)</option>
+          {patients.filter(p=>p.status==="active").map(p=>(
+            <option key={p.id} value={p.name}>{p.name} — {p.age}a — {p.diagnosis}</option>
+          ))}
+        </select>
+        {selPat && (
+          <button className="btn btnp btnsm" onClick={loadPatient}>
+            📋 Cargar datos
+          </button>
+        )}
+        <button className="btn btng btnsm" onClick={clearChat} title="Reiniciar chat">🗑️</button>
+      </div>
+
+      {/* Quick prompts */}
+      <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:6,marginBottom:8}}>
+        {quickPrompts.map(p=>(
+          <button key={p} onClick={()=>{setInput(p);}}
+            style={{padding:"6px 12px",borderRadius:20,border:"1.5px solid #EDE0F5",background:"white",fontSize:11,fontWeight:500,cursor:"pointer",whiteSpace:"nowrap",color:"#6B6560",fontFamily:"sans-serif",flexShrink:0}}>
+            {p}
+          </button>
         ))}
-      </select>
+      </div>
+
+      {/* Messages */}
+      <div style={{flex:1,overflowY:"auto",display:"flex",flexDirection:"column",gap:10,paddingRight:4,marginBottom:10}}>
+        {messages.map((m,i) => (
+          <div key={i} style={{display:"flex",flexDirection:"column",alignItems:m.role==="user"?"flex-end":"flex-start"}}>
+            <div style={{
+              maxWidth:"90%",
+              background: m.role==="user" ? "linear-gradient(135deg,#9B7EBD,#7B5EA7)" : "white",
+              color: m.role==="user" ? "white" : "#2C2C2C",
+              borderRadius: m.role==="user" ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+              padding:"12px 16px",
+              fontSize:13,lineHeight:1.7,
+              boxShadow:"0 1px 6px rgba(0,0,0,.08)",
+              whiteSpace:"pre-wrap",wordBreak:"break-word",
+              border: m.role==="assistant" ? "1px solid #EDE0F5" : "none"
+            }}>
+              {editIdx === i ? (
+                <div>
+                  <textarea style={{width:"100%",minHeight:120,border:"1px solid #EDE0F5",borderRadius:8,padding:8,fontSize:12,lineHeight:1.6,resize:"vertical",fontFamily:"sans-serif"}}
+                    value={editText} onChange={e=>setEditText(e.target.value)}/>
+                  <div style={{display:"flex",gap:6,marginTop:6}}>
+                    <button className="btn btnp btnsm" onClick={()=>saveEdit(i)}>✅ Guardar</button>
+                    <button className="btn btng btnsm" onClick={()=>setEditIdx(null)}>Cancelar</button>
+                  </div>
+                </div>
+              ) : m.content}
+            </div>
+            {m.role==="assistant" && editIdx !== i && (
+              <div style={{display:"flex",gap:6,marginTop:5,flexWrap:"wrap"}}>
+                <button onClick={()=>startEdit(i,m.content)}
+                  style={{background:"none",border:"1px solid #EDE0F5",borderRadius:8,padding:"4px 10px",fontSize:10,cursor:"pointer",color:"#9B9590",fontFamily:"sans-serif"}}>✏️ Editar</button>
+                <button onClick={()=>navigator.clipboard?.writeText(m.content)}
+                  style={{background:"none",border:"1px solid #EDE0F5",borderRadius:8,padding:"4px 10px",fontSize:10,cursor:"pointer",color:"#9B9590",fontFamily:"sans-serif"}}>📋 Copiar</button>
+                <button onClick={()=>{
+                  const w=window.open("","_blank");
+                  w.document.write(`<pre style="font-family:Georgia;font-size:14px;line-height:1.8;max-width:700px;margin:40px auto;white-space:pre-wrap;">${m.content}</pre>`);
+                  w.document.close(); w.print();
+                }}
+                  style={{background:"none",border:"1px solid #EDE0F5",borderRadius:8,padding:"4px 10px",fontSize:10,cursor:"pointer",color:"#9B9590",fontFamily:"sans-serif"}}>🖨️ Imprimir</button>
+                <button onClick={()=>window.open(`https://wa.me/?text=${encodeURIComponent(m.content)}`,"_blank")}
+                  style={{background:"none",border:"1px solid #25D366",borderRadius:8,padding:"4px 10px",fontSize:10,cursor:"pointer",color:"#25D366",fontFamily:"sans-serif"}}>💬 WA</button>
+              </div>
+            )}
+          </div>
+        ))}
+        {loading && (
+          <div style={{display:"flex",alignItems:"center",gap:10,padding:"12px 16px",background:"white",borderRadius:"18px 18px 18px 4px",border:"1px solid #EDE0F5",maxWidth:"60%",boxShadow:"0 1px 6px rgba(0,0,0,.08)"}}>
+            <div style={{display:"flex",gap:4}}>
+              {[0,1,2].map(i=>(
+                <div key={i} style={{width:7,height:7,borderRadius:"50%",background:"#9B7EBD",animation:`bounce 1.2s ease-in-out ${i*0.2}s infinite`}}/>
+              ))}
+            </div>
+            <span style={{fontSize:12,color:"#9B9590"}}>Pensando...</span>
+          </div>
+        )}
+        <div ref={bottomRef}/>
+      </div>
+
+      {/* Input */}
+      <div style={{background:"white",borderRadius:16,padding:10,boxShadow:"0 2px 12px rgba(0,0,0,.08)",border:"1.5px solid #EDE0F5",display:"flex",gap:8,alignItems:"flex-end"}}>
+        <textarea
+          className="inp"
+          style={{flex:1,minHeight:44,maxHeight:120,resize:"none",border:"none",padding:"8px 4px",fontSize:13,lineHeight:1.5,outline:"none"}}
+          placeholder="Escribí tu consulta... (Ej: Haceme un informe de progreso para la familia)"
+          value={input}
+          onChange={e=>setInput(e.target.value)}
+          onKeyDown={e=>{ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); send(); }}}
+        />
+        <button className="btn btnp" style={{borderRadius:12,padding:"10px 16px",flexShrink:0,alignSelf:"flex-end"}}
+          onClick={send} disabled={loading||!input.trim()}>
+          {loading ? "⏳" : "→"}
+        </button>
+      </div>
+      <div style={{fontSize:10,color:"#9B9590",textAlign:"center",marginTop:5}}>Enter para enviar · Shift+Enter para nueva línea</div>
+
+      <style>{`
+        @keyframes bounce {
+          0%,80%,100%{transform:translateY(0);}
+          40%{transform:translateY(-6px);}
+        }
+      `}</style>
     </div>
   );
+}
 
-  return(
+// ─── PSICOLOGÍA ───────────────────────────────────────────────────────────────
+const ESCALAS = [
+  { id:"beck", nombre:"Inventario de Depresión de Beck (BDI-II)", items:21, rango:"0-63",
+    interpretacion:[["0-13","Mínima"],["14-19","Leve"],["20-28","Moderada"],["29-63","Grave"]] },
+  { id:"hamilton-a", nombre:"Escala de Ansiedad de Hamilton (HAM-A)", items:14, rango:"0-56",
+    interpretacion:[["0-7","Sin ansiedad"],["8-14","Ansiedad leve"],["15-23","Moderada"],["24-56","Grave"]] },
+  { id:"conners", nombre:"Escala de Conners para TDAH (padres)", items:27, rango:"0-81",
+    interpretacion:[["<60","Normal"],["60-65","Borderline"],["≥65","Clínico"]] },
+  { id:"gad7", nombre:"GAD-7 (Ansiedad generalizada)", items:7, rango:"0-21",
+    interpretacion:[["0-4","Mínima"],["5-9","Leve"],["10-14","Moderada"],["15-21","Grave"]] },
+  { id:"phq9", nombre:"PHQ-9 (Depresión)", items:9, rango:"0-27",
+    interpretacion:[["0-4","Mínima"],["5-9","Leve"],["10-14","Moderada"],["15-19","Moderada-grave"],["20-27","Grave"]] },
+];
+
+const ENFOQUES_PSICO = ["TCC (Cognitivo-Conductual)","Sistémico-familiar","Gestalt","Psicodinámico","Humanista","ACT (Aceptación y Compromiso)","EMDR","Narrativo"];
+
+const AREAS_PSICO = [
+  { id:"ansiedad",   label:"Ansiedad",          icon:"😰", color:"#5B8DB8" },
+  { id:"depresion",  label:"Depresión",          icon:"😔", color:"#8B7BB5" },
+  { id:"conducta",   label:"Conducta",           icon:"🎯", color:"#C0392B" },
+  { id:"regulacion", label:"Regulación emocional",icon:"🌡️", color:"#E8A020" },
+  { id:"trauma",     label:"Trauma/Duelo",       icon:"💔", color:"#E8719C" },
+  { id:"familia",    label:"Familia/Vínculos",   icon:"👨‍👩‍👧", color:"#2ECC71" },
+  { id:"autoestima", label:"Autoestima",         icon:"⭐", color:"#9B7EBD" },
+  { id:"social",     label:"Habilidades sociales",icon:"🤝", color:"#5B8DB8" },
+];
+
+const PSICOEDUCACION = [
+  { t:"Qué es la ansiedad", i:"😰", c:`QUÉ ES LA ANSIEDAD
+─────────────────────────────────────
+La ansiedad es una respuesta natural del cuerpo ante situaciones percibidas como amenazantes. En pequeñas dosis es útil y adaptativa — nos ayuda a prepararnos y reaccionar.
+
+CUÁNDO SE VUELVE UN PROBLEMA
+Se convierte en un trastorno cuando:
+• Es desproporcionada al estímulo
+• Interfiere con la vida cotidiana
+• Es difícil de controlar
+• Persiste en el tiempo
+
+SÍNTOMAS FRECUENTES
+Físicos: palpitaciones, sudoración, tensión muscular, dificultad respiratoria
+Cognitivos: pensamientos catastróficos, anticipación negativa
+Conductuales: evitación, hipervigilancia
+
+ESTRATEGIAS DE MANEJO
+1. Respiración diafragmática (4-7-8)
+2. Técnica de grounding (5-4-3-2-1)
+3. Registro de pensamientos automáticos
+4. Exposición gradual
+
+Profesional: ___________________
+comunipro12@gmail.com` },
+
+  { t:"Regulación emocional", i:"🌡️", c:`REGULACIÓN EMOCIONAL
+─────────────────────────────────────
+Las emociones son señales, no enemigas. Regularlas no significa suprimirlas sino gestionarlas de forma adaptativa.
+
+CICLO DE LA EMOCIÓN
+Estímulo → Interpretación → Emoción → Conducta → Consecuencia
+
+ESTRATEGIAS DE REGULACIÓN
+Inmediatas:
+• Respiración consciente
+• Pausa de 5 segundos
+• Distanciamiento físico del estímulo
+
+A mediano plazo:
+• Diario emocional
+• Identificación de disparadores
+• Reestructuración cognitiva
+
+Para niños:
+• Termómetro de emociones
+• Semáforo emocional
+• Rincón de la calma
+
+PARA LA FAMILIA
+✓ Validar la emoción antes de corregir la conducta
+✓ Nombrar las emociones con el niño/a
+✓ Modelar regulación propia
+
+Profesional: ___________________` },
+
+  { t:"Duelo y pérdida", i:"💔", c:`DUELO Y PÉRDIDA
+─────────────────────────────────────
+El duelo es el proceso natural de adaptación ante una pérdida significativa. No es una enfermedad sino una respuesta humana normal.
+
+TIPOS DE PÉRDIDA
+• Muerte de un ser querido
+• Separación o divorcio
+• Pérdida de salud
+• Cambios de vida significativos
+
+FASES (Kübler-Ross)
+1. Negación
+2. Ira
+3. Negociación
+4. Depresión
+5. Aceptación
+(No son lineales ni universales)
+
+DUELO COMPLICADO — señales de alerta
+• Más de 12 meses de duelo intenso
+• Incapacidad de funcionar
+• Ideación suicida
+• Negación persistente
+
+PARA ACOMPAÑAR
+✓ Presencia sin presión
+✓ No forzar el "ya estás bien"
+✓ Permitir hablar de la pérdida
+✓ Respetar los tiempos
+
+Profesional: ___________________` },
+
+  { t:"Autoestima", i:"⭐", c:`AUTOESTIMA
+─────────────────────────────────────
+La autoestima es la valoración global que una persona tiene de sí misma. Se construye desde la infancia a través de experiencias, vínculos y mensajes recibidos.
+
+COMPONENTES
+• Autoconcepto: cómo me veo
+• Autoevaluación: cómo me valoro
+• Autoaceptación: cuánto me acepto
+• Autorespeto: cómo me trato
+
+SEÑALES DE BAJA AUTOESTIMA
+• Autocrítica excesiva
+• Dificultad para establecer límites
+• Necesidad de aprobación constante
+• Miedo al fracaso y la crítica
+
+PARA TRABAJAR EN SESIÓN
+• Registro de logros y fortalezas
+• Técnica del espejo positivo
+• Reestructuración de creencias nucleares
+• Afirmaciones realistas (no vacías)
+
+PARA EN CASA
+✓ Diario de logros diarios (3 por día)
+✓ Identificar el crítico interno
+✓ Lista de cualidades propias
+
+Profesional: ___________________` },
+];
+
+function Psicologia({ patients, sessions, documentos=[], setDocumentos=()=>{}, datos={registros:[],experimentos:[],jerarquia:[],humor:{}}, setDatos=()=>{} }) {
+  const [tab, setTab] = useState("escalas");
+  const [selPat, setSelPat] = useState("");
+  const [selEscala, setSelEscala] = useState(null);
+  const [puntaje, setPuntaje] = useState("");
+  const [registros, setRegistros] = useState([]);
+  const [planF, setPlanF] = useState({ enfoque:"TCC (Cognitivo-Conductual)", areas:[], objetivo:"", frecuencia:"Semanal", duracion:"50 min", notas:"" });
+  const [showPlan, setShowPlan] = useState(false);
+  const [selPsico, setSelPsico] = useState(null);
+  const [estadoMental, setEstadoMental] = useState({ afecto:"", pensamiento:"", conducta:"", conciencia:"", orientacion:"", memoria:"", juicio:"", notas:"" });
+  const [showEstado, setShowEstado] = useState(false);
+
+  const patient = patients.find(p => p.name === selPat);
+  const pSess = sessions.filter(s => s.patientId === patient?.id);
+
+  const getInterpretacion = (escala, pts) => {
+    const n = parseInt(pts);
+    if (isNaN(n)) return "";
+    for (const [rango, label] of escala.interpretacion) {
+      if (rango.includes("-")) {
+        const [min, max] = rango.split("-").map(Number);
+        if (n >= min && n <= max) return label;
+      } else if (rango.startsWith("<") && n < parseInt(rango.slice(1))) return label;
+      else if (rango.startsWith("≥") && n >= parseInt(rango.slice(1))) return label;
+    }
+    return "";
+  };
+
+  const guardarRegistro = () => {
+    if (!selEscala || !puntaje || !selPat) return;
+    const interp = getInterpretacion(selEscala, puntaje);
+    setRegistros(prev => [...prev, {
+      id: makeId(), paciente: selPat, escala: selEscala.nombre,
+      puntaje, interpretacion: interp,
+      fecha: new Date().toLocaleDateString("es-UY")
+    }]);
+    setPuntaje(""); setSelEscala(null);
+  };
+
+  return (
     <div className="fu">
       <div style={{marginBottom:14}}>
-        <div className="pt">💡 Asistente IA</div>
-        <div className="ps">Informes, evaluaciones, anamnesis y más con Claude AI</div>
+        <div className="pt">🧠 Psicología</div>
+        <div className="ps">Escalas, plan terapéutico, estado mental y psicoeducación</div>
       </div>
 
-      <div style={{background:"linear-gradient(135deg,#9B7EBD,#7B5EA7)",borderRadius:16,padding:14,color:"white",marginBottom:16,display:"flex",gap:12,alignItems:"center"}}>
-        <div style={{fontSize:32}}>🧠</div>
-        <div style={{flex:1}}>
-          <div style={{fontWeight:700,fontSize:14,marginBottom:2}}>Powered by Claude AI</div>
-          <div style={{fontSize:11,opacity:.85}}>Asistencia clínica inteligente · Resultado editable antes de enviar</div>
+      <div className="atabrow">
+        {[["escalas","📊 Escalas"],["plan","📋 Plan terapéutico"],["estado","🔍 Estado mental"],["psicoeducacion","📚 Psicoeducación"]].map(([id,l])=>(
+          <button key={id} className={`atab${tab===id?" active":""}`} onClick={()=>setTab(id)}>{l}</button>
+        ))}
+      </div>
+
+      {/* ESCALAS */}
+      {tab === "escalas" && (
+        <div>
+          <div className="fg">
+            <label className="lbl">Paciente</label>
+            <select className="inp" value={selPat} onChange={e=>setSelPat(e.target.value)}>
+              <option value="">Seleccioná...</option>
+              {patients.filter(p=>p.status==="active").map(p=><option key={p.id}>{p.name}</option>)}
+            </select>
+          </div>
+
+          <div style={{display:"grid",gridTemplateColumns:"1fr",gap:10,marginBottom:16}}>
+            {ESCALAS.map(e=>(
+              <div key={e.id} style={{background:"white",borderRadius:14,padding:14,border:`1.5px solid ${selEscala?.id===e.id?"#9B7EBD":"#EDE0F5"}`,cursor:"pointer"}}
+                onClick={()=>setSelEscala(selEscala?.id===e.id?null:e)}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                  <div style={{fontWeight:700,fontSize:13}}>{e.nombre}</div>
+                  <span style={{fontSize:11,color:"#9B9590"}}>{e.items} ítems · {e.rango}</span>
+                </div>
+                {selEscala?.id===e.id && (
+                  <div style={{marginTop:12}}>
+                    <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:8}}>
+                      <input className="inp" type="number" placeholder="Puntaje total" value={puntaje}
+                        onChange={e=>setPuntaje(e.target.value)} style={{flex:1}}/>
+                      {puntaje && (
+                        <div style={{background:C.terraF,borderRadius:10,padding:"8px 14px",fontWeight:700,fontSize:13,color:C.terra}}>
+                          {getInterpretacion(e, puntaje) || "—"}
+                        </div>
+                      )}
+                    </div>
+                    <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:10}}>
+                      {e.interpretacion.map(([r,l])=>(
+                        <span key={r} style={{fontSize:10,padding:"3px 8px",borderRadius:20,background:C.sand,color:C.gray}}>{r}: {l}</span>
+                      ))}
+                    </div>
+                    <button className="btn btnp btnsm" onClick={guardarRegistro} disabled={!puntaje||!selPat}>
+                      💾 Guardar registro
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {registros.length > 0 && (
+            <div>
+              <div style={{fontWeight:700,fontSize:13,marginBottom:8}}>📈 Registros guardados</div>
+              {registros.map(r=>(
+                <div key={r.id} style={{background:"white",borderRadius:12,padding:12,marginBottom:8,border:"1px solid #EDE0F5"}}>
+                  <div style={{display:"flex",justifyContent:"space-between"}}>
+                    <div>
+                      <div style={{fontWeight:600,fontSize:13}}>{r.paciente}</div>
+                      <div style={{fontSize:11,color:C.grayL}}>{r.escala}</div>
+                    </div>
+                    <div style={{textAlign:"right"}}>
+                      <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:700,color:C.terra}}>{r.puntaje}</div>
+                      <div style={{fontSize:11,color:C.grayL}}>{r.interpretacion} · {r.fecha}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
+      )}
+
+      {/* PLAN TERAPÉUTICO */}
+      {tab === "plan" && (
+        <div>
+          <div className="alert alrti" style={{marginBottom:12}}>Diseñá el plan terapéutico psicológico del paciente.</div>
+          <div className="fg">
+            <label className="lbl">Paciente</label>
+            <select className="inp" value={selPat} onChange={e=>setSelPat(e.target.value)}>
+              <option value="">Seleccioná...</option>
+              {patients.filter(p=>p.status==="active").map(p=><option key={p.id}>{p.name}</option>)}
+            </select>
+          </div>
+          <div className="fg">
+            <label className="lbl">Enfoque terapéutico</label>
+            <select className="inp" value={planF.enfoque} onChange={e=>setPlanF({...planF,enfoque:e.target.value})}>
+              {ENFOQUES_PSICO.map(e=><option key={e}>{e}</option>)}
+            </select>
+          </div>
+          <div style={{marginBottom:12}}>
+            <label className="lbl">Áreas de trabajo</label>
+            <div className="chiprow" style={{marginTop:6}}>
+              {AREAS_PSICO.map(a=>(
+                <button key={a.id} className={`chip${planF.areas.includes(a.id)?" sel":""}`}
+                  style={planF.areas.includes(a.id)?{background:a.color+"22",borderColor:a.color,color:a.color}:{}}
+                  onClick={()=>setPlanF(p=>({...p,areas:p.areas.includes(a.id)?p.areas.filter(x=>x!==a.id):[...p.areas,a.id]}))}>
+                  {a.icon} {a.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="fg">
+            <label className="lbl">Objetivo principal</label>
+            <textarea className="inp" style={{minHeight:64}} placeholder="Objetivo terapéutico central..."
+              value={planF.objetivo} onChange={e=>setPlanF({...planF,objetivo:e.target.value})}/>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:12}}>
+            <div className="fg" style={{marginBottom:0}}>
+              <label className="lbl">Frecuencia</label>
+              <select className="inp" value={planF.frecuencia} onChange={e=>setPlanF({...planF,frecuencia:e.target.value})}>
+                {["Semanal","Quincenal","Mensual","2 veces/semana"].map(f=><option key={f}>{f}</option>)}
+              </select>
+            </div>
+            <div className="fg" style={{marginBottom:0}}>
+              <label className="lbl">Duración sesión</label>
+              <select className="inp" value={planF.duracion} onChange={e=>setPlanF({...planF,duracion:e.target.value})}>
+                {["45 min","50 min","60 min","90 min"].map(d=><option key={d}>{d}</option>)}
+              </select>
+            </div>
+          </div>
+          <div className="fg">
+            <label className="lbl">Notas adicionales</label>
+            <textarea className="inp" style={{minHeight:52}} value={planF.notas}
+              onChange={e=>setPlanF({...planF,notas:e.target.value})}/>
+          </div>
+
+          {selPat && (
+            <div style={{background:C.terraF,borderRadius:14,padding:14,marginBottom:12}}>
+              <div style={{fontWeight:700,fontSize:13,marginBottom:10}}>Vista previa del plan</div>
+              <div style={{fontSize:12,lineHeight:1.8,whiteSpace:"pre-wrap",fontFamily:"monospace"}}>
+{`PLAN TERAPÉUTICO PSICOLÓGICO
+──────────────────────────────────
+Paciente: ${selPat}
+Fecha: ${new Date().toLocaleDateString("es-UY")}
+Enfoque: ${planF.enfoque}
+Frecuencia: ${planF.frecuencia} · ${planF.duracion}
+
+ÁREAS DE TRABAJO:
+${planF.areas.map(id=>AREAS_PSICO.find(a=>a.id===id)).filter(Boolean).map(a=>`• ${a.icon} ${a.label}`).join(", ")||"• Sin áreas seleccionadas"}
+
+OBJETIVO PRINCIPAL:
+${planF.objetivo||"No especificado"}
+
+${planF.notas?`NOTAS:
+${planF.notas}`:""}
+
+Profesional: ___________________
+comunipro12@gmail.com`}
+              </div>
+              <div style={{display:"flex",gap:8,marginTop:10,flexWrap:"wrap"}}>
+                <button className="btn btno btnsm noprint" onClick={()=>window.print()}>🖨️ Imprimir</button>
+                <button className="btn btnsm noprint" style={{background:"#25D366",color:"white"}}
+                  onClick={()=>{
+                    const txt = `Plan Terapéutico — ${selPat}
+Enfoque: ${planF.enfoque}
+Áreas: ${planF.areas.map(id=>AREAS_PSICO.find(a=>a.id===id)?.label).join(", ")}
+Objetivo: ${planF.objetivo}`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`,"_blank");
+                  }}>💬 WhatsApp</button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ESTADO MENTAL */}
+      {tab === "estado" && (
+        <div>
+          <div className="alert alrti" style={{marginBottom:12}}>Registro de estado mental por sesión.</div>
+          <div className="fg">
+            <label className="lbl">Paciente</label>
+            <select className="inp" value={selPat} onChange={e=>setSelPat(e.target.value)}>
+              <option value="">Seleccioná...</option>
+              {patients.filter(p=>p.status==="active").map(p=><option key={p.id}>{p.name}</option>)}
+            </select>
+          </div>
+          {[
+            ["Afecto","afecto","Eutímico, disfórico, ansioso, lábil, expansivo..."],
+            ["Pensamiento","pensamiento","Coherente, tangencial, disgregado, obsesivo..."],
+            ["Conducta","conducta","Colaborador, inhibido, agitado, oposicionista..."],
+            ["Conciencia","conciencia","Lúcida, obnubilada, confusa..."],
+            ["Orientación","orientacion","Orientado en tiempo/espacio/persona..."],
+            ["Memoria","memoria","Conservada, alterada en corto/largo plazo..."],
+            ["Juicio","juicio","Conservado, alterado, parcialmente conservado..."],
+          ].map(([label, key, ph])=>(
+            <div className="fg" key={key}>
+              <label className="lbl">{label}</label>
+              <input className="inp" placeholder={ph} value={estadoMental[key]}
+                onChange={e=>setEstadoMental({...estadoMental,[key]:e.target.value})}/>
+            </div>
+          ))}
+          <div className="fg">
+            <label className="lbl">Observaciones generales</label>
+            <textarea className="inp" style={{minHeight:64}} value={estadoMental.notas}
+              onChange={e=>setEstadoMental({...estadoMental,notas:e.target.value})}/>
+          </div>
+          {selPat && (
+            <div style={{background:C.terraF,borderRadius:14,padding:14}}>
+              <div style={{fontWeight:700,fontSize:12,marginBottom:8}}>EXAMEN DE ESTADO MENTAL</div>
+              <div style={{fontSize:12,lineHeight:1.8,whiteSpace:"pre-wrap",fontFamily:"monospace"}}>
+{`Paciente: ${selPat}
+Fecha: ${new Date().toLocaleDateString("es-UY")}
+
+Afecto: ${estadoMental.afecto||"—"}
+Pensamiento: ${estadoMental.pensamiento||"—"}
+Conducta: ${estadoMental.conducta||"—"}
+Conciencia: ${estadoMental.conciencia||"—"}
+Orientación: ${estadoMental.orientacion||"—"}
+Memoria: ${estadoMental.memoria||"—"}
+Juicio: ${estadoMental.juicio||"—"}
+
+${estadoMental.notas?`Observaciones: ${estadoMental.notas}`:""}
+
+Profesional: ___________________`}
+              </div>
+              <button className="btn btno btnsm noprint" style={{marginTop:10}} onClick={()=>window.print()}>🖨️ Imprimir</button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* PSICOEDUCACIÓN */}
+      {tab === "psicoeducacion" && (
+        <div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:10,marginBottom:14}}>
+            {PSICOEDUCACION.map((p,i)=>(
+              <div key={i} className="card" style={{cursor:"pointer",padding:12}} onClick={()=>setSelPsico(selPsico?.t===p.t?null:{...p})}>
+                <div style={{fontSize:26,marginBottom:6}}>{p.i}</div>
+                <div style={{fontWeight:700,fontSize:12,color:C.charcoal}}>{p.t}</div>
+                <div style={{fontSize:10,color:C.info,marginTop:4}}>ver →</div>
+              </div>
+            ))}
+          </div>
+          {selPsico && (
+            <Modal title={`${selPsico.i} ${selPsico.t}`} onClose={()=>setSelPsico(null)}>
+              <div style={{fontSize:11,color:C.grayL,marginBottom:6}}>✏️ Editá antes de imprimir</div>
+              <textarea style={{width:"100%",minHeight:280,background:C.cream,borderRadius:12,padding:14,
+                fontSize:12,lineHeight:1.8,fontFamily:"monospace",border:`1.5px solid ${C.sand}`,
+                resize:"vertical",outline:"none"}}
+                value={selPsico.c}
+                onChange={e=>setSelPsico({...selPsico,c:e.target.value})}/>
+              <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:8}}>
+                <button className="btn btnp btnsm" onClick={()=>navigator.clipboard?.writeText(selPsico.c)}>📋 Copiar</button>
+                <button className="btn btnsm noprint" style={{background:"#25D366",color:"white"}}
+                  onClick={()=>window.open(`https://wa.me/?text=${encodeURIComponent(selPsico.c)}`,"_blank")}>💬 WhatsApp</button>
+                <button className="btn btno btnsm noprint" onClick={()=>window.print()}>🖨️ Imprimir</button>
+              </div>
+            </Modal>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+// ─── LIQUIDACIÓN DE SUELDOS ───────────────────────────────────────────────────
+function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:setConfigsProp=()=>{}, asistenciasData={}, setAsistenciasData=()=>{} }) {
+  const mesActual = new Date().toISOString().slice(0,7);
+  const [mes, setMes] = useState(mesActual);
+  // Use persistent configs from props
+  const configs = configsProp;
+  const setConfigs = setConfigsProp;
+  
+  // Get config for a user, with defaults
+  const getConfig = (uid) => configs[uid] || {
+    tarifaSesion: 0,
+    complementoMonto: 0,
+    complementoPeriodo: "mensual",
+    descuentoFalta: 0,
+    tipoDescuento: "monto",
+    activo: true
+  };
+  // Use persistent asistencias from props
+  const asistencias = asistenciasData;
+  const setAsistencias = setAsistenciasData;
+  // asistencias[userId][dia] = "P"|"F"|"FJ"|"R" (R=reposición)
+  const [selUser, setSelUser] = useState(null);
+  const [showLiq, setShowLiq] = useState(false);
+  const [editConfig, setEditConfig] = useState(null);
+
+  const cambiarMes = d => {
+    const [y,m] = mes.split("-").map(Number);
+    const n = new Date(y, m-1+d, 1);
+    setMes(`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}`);
+  };
+
+  const nomMes = new Date(mes+"-01T12:00:00").toLocaleDateString("es-UY",{month:"long",year:"numeric"});
+
+  const getDiasHabiles = m => {
+    const [y,mo] = m.split("-").map(Number);
+    const dias = [];
+    const total = new Date(y,mo,0).getDate();
+    for(let d=1;d<=total;d++){
+      const dow = new Date(y,mo-1,d).getDay();
+      if(dow!==0&&dow!==6) dias.push(`${m}-${String(d).padStart(2,"0")}`);
+    }
+    return dias;
+  };
+  const diasHabiles = getDiasHabiles(mes);
+  const diasPrimQuincena = diasHabiles.filter(d=>parseInt(d.split("-")[2])<=15);
+  const diasSegQuincena  = diasHabiles.filter(d=>parseInt(d.split("-")[2])>15);
+
+  const toggleAsis = (uid, dia) => {
+    setAsistencias(prev => {
+      const ua = { ...(prev[uid]||{}) };
+      if(!ua[dia])       ua[dia]="P";
+      else if(ua[dia]==="P")  ua[dia]="F";
+      else if(ua[dia]==="F")  ua[dia]="FJ";
+      else if(ua[dia]==="FJ") ua[dia]="R";
+      else delete ua[dia];
+      return { ...prev, [uid]:ua };
+    });
+  };
+
+  const getColor = v => {
+    if(!v)         return {bg:"#F0F0F0",c:"#aaa",label:"–"};
+    if(v==="P")    return {bg:"#E8F8EF",c:"#1a7a3c",label:"P"};
+    if(v==="F")    return {bg:"#FDECEA",c:"#C0392B",label:"F"};
+    if(v==="FJ")   return {bg:"#FEF3E0",c:"#E8A020",label:"FJ"};
+    if(v==="R")    return {bg:"#EBF3FB",c:"#5B8DB8",label:"R"};
+    return {bg:"#F0F0F0",c:"#aaa",label:"–"};
+  };
+
+  const calcLiq = (uid) => {
+    const ua   = asistencias[uid] || {};
+    const cfg  = getConfig(uid);
+    const tarifa = Number(cfg.tarifaSesion)||0;
+    const comp   = Number(cfg.complementoMonto)||0;
+    const periodo = cfg.complementoPeriodo || "mensual";
+    const descMonto = Number(cfg.descuentoFalta)||0;
+    const tipoDesc  = cfg.tipoDescuento || "monto";
+
+    const presentes   = diasHabiles.filter(d=>ua[d]==="P").length;
+    const faltas      = diasHabiles.filter(d=>ua[d]==="F").length;
+    const faltasJ     = diasHabiles.filter(d=>ua[d]==="FJ").length;
+    const reposiciones= diasHabiles.filter(d=>ua[d]==="R").length;
+    const sesiones    = presentes + reposiciones;
+
+    const brutoSesiones = sesiones * tarifa;
+
+    // Descuento por faltas injustificadas
+    // Si es monto: descMonto fijo por cada falta
+    // Si es porcentaje: descMonto% del valor de una sesión por cada falta
+    let descuento = 0;
+    if(tipoDesc==="monto") {
+      descuento = faltas * descMonto;
+    } else {
+      // porcentaje del valor de cada sesión perdida
+      descuento = faltas * tarifa * (descMonto / 100);
+    }
+
+    // Complemento: comp es siempre el monto MENSUAL total
+    // Si es quincenal, se paga en 2 cuotas de comp/2 pero el total mensual es el mismo
+    const complementoTotal = comp;
+    const complementoCuota = periodo==="quincenal" ? comp/2 : comp;
+
+    const neto = brutoSesiones - descuento + complementoTotal;
+
+    return { presentes, faltas, faltasJ, reposiciones, sesiones,
+             brutoSesiones, descuento, complementoTotal, complementoCuota, neto, tarifa, comp, periodo };
+  };
+
+  const profes = users.filter(u => u.role !== "admin" || currentUser?.role === "admin");
+  const totalNomina = profes.reduce((s,u)=>s+calcLiq(u.id).neto,0);
+
+  const saveConfig = (uid, cfg) => {
+    setConfigs(prev=>({...prev,[uid]:cfg}));
+    setEditConfig(null);
+  };
+
+  return (
+    <div className="fu">
+      <div style={{marginBottom:14}}>
+        <div className="pt">💰 Liquidación de Sueldos</div>
+        <div className="ps">Cálculo automático por asistencias, tarifas y complementos</div>
       </div>
 
-      {/* Selector de especialidad */}
+      {/* Selector mes */}
+      <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14,background:"white",borderRadius:14,padding:"12px 16px",boxShadow:"0 1px 6px rgba(0,0,0,.05)"}}>
+        <button onClick={()=>cambiarMes(-1)} style={{background:"#EDE0F5",border:"none",borderRadius:8,width:34,height:34,cursor:"pointer",fontSize:18,fontWeight:700}}>‹</button>
+        <div style={{flex:1,textAlign:"center",fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:700,textTransform:"capitalize"}}>{nomMes}</div>
+        <button onClick={()=>cambiarMes(1)} style={{background:"#EDE0F5",border:"none",borderRadius:8,width:34,height:34,cursor:"pointer",fontSize:18,fontWeight:700}}>›</button>
+      </div>
+
+      {/* Leyenda */}
+      <div style={{background:"#F5F0FA",borderRadius:12,padding:"10px 14px",marginBottom:14}}>
+        <div style={{fontWeight:700,fontSize:12,color:"#7B5EA7",marginBottom:8}}>Tocá cada día para registrar la asistencia del profesional:</div>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:6}}>
+          {[["P","Trabajó","#E8F8EF","#1a7a3c"],["F","Falta injust.","#FDECEA","#C0392B"],["FJ","Falta just.","#FEF3E0","#E8A020"],["R","Reposición","#EBF3FB","#5B8DB8"],["–","Sin marcar","#F0F0F0","#aaa"]].map(([l,d,bg,c])=>(
+            <div key={l} style={{display:"flex",alignItems:"center",gap:6,fontSize:11,color:"#6B6560"}}>
+              <div style={{width:26,height:26,borderRadius:6,background:bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:700,color:c,border:`1px solid ${c}44`}}>{l}</div>
+              <span>{d}</span>
+            </div>
+          ))}
+        </div>
+        <div style={{fontSize:11,color:"#9B9590"}}>P y R cuentan como sesión cobrable · F descuenta si hay penalidad configurada · FJ no descuenta</div>
+      </div>
+
+      {/* Profesionales */}
+      {profes.map(u => {
+        const liq = calcLiq(u.id);
+        const cfg = configs[u.id] || {};
+        const ua  = asistencias[u.id] || {};
+        return (
+          <div key={u.id} style={{background:"white",borderRadius:18,overflow:"hidden",boxShadow:"0 2px 12px rgba(0,0,0,.07)",marginBottom:14}}>
+            <div style={{padding:"14px 16px",borderBottom:"1px solid #EDE0F5",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+              <div style={{display:"flex",alignItems:"center",gap:10}}>
+                <div style={{width:38,height:38,borderRadius:11,background:u.color||"#9B7EBD",display:"flex",alignItems:"center",justifyContent:"center",color:"white",fontWeight:700,fontSize:13}}>{u.avatar}</div>
+                <div>
+                  <div style={{fontWeight:700,fontSize:13}}>{u.name}</div>
+                  <div style={{fontSize:11,color:"#9B9590"}}>{u.specialty} · {u.plan}</div>
+                </div>
+              </div>
+              <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontWeight:700,color:"#9B7EBD"}}>${liq.neto.toLocaleString("es-UY")}</div>
+                <button onClick={()=>setEditConfig({uid:u.id,...getConfig(u.id)})}
+                  style={{background:"#F5F0FA",border:"none",borderRadius:8,padding:"6px 10px",cursor:"pointer",fontSize:11,fontWeight:700,color:"#9B7EBD"}}>⚙️</button>
+              </div>
+            </div>
+
+            {/* Config summary */}
+            <div style={{padding:"8px 16px",background:"#FAFAFA",borderBottom:"1px solid #EDE0F5",display:"flex",gap:12,flexWrap:"wrap"}}>
+              <span style={{fontSize:11,color:"#9B9590"}}>Tarifa: <b>${(cfg.tarifaSesion||0).toLocaleString("es-UY")}/ses</b></span>
+              {(cfg.complementoMonto||0)>0 && <span style={{fontSize:11,color:"#9B9590"}}>Complemento: <b>${(cfg.complementoMonto||0).toLocaleString("es-UY")}/{cfg.complementoPeriodo==="quincenal"?"quinc":"mes"}</b></span>}
+              {(cfg.descuentoFalta||0)>0 && <span style={{fontSize:11,color:"#C0392B"}}>Desc/falta: <b>{cfg.tipoDescuento==="porcentaje"?cfg.descuentoFalta+"%":"$"+(cfg.descuentoFalta||0)}</b></span>}
+            </div>
+
+            {/* Grilla asistencias */}
+            <div style={{padding:"12px 16px"}}>
+              <div style={{overflowX:"auto",marginBottom:10}}>
+                <div style={{display:"flex",gap:3,minWidth:"max-content",paddingBottom:4}}>
+                  {diasHabiles.map(dia=>{
+                    const d = new Date(dia+"T12:00:00");
+                    const v = ua[dia];
+                    const {bg,c,label} = getColor(v);
+                    const isQ2 = parseInt(dia.split("-")[2])>15;
+                    return (
+                      <button key={dia} onClick={()=>toggleAsis(u.id,dia)}
+                        style={{width:30,height:38,borderRadius:7,border:`1px solid ${c}44`,background:bg,cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:1,flexShrink:0,borderTop:isQ2?"2px solid #9B7EBD44":undefined}}>
+                        <div style={{fontSize:8,color:"#9B9590",lineHeight:1}}>{String(d.getDate()).padStart(2,"0")}</div>
+                        <div style={{fontSize:10,fontWeight:700,color:c,lineHeight:1}}>{label}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div style={{fontSize:9,color:"#9B9590",marginTop:4}}>La línea azul separa primera y segunda quincena</div>
+              </div>
+
+              {/* Resumen */}
+              <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:6,marginBottom:10}}>
+                {[["Sesiones",liq.sesiones,"#E8F8EF","#1a7a3c"],["Faltas",liq.faltas,"#FDECEA","#C0392B"],["Just.",liq.faltasJ,"#FEF3E0","#E8A020"],["Repos.",liq.reposiciones,"#EBF3FB","#5B8DB8"]].map(([l,v,bg,c])=>(
+                  <div key={l} style={{background:bg,borderRadius:10,padding:"8px 6px",textAlign:"center"}}>
+                    <div style={{fontSize:14,fontWeight:700,color:c}}>{v}</div>
+                    <div style={{fontSize:10,color:c}}>{l}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desglose */}
+              <div style={{background:"#F5F0FA",borderRadius:12,padding:12}}>
+                <div style={{fontWeight:700,fontSize:12,marginBottom:8}}>Desglose liquidación</div>
+                {[
+                  [`${liq.sesiones} ses × $${liq.tarifa.toLocaleString("es-UY")}/ses`, liq.brutoSesiones, false],
+                  liq.complementoTotal>0 ? [
+                    liq.periodo==="quincenal"
+                      ? `Complemento quincenal ($${liq.complementoCuota?.toLocaleString("es-UY")} × 2)`
+                      : `Complemento mensual`,
+                    liq.complementoTotal, false
+                  ] : null,
+                  liq.descuento>0 ? [`Desc. por ${liq.faltas} falta${liq.faltas!==1?"s":""} injust.`, -liq.descuento, true] : null,
+                ].filter(Boolean).map(([label,val,neg])=>(
+                  <div key={label} style={{display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:"1px solid #EDE0F5",fontSize:12}}>
+                    <span style={{color:"#6B6560"}}>{label}</span>
+                    <span style={{fontWeight:600,color:neg?"#C0392B":"#2C2C2C"}}>{neg?"-":"+"}${Math.abs(val).toLocaleString("es-UY")}</span>
+                  </div>
+                ))}
+                <div style={{display:"flex",justifyContent:"space-between",padding:"8px 0 0",fontSize:14,fontWeight:700}}>
+                  <span>Total a cobrar</span>
+                  <span style={{color:"#9B7EBD",fontFamily:"'Cormorant Garamond',serif",fontSize:20}}>${liq.neto.toLocaleString("es-UY")}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+
+      {/* Total nómina */}
+      {profes.length > 0 && (
+        <div style={{background:"linear-gradient(135deg,#9B7EBD,#7B5EA7)",borderRadius:16,padding:"16px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
+          <div>
+            <div style={{fontSize:12,color:"rgba(255,255,255,.8)"}}>TOTAL NÓMINA</div>
+            <div style={{fontSize:11,color:"rgba(255,255,255,.6)"}}>{profes.length} profesionales · {nomMes}</div>
+          </div>
+          <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:28,fontWeight:700,color:"white"}}>${totalNomina.toLocaleString("es-UY")}</div>
+        </div>
+      )}
+
+      {/* Botones */}
+      <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:20}}>
+        <button className="btn btno btnsm noprint" onClick={()=>window.print()}>🖨️ Imprimir liquidación</button>
+        <button className="btn btng btnsm" onClick={()=>{
+          const txt = profes.map(u=>{
+            const l=calcLiq(u.id);
+            return `${u.name}: $${l.neto.toLocaleString("es-UY")} (${l.sesiones} ses, ${l.faltas} faltas)`;
+          }).join("\n");
+          navigator.clipboard?.writeText("Liquidación " + nomMes + "\n" + txt + "\nTotal: $" + totalNomina.toLocaleString("es-UY"));
+        }}>📋 Copiar resumen</button>
+      </div>
+
+      {/* Modal config profesional */}
+      {editConfig && (
+        <Modal title={`⚙️ Configurar — ${users.find(u=>u.id===editConfig.uid)?.name}`} onClose={()=>setEditConfig(null)}>
+          <div className="alert alrti" style={{marginBottom:12}}>Configurá la tarifa y complemento de este profesional.</div>
+
+          <div className="fg">
+            <label className="lbl">Tarifa por sesión ($)</label>
+            <input className="inp" type="number" min="0" value={editConfig.tarifaSesion||0}
+              onChange={e=>setEditConfig({...editConfig,tarifaSesion:parseFloat(e.target.value)||0})}/>
+          </div>
+
+          <div style={{background:"#F5F0FA",borderRadius:12,padding:12,marginBottom:12}}>
+            <div style={{fontWeight:700,fontSize:12,color:"#7B5EA7",marginBottom:4,textTransform:"uppercase"}}>Complemento fijo mensual</div>
+            <div style={{fontSize:11,color:"#9B9590",marginBottom:10}}>Monto adicional que recibe este profesional por mes, más allá de las sesiones.</div>
+            <div className="fg">
+              <label className="lbl">¿Cuánto cobra de complemento por mes? ($)</label>
+              <input className="inp" type="number" min="0" placeholder="Ej: 700"
+                value={editConfig.complementoMonto||0}
+                onChange={e=>setEditConfig({...editConfig,complementoMonto:parseFloat(e.target.value)||0})}/>
+            </div>
+            <div className="fg">
+              <label className="lbl">¿Cómo se le paga ese complemento?</label>
+              <select className="inp" value={editConfig.complementoPeriodo||"mensual"}
+                onChange={e=>setEditConfig({...editConfig,complementoPeriodo:e.target.value})}>
+                <option value="mensual">En un solo pago mensual ($700 de una vez)</option>
+                <option value="quincenal">En dos cuotas quincenales ($350 + $350)</option>
+              </select>
+            </div>
+            {(editConfig.complementoMonto||0)>0 && (
+              <div style={{background:"white",borderRadius:8,padding:"10px 14px",fontSize:12}}>
+                <div style={{fontWeight:700,color:"#7B5EA7",marginBottom:4}}>💰 Resumen del complemento:</div>
+                <div style={{color:"#6B6560"}}>
+                  Total mensual: <strong style={{color:"#9B7EBD"}}>${(editConfig.complementoMonto||0).toLocaleString("es-UY")}</strong>
+                  {editConfig.complementoPeriodo==="quincenal" && (
+                    <span> → se paga en 2 cuotas de <strong>${((editConfig.complementoMonto||0)/2).toLocaleString("es-UY")}</strong></span>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div style={{background:"#FDECEA",borderRadius:12,padding:12,marginBottom:12}}>
+            <div style={{fontWeight:700,fontSize:12,color:"#C0392B",marginBottom:10,textTransform:"uppercase"}}>Descuento por falta injustificada</div>
+            <div className="fg">
+              <label className="lbl">Tipo de descuento</label>
+              <select className="inp" value={editConfig.tipoDescuento||"monto"}
+                onChange={e=>setEditConfig({...editConfig,tipoDescuento:e.target.value})}>
+                <option value="monto">Monto fijo por falta ($)</option>
+                <option value="porcentaje">Porcentaje del bruto por falta (%)</option>
+              </select>
+            </div>
+            <div className="fg">
+              <label className="lbl">{editConfig.tipoDescuento==="porcentaje"?"Porcentaje (%)":"Monto ($)"}</label>
+              <input className="inp" type="number" min="0" value={editConfig.descuentoFalta||0}
+                onChange={e=>setEditConfig({...editConfig,descuentoFalta:parseFloat(e.target.value)||0})}/>
+            </div>
+          </div>
+
+          {/* Preview */}
+          {(editConfig.tarifaSesion||0)>0 && (
+            <div style={{background:"#F5F0FA",borderRadius:12,padding:12,marginBottom:12}}>
+              <div style={{fontWeight:700,fontSize:12,marginBottom:4}}>Vista previa — ejemplo con 20 sesiones, 1 falta:</div>
+              <div style={{fontSize:11,color:"#9B9590",marginBottom:8}}>Así quedaría la liquidación del mes</div>
+              {(() => {
+                const t = editConfig.tarifaSesion||0;
+                const c = editConfig.complementoMonto||0;
+                const desc = editConfig.descuentoFalta||0;
+                const bruto = 20 * t;
+                const complemento = c; // siempre mensual total
+                const descuento = editConfig.tipoDescuento==="porcentaje" ? (1 * t * desc/100) : (1 * desc);
+                const neto = bruto + complemento - descuento;
+                return [
+                  [`20 sesiones × $${t.toLocaleString("es-UY")}`, bruto, false],
+                  c>0 ? [`Complemento mensual${editConfig.complementoPeriodo==="quincenal"?" (2 cuotas de $"+(c/2).toLocaleString("es-UY")+")":""}`, c, false] : null,
+                  desc>0 ? [`1 falta injustificada (descuento)`, -descuento, true] : null,
+                  ["= Neto del mes", neto, false, true],
+                ].filter(Boolean).map(([l,v,neg,bold])=>(
+                  <div key={l} style={{display:"flex",justifyContent:"space-between",fontSize:12,padding:"5px 0",borderTop:bold?"1.5px solid #EDE0F5":"none",marginTop:bold?4:0,paddingTop:bold?8:5}}>
+                    <span style={{color:bold?"#2C2C2C":"#6B6560",fontWeight:bold?700:400}}>{l}</span>
+                    <span style={{fontWeight:700,color:neg?"#C0392B":bold?"#9B7EBD":"#2C2C2C",fontSize:bold?14:12}}>
+                      {neg?"-":""}${Math.abs(v).toLocaleString("es-UY")}
+                    </span>
+                  </div>
+                ));
+              })()}
+            </div>
+          )}
+
+          <button className="btn btnp btnfull" onClick={()=>saveConfig(editConfig.uid, editConfig)}>✅ Guardar configuración</button>
+          <button className="btn btng btnfull" onClick={()=>setEditConfig(null)}>Cancelar</button>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+// ─── TCC (COGNITIVO-CONDUCTUAL) ───────────────────────────────────────────────
+const DISTORSIONES = [
+  { id:"todo_nada",    label:"Todo o nada",         desc:"Ver las cosas en blanco y negro, sin términos medios." },
+  { id:"catastrofismo",label:"Catastrofismo",        desc:"Exagerar la importancia de eventos negativos." },
+  { id:"filtraje",     label:"Filtraje mental",      desc:"Enfocarse solo en los aspectos negativos." },
+  { id:"descalificar", label:"Descalificar lo positivo", desc:"Rechazar experiencias positivas como 'no cuentan'." },
+  { id:"lectura",      label:"Lectura del pensamiento", desc:"Asumir lo que otros piensan sin evidencia." },
+  { id:"adivinar",     label:"Adivinación",          desc:"Predecir resultados negativos como si fueran hechos." },
+  { id:"deberia",      label:"Afirmaciones 'debería'", desc:"Reglas rígidas sobre cómo deben ser las cosas." },
+  { id:"etiquetado",   label:"Etiquetado",           desc:"Asignarse etiquetas negativas globales ('soy un fracaso')." },
+  { id:"personalizacion",label:"Personalización",    desc:"Asumir responsabilidad excesiva por eventos externos." },
+];
+
+function TCC({ patients, documentos=[], setDocumentos=()=>{}, datos={registros:[],experimentos:[],jerarquia:[],humor:{}}, setDatos=()=>{} }) {
+  const [tab, setTab] = useState("pensamientos");
+  const [selPat, setSelPat] = useState("");
+  const registros = datos.registros || [];
+  const setRegistros = v => setDatos(d => ({...d, registros: typeof v==="function"?v(d.registros||[]):v}));
+  const experimentos = datos.experimentos || [];
+  const setExperimentos = v => setDatos(d => ({...d, experimentos: typeof v==="function"?v(d.experimentos||[]):v}));
+  const jerarquia = datos.jerarquia || [];
+  const setJerarquia = v => setDatos(d => ({...d, jerarquia: typeof v==="function"?v(d.jerarquia||[]):v}));
+  const humor = datos.humor || {};
+  const setHumor = v => setDatos(d => ({...d, humor: typeof v==="function"?v(d.humor||{}):v}));
+  const [newReg, setNewReg] = useState({ situacion:"", pensamiento:"", emocion:"", intensidad:50, distorsion:"", alternativa:"", resultadoEmocion:"" });
+  const [newExp, setNewExp] = useState({ hipotesis:"", prediccion:"", experimento:"", resultado:"", conclusion:"" });
+  const [newJer, setNewJer] = useState({ situacion:"", ansiedad:50, completado:false });
+  const [showNewReg, setShowNewReg] = useState(false);
+  const [showNewExp, setShowNewExp] = useState(false);
+
+  const diasSemana = ["Lu","Ma","Mi","Ju","Vi","Sa","Do"];
+  const semanaActual = Array.from({length:7},(_,i)=>{
+    const d = new Date(); d.setDate(d.getDate()-d.getDay()+i+1);
+    return d.toISOString().slice(0,10);
+  });
+
+  const patRegistros = registros.filter(r=>r.paciente===selPat);
+  const patExp       = experimentos.filter(e=>e.paciente===selPat);
+  const patJer       = jerarquia.filter(j=>j.paciente===selPat);
+
+  return (
+    <div className="fu">
+      <div style={{marginBottom:14}}>
+        <div className="pt">🔵 TCC — Cognitivo-Conductual</div>
+        <div className="ps">Pensamientos, experimentos, exposición y humor</div>
+      </div>
+
       <div className="fg">
-        <label className="lbl">Tu especialidad</label>
-        <select className="inp" value={especialidad} onChange={e=>setEspecialidad(e.target.value)}>
-          {["fonoaudióloga","psicopedagoga","psicóloga","psicomotricista","terapeuta ocupacional","fisioterapeuta"].map(s=><option key={s}>{s}</option>)}
+        <label className="lbl">Paciente</label>
+        <select className="inp" value={selPat} onChange={e=>setSelPat(e.target.value)}>
+          <option value="">Seleccioná...</option>
+          {patients.filter(p=>p.status==="active").map(p=><option key={p.id}>{p.name}</option>)}
         </select>
       </div>
 
-      {/* Tabs scrolleables */}
-      <div style={{display:"flex",gap:6,overflowX:"auto",padding:"4px 0",marginBottom:14}}>
-        {tabs.map(t=>(
-          <button key={t.id} onClick={()=>{setTab(t.id);setResult("");setError("");}}
-            style={{padding:"8px 12px",borderRadius:20,border:"none",background:tab===t.id?"#9B7EBD":"#EDE0F5",color:tab===t.id?"white":"#6B6560",fontWeight:700,fontSize:12,cursor:"pointer",whiteSpace:"nowrap",fontFamily:"sans-serif",flexShrink:0}}>
-            {t.icon} {t.label}
-          </button>
+      <div className="atabrow">
+        {[["pensamientos","📝 Pensamientos"],["experimentos","🔬 Experimentos"],["exposicion","📊 Exposición"],["humor","📈 Humor"],["recursos","📚 TCC Recursos"]].map(([id,l])=>(
+          <button key={id} className={`atab${tab===id?" active":""}`} onClick={()=>setTab(id)}>{l}</button>
         ))}
       </div>
 
-      {/* OBJETIVOS */}
-      {tab==="objetivos" && (
+      {/* REGISTRO DE PENSAMIENTOS */}
+      {tab==="pensamientos" && (
         <div>
-          <div className="fg"><label className="lbl">Diagnóstico</label>
-            <input className="inp" placeholder="ej: TEL, Dislexia, TDAH, Disartria, TEA..." value={diagnostico} onChange={e=>setDiagnostico(e.target.value)}/>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+            <div style={{fontSize:13,color:C.grayL}}>Registro de pensamientos automáticos</div>
+            <button className="btn btnp btnsm" onClick={()=>setShowNewReg(true)}>+ Nuevo</button>
           </div>
-          <div className="fg"><label className="lbl">Edad</label>
-            <input className="inp" type="number" placeholder="años" value={edad} onChange={e=>setEdad(e.target.value)} min="1" max="99"/>
-          </div>
-          <div className="alert alrti" style={{fontSize:11}}>💡 También podés seleccionar un paciente arriba para autocompletar los datos</div>
-          <PatientSelect/>
-          <button className="btn btnp btnfull" onClick={generarObjetivos} disabled={loading}>
-            {loading?"⏳ Generando...":"🎯 Generar 6 objetivos terapéuticos"}
-          </button>
+
+          {patRegistros.length===0 && <div className="alert alrti">Sin registros aún. Añadí el primero.</div>}
+
+          {patRegistros.map((r,i)=>(
+            <div key={i} style={{background:"white",borderRadius:14,padding:14,marginBottom:10,border:"1px solid #EDE0F5"}}>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
+                <div style={{background:"#FDECEA",borderRadius:8,padding:"8px 10px"}}>
+                  <div style={{fontSize:10,fontWeight:700,color:"#C0392B",marginBottom:3}}>SITUACIÓN</div>
+                  <div style={{fontSize:12}}>{r.situacion}</div>
+                </div>
+                <div style={{background:"#FEF3E0",borderRadius:8,padding:"8px 10px"}}>
+                  <div style={{fontSize:10,fontWeight:700,color:"#E8A020",marginBottom:3}}>PENSAMIENTO</div>
+                  <div style={{fontSize:12}}>{r.pensamiento}</div>
+                </div>
+                <div style={{background:"#EBF3FB",borderRadius:8,padding:"8px 10px"}}>
+                  <div style={{fontSize:10,fontWeight:700,color:"#5B8DB8",marginBottom:3}}>EMOCIÓN · {r.intensidad}%</div>
+                  <div style={{fontSize:12}}>{r.emocion}</div>
+                </div>
+                <div style={{background:"#E8F8EF",borderRadius:8,padding:"8px 10px"}}>
+                  <div style={{fontSize:10,fontWeight:700,color:"#1a7a3c",marginBottom:3}}>PENSAMIENTO ALTERNATIVO</div>
+                  <div style={{fontSize:12}}>{r.alternativa||"—"}</div>
+                </div>
+              </div>
+              {r.distorsion && (
+                <div style={{fontSize:11,color:C.grayL,background:C.cream,borderRadius:8,padding:"6px 10px"}}>
+                  🔍 Distorsión: <strong>{DISTORSIONES.find(d=>d.id===r.distorsion)?.label||r.distorsion}</strong>
+                </div>
+              )}
+              {r.resultadoEmocion && (
+                <div style={{fontSize:11,color:C.grayL,marginTop:6}}>Emoción resultado: <strong>{r.resultadoEmocion}%</strong></div>
+              )}
+            </div>
+          ))}
+
+          {showNewReg && (
+            <Modal title="Registro de pensamiento" onClose={()=>setShowNewReg(false)}>
+              {[["Situación","situacion","¿Qué pasó? ¿Dónde? ¿Con quién?"],["Pensamiento automático","pensamiento","¿Qué pasó por tu mente?"],["Emoción","emocion","¿Qué sentiste?"]].map(([l,k,ph])=>(
+                <div className="fg" key={k}>
+                  <label className="lbl">{l}</label>
+                  <input className="inp" placeholder={ph} value={newReg[k]} onChange={e=>setNewReg({...newReg,[k]:e.target.value})}/>
+                </div>
+              ))}
+              <div className="fg">
+                <label className="lbl">Intensidad de la emoción: {newReg.intensidad}%</label>
+                <input type="range" style={{width:"100%",accentColor:C.terra}} min={0} max={100} step={5}
+                  value={newReg.intensidad} onChange={e=>setNewReg({...newReg,intensidad:parseInt(e.target.value)})}/>
+              </div>
+              <div className="fg">
+                <label className="lbl">Distorsión cognitiva</label>
+                <select className="inp" value={newReg.distorsion} onChange={e=>setNewReg({...newReg,distorsion:e.target.value})}>
+                  <option value="">Seleccioná (opcional)</option>
+                  {DISTORSIONES.map(d=><option key={d.id} value={d.id}>{d.label}</option>)}
+                </select>
+              </div>
+              <div className="fg">
+                <label className="lbl">Pensamiento alternativo</label>
+                <textarea className="inp" style={{minHeight:60}} placeholder="¿Cómo podría verlo de otra manera?"
+                  value={newReg.alternativa} onChange={e=>setNewReg({...newReg,alternativa:e.target.value})}/>
+              </div>
+              <div className="fg">
+                <label className="lbl">Emoción después del análisis: {newReg.resultadoEmocion||0}%</label>
+                <input type="range" style={{width:"100%",accentColor:"#2ECC71"}} min={0} max={100} step={5}
+                  value={newReg.resultadoEmocion||0} onChange={e=>setNewReg({...newReg,resultadoEmocion:parseInt(e.target.value)})}/>
+              </div>
+              <button className="btn btnp btnfull" onClick={()=>{
+                if(!selPat||!newReg.situacion) return;
+                setRegistros(prev=>[...prev,{...newReg,paciente:selPat,fecha:new Date().toLocaleDateString("es-UY")}]);
+                setNewReg({situacion:"",pensamiento:"",emocion:"",intensidad:50,distorsion:"",alternativa:"",resultadoEmocion:""});
+                setShowNewReg(false);
+              }}>Guardar registro</button>
+            </Modal>
+          )}
         </div>
       )}
 
-      {/* PLAN */}
-      {tab==="plan" && (
+      {/* EXPERIMENTOS CONDUCTUALES */}
+      {tab==="experimentos" && (
         <div>
-          <div className="fg"><label className="lbl">Diagnóstico</label>
-            <input className="inp" placeholder="ej: TEL, Dislexia..." value={diagnostico} onChange={e=>setDiagnostico(e.target.value)}/>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+            <div style={{fontSize:13,color:C.grayL}}>Experimentos para testear creencias</div>
+            <button className="btn btnp btnsm" onClick={()=>setShowNewExp(true)}>+ Nuevo</button>
           </div>
-          <div className="fg"><label className="lbl">Edad</label>
-            <input className="inp" type="number" placeholder="años" value={edad} onChange={e=>setEdad(e.target.value)} min="1" max="99"/>
-          </div>
-          <PatientSelect/>
-          <button className="btn btnp btnfull" onClick={generarPlan} disabled={loading}>
-            {loading?"⏳ Generando...":"📅 Generar plan mensual (4 semanas)"}
-          </button>
+          {patExp.length===0 && <div className="alert alrti">Sin experimentos aún.</div>}
+          {patExp.map((e,i)=>(
+            <div key={i} style={{background:"white",borderRadius:14,padding:14,marginBottom:10,border:"1px solid #EDE0F5"}}>
+              <div style={{fontWeight:700,fontSize:13,marginBottom:8}}>🔬 {e.hipotesis}</div>
+              {[["Predicción",e.prediccion,"#FEF3E0","#E8A020"],["Experimento",e.experimento,"#EBF3FB","#5B8DB8"],["Resultado",e.resultado,"#E8F8EF","#1a7a3c"],["Conclusión",e.conclusion,"#F5F0FA","#9B7EBD"]].map(([l,v,bg,c])=>v?(
+                <div key={l} style={{background:bg,borderRadius:8,padding:"7px 10px",marginBottom:6}}>
+                  <div style={{fontSize:10,fontWeight:700,color:c,marginBottom:2}}>{l.toUpperCase()}</div>
+                  <div style={{fontSize:12}}>{v}</div>
+                </div>
+              ):null)}
+            </div>
+          ))}
+          {showNewExp && (
+            <Modal title="Experimento conductual" onClose={()=>setShowNewExp(false)}>
+              {[["Hipótesis / creencia a testear","hipotesis","Ej: Si hablo en clase, todos se reirán"],["Predicción","prediccion","¿Qué creés que va a pasar?"],["Diseño del experimento","experimento","¿Qué vas a hacer para comprobarlo?"],["Resultado","resultado","¿Qué pasó realmente?"],["Conclusión","conclusion","¿Qué aprendés de esto?"]].map(([l,k,ph])=>(
+                <div className="fg" key={k}>
+                  <label className="lbl">{l}</label>
+                  <textarea className="inp" style={{minHeight:52}} placeholder={ph}
+                    value={newExp[k]} onChange={e=>setNewExp({...newExp,[k]:e.target.value})}/>
+                </div>
+              ))}
+              <button className="btn btnp btnfull" onClick={()=>{
+                if(!selPat||!newExp.hipotesis) return;
+                setExperimentos(prev=>[...prev,{...newExp,paciente:selPat,fecha:new Date().toLocaleDateString("es-UY")}]);
+                setNewExp({hipotesis:"",prediccion:"",experimento:"",resultado:"",conclusion:""});
+                setShowNewExp(false);
+              }}>Guardar experimento</button>
+            </Modal>
+          )}
         </div>
       )}
 
-      {/* EVALUACIÓN */}
-      {tab==="evaluacion" && (
+      {/* JERARQUÍA DE EXPOSICIÓN */}
+      {tab==="exposicion" && (
         <div>
-          <div className="alert alrti" style={{fontSize:11}}>📋 Genera un informe de evaluación diagnóstica formal para entregar a instituciones o médicos.</div>
-          <PatientSelect/>
-          <div className="fg"><label className="lbl">Motivo de consulta</label>
-            <textarea className="inp" style={{minHeight:64}} placeholder="¿Por qué consulta? ¿Qué preocupa a la familia?" value={motivo} onChange={e=>setMotivo(e.target.value)}/>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+            <div style={{fontSize:13,color:C.grayL}}>Jerarquía de exposición gradual</div>
+            <button className="btn btnp btnsm" onClick={()=>{
+              if(!selPat||!newJer.situacion) return;
+              setJerarquia(prev=>[...prev,{...newJer,paciente:selPat}].sort((a,b)=>a.ansiedad-b.ansiedad));
+              setNewJer({situacion:"",ansiedad:50,completado:false});
+            }}>+ Agregar</button>
           </div>
-          <div className="fg"><label className="lbl">Antecedentes relevantes</label>
-            <textarea className="inp" style={{minHeight:64}} placeholder="Antecedentes médicos, familiares, escolares..." value={antecedentes} onChange={e=>setAntecedentes(e.target.value)}/>
+          <div style={{display:"flex",gap:8,marginBottom:12}}>
+            <input className="inp" style={{flex:2}} placeholder="Situación temida..." value={newJer.situacion}
+              onChange={e=>setNewJer({...newJer,situacion:e.target.value})}/>
+            <div style={{flex:1}}>
+              <input type="range" style={{width:"100%",accentColor:C.terra,marginTop:8}} min={0} max={100} step={5}
+                value={newJer.ansiedad} onChange={e=>setNewJer({...newJer,ansiedad:parseInt(e.target.value)})}/>
+              <div style={{fontSize:10,textAlign:"center",color:C.grayL}}>Ansiedad: {newJer.ansiedad}</div>
+            </div>
           </div>
-          <button className="btn btnp btnfull" onClick={generarEvaluacion} disabled={loading}>
-            {loading?"⏳ Generando...":"📋 Generar informe de evaluación"}
-          </button>
+          {patJer.length===0 && <div className="alert alrti">Sin situaciones en la jerarquía aún.</div>}
+          {patJer.map((j,i)=>{
+            const color = j.ansiedad<30?"#1a7a3c":j.ansiedad<60?"#E8A020":"#C0392B";
+            const bg    = j.ansiedad<30?"#E8F8EF":j.ansiedad<60?"#FEF3E0":"#FDECEA";
+            return (
+              <div key={i} style={{background:j.completado?"#E8F8EF":"white",borderRadius:12,padding:12,marginBottom:8,border:`1px solid ${j.completado?"#1a7a3c":"#EDE0F5"}`,display:"flex",alignItems:"center",gap:10}}>
+                <div style={{width:36,height:36,borderRadius:10,background:bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700,color:color,flexShrink:0}}>{j.ansiedad}</div>
+                <div style={{flex:1,fontSize:13,color:j.completado?C.grayL:C.charcoal,textDecoration:j.completado?"line-through":"none"}}>{j.situacion}</div>
+                <button onClick={()=>setJerarquia(prev=>prev.map((x,xi)=>xi===jerarquia.indexOf(j)?{...x,completado:!x.completado}:x))}
+                  style={{background:j.completado?"#E8F8EF":"#F5F0FA",border:"none",borderRadius:8,padding:"6px 10px",cursor:"pointer",fontSize:11,fontWeight:700,color:j.completado?"#1a7a3c":"#9B7EBD"}}>
+                  {j.completado?"✅":"○"}
+                </button>
+              </div>
+            );
+          })}
         </div>
       )}
 
-      {/* ANAMNESIS */}
-      {tab==="anamnesis" && (
+      {/* DIARIO DE HUMOR */}
+      {tab==="humor" && (
         <div>
-          <div className="alert alrti" style={{fontSize:11}}>📝 Completá los datos que tenés y la IA expande y estructura la anamnesis clínica completa.</div>
-          <PatientSelect/>
-          <div className="fg"><label className="lbl">Motivo de consulta</label>
-            <textarea className="inp" style={{minHeight:64}} placeholder="¿Qué refiere la familia? ¿Cuándo notaron las dificultades?" value={motivo} onChange={e=>setMotivo(e.target.value)}/>
+          <div style={{marginBottom:10,fontSize:13,color:C.grayL}}>Registro semanal de estado de ánimo (0-10)</div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:6,marginBottom:14}}>
+            {semanaActual.map((dia,i)=>{
+              const key = `${selPat||"_"}-${dia}`;
+              const val = humor[key]||0;
+              const color = val<4?"#C0392B":val<7?"#E8A020":"#1a7a3c";
+              return (
+                <div key={dia} style={{textAlign:"center"}}>
+                  <div style={{fontSize:10,color:C.grayL,marginBottom:4}}>{diasSemana[i]}</div>
+                  <div style={{background:val>0?"white":"#F5F0FA",borderRadius:10,padding:"8px 4px",border:`2px solid ${val>0?color:"#EDE0F5"}`}}>
+                    <input type="number" min="0" max="10"
+                      style={{width:"100%",border:"none",textAlign:"center",fontSize:16,fontWeight:700,color,background:"transparent",outline:"none"}}
+                      value={val||""}
+                      onChange={e=>{
+                        const v=parseInt(e.target.value)||0;
+                        setHumor(prev=>({...prev,[key]:Math.min(10,Math.max(0,v))}));
+                      }}
+                      placeholder="—"/>
+                    <div style={{fontSize:8,color:C.grayL,marginTop:2}}>{dia.slice(8)}</div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          <div className="fg"><label className="lbl">Antecedentes (lo que tenés)</label>
-            <textarea className="inp" style={{minHeight:64}} placeholder="Embarazo, parto, hitos del desarrollo, historia médica..." value={antecedentes} onChange={e=>setAntecedentes(e.target.value)}/>
+          <div style={{background:"white",borderRadius:14,padding:14,border:"1px solid #EDE0F5"}}>
+            <div style={{fontWeight:700,fontSize:13,marginBottom:8}}>Escala de referencia</div>
+            {[[0,3,"Bajo","#FDECEA","#C0392B"],[4,6,"Moderado","#FEF3E0","#E8A020"],[7,10,"Bueno","#E8F8EF","#1a7a3c"]].map(([min,max,l,bg,c])=>(
+              <div key={l} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+                <div style={{background:bg,borderRadius:6,padding:"3px 10px",fontSize:11,fontWeight:700,color:c}}>{min}–{max}</div>
+                <span style={{fontSize:12,color:C.grayL}}>{l}</span>
+              </div>
+            ))}
           </div>
-          <button className="btn btnp btnfull" onClick={completarAnamnesis} disabled={loading}>
-            {loading?"⏳ Completando...":"📝 Completar y estructurar anamnesis"}
-          </button>
         </div>
       )}
 
-      {/* INFORME FAMILIA */}
-      {tab==="informe" && (
+      {/* RECURSOS TCC */}
+      {tab==="recursos" && (
         <div>
-          <div className="alert alrti" style={{fontSize:11}}>📄 Informe de progreso claro y positivo para entregar a la familia.</div>
-          <PatientSelect/>
-          <button className="btn btnp btnfull" onClick={generarInforme} disabled={loading || !selPat}>
-            {loading?"⏳ Generando...":"📄 Generar informe para familia"}
-          </button>
-        </div>
-      )}
-
-      {/* SEGUIMIENTO */}
-      {tab==="seguimiento" && (
-        <div>
-          <PatientSelect/>
-          <button className="btn btnp btnfull" onClick={generarSeguimiento} disabled={loading || !selPat}>
-            {loading?"⏳ Analizando...":"📊 Generar análisis de seguimiento"}
-          </button>
-        </div>
-      )}
-
-      {/* LIBRE */}
-      {tab==="libre" && (
-        <div>
-          <PatientSelect/>
-          <div className="fg"><label className="lbl">Tu consulta</label>
-            <textarea className="inp" style={{minHeight:100}}
-              placeholder="Ej: Generame una actividad para trabajar conciencia fonológica con un niño de 6 años con TEL..."
-              value={librePrompt} onChange={e=>setLibrePrompt(e.target.value)}/>
-          </div>
-          <button className="btn btnp btnfull" onClick={generarLibre} disabled={loading}>
-            {loading?"⏳ Procesando...":"💬 Enviar consulta"}
-          </button>
-        </div>
-      )}
-
-      {error&&<div className="alert alrtd" style={{marginTop:10}}>{error}</div>}
-
-      {loading&&(
-        <div style={{textAlign:"center",padding:"30px 0"}}>
-          <div style={{fontSize:36,marginBottom:12}}>🧠</div>
-          <div style={{fontWeight:600,color:C.terra,marginBottom:6}}>Analizando con IA...</div>
-          <div style={{fontSize:12,color:C.grayL}}>Esto puede tomar unos segundos</div>
-        </div>
-      )}
-
-      {result&&(
-        <div style={{marginTop:14}}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-            <div style={{fontWeight:700,fontSize:13,color:C.charcoal}}>Resultado generado por IA</div>
-            <button className="btn btnsm btno noprint" onClick={()=>window.print()}>🖨️ Imprimir</button>
-          </div>
-          <textarea
-            className="inp"
-            value={result}
-            onChange={e=>setResult(e.target.value)}
-            style={{minHeight:200,fontSize:13,lineHeight:1.8,background:"#F5F0FA",border:"1.5px solid #D4BCE8",borderRadius:14,padding:16,color:C.charcoal,resize:"vertical"}}
-          />
-          <div style={{fontSize:11,color:C.grayL,marginTop:2}}>✏️ Podés editar el texto antes de enviarlo o imprimirlo</div>
-          <div style={{display:"flex",gap:8,marginTop:8,flexWrap:"wrap"}}>
-            <button className="btn btng btnsm" onClick={()=>navigator.clipboard?.writeText(result).catch(()=>{})}>📋 Copiar</button>
-            <button className="btn btnsm noprint" style={{background:"#25D366",color:"white"}}
-              onClick={()=>window.open(`https://wa.me/?text=${encodeURIComponent(result)}`,"_blank")}>💬 WhatsApp</button>
-            <button className="btn btnsm noprint" style={{background:"#5B8DB8",color:"white"}}
-              onClick={()=>window.open(`mailto:?subject=${encodeURIComponent("Resultado IA — Hadrion")}&body=${encodeURIComponent(result)}`)}>✉️ Email</button>
-            <button className="btn btno btnsm noprint" onClick={()=>window.print()}>🖨️ Imprimir</button>
+          <div style={{fontWeight:700,fontSize:14,marginBottom:10}}>🔍 Distorsiones cognitivas</div>
+          {DISTORSIONES.map(d=>(
+            <div key={d.id} style={{background:"white",borderRadius:12,padding:12,marginBottom:8,border:"1px solid #EDE0F5"}}>
+              <div style={{fontWeight:700,fontSize:13,color:C.terra,marginBottom:3}}>{d.label}</div>
+              <div style={{fontSize:12,color:C.grayL}}>{d.desc}</div>
+            </div>
+          ))}
+          <div style={{background:C.terraF,borderRadius:14,padding:14,marginTop:4}}>
+            <div style={{fontWeight:700,fontSize:13,marginBottom:8}}>📐 Triángulo cognitivo de Beck</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
+              {[["Yo","Visión negativa de uno mismo","#FDECEA","#C0392B"],["Mundo","Experiencias negativas del entorno","#FEF3E0","#E8A020"],["Futuro","Expectativas negativas","#EBF3FB","#5B8DB8"]].map(([t,d,bg,c])=>(
+                <div key={t} style={{background:bg,borderRadius:10,padding:"10px 8px",textAlign:"center"}}>
+                  <div style={{fontWeight:700,fontSize:14,color:c,marginBottom:4}}>{t}</div>
+                  <div style={{fontSize:10,color:C.grayL,lineHeight:1.4}}>{d}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -3714,7 +5551,30 @@ export default function HadrionApp() {
     basicoUSD:12, proUSD:30, clinicaUSD:70, colegioUSD:110,
     mpLinkBasico:"", mpLinkPro:"", mpLinkClinica:"", stripeLink:""
   });
-  const setPrecios = v => { setPreciosRaw(v); saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan, registerRequests, precios:v }); };
+  const setPrecios = v => { setPreciosRaw(v); saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan, registerRequests, precios:v, documentos, plantillas }); };
+  // Documentos generados (informes IA guardados)
+  const [documentos, setDocumentosRaw] = useState(stored?.documentos || []);
+  const setDocumentos = v => { setDocumentosRaw(v); saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan, registerRequests, precios, documentos:typeof v==="function"?v(documentos):v, plantillas }); };
+  // Plantillas personalizadas del usuario
+  const [plantillas, setPlantillasRaw] = useState(stored?.plantillas || []);
+  const setPlantillas = v => { setPlantillasRaw(v); saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan, registerRequests, precios, documentos, plantillas:typeof v==="function"?v(plantillas):v }); };
+  // Psicología — registros persistidos
+  const [psicoDatos, setPsicoDatosRaw] = useState(stored?.psicoDatos || { registros:[], experimentos:[], jerarquia:[], humor:{} });
+  const setPsicoDatos = v => { const val=typeof v==="function"?v(psicoDatos):v; setPsicoDatosRaw(val); persist("psicoDatos",null,val); };
+  // TCC — registros persistidos  
+  const [tccDatos, setTccDatosRaw] = useState(stored?.tccDatos || { registros:[], experimentos:[], jerarquia:[], humor:{} });
+  const setTccDatos = v => { const val=typeof v==="function"?v(tccDatos):v; setTccDatosRaw(val); persist("tccDatos",null,val); };
+  // Liquidación — configs y asistencias persistidas
+  const [liqConfigs, setLiqConfigsRaw] = useState(stored?.liqConfigs || {});
+  const setLiqConfigs = v => { const val=typeof v==="function"?v(liqConfigs):v; setLiqConfigsRaw(val); persist("liqConfigs",null,val); };
+  const [liqAsistencias, setLiqAsistenciasRaw] = useState(stored?.liqAsistencias || {});
+  const setLiqAsistencias = v => { const val=typeof v==="function"?v(liqAsistencias):v; setLiqAsistenciasRaw(val); persist("liqAsistencias",null,val); };
+  // Chat IA — historial persistido
+  const [chatHistory, setChatHistoryRaw] = useState(stored?.chatHistory || [
+    { role:"assistant", content:"Hola! Soy tu asistente clínico. Podés cargar los datos de un paciente y pedirme informes, objetivos, anamnesis, o lo que necesites. ¿Con qué empezamos?" }
+  ]);
+  const setChatHistory = v => { const val=typeof v==="function"?v(chatHistory):v; setChatHistoryRaw(val); persist("chatHistory",null,val); };
+
   const [selPatId,         setSelPatId]   = useState(null);
   const [showQS,           setShowQS]     = useState(false);
   const [qsF,              setQsF]        = useState({ patientId:"", note:"" });
@@ -3737,17 +5597,22 @@ export default function HadrionApp() {
   }, [user]);
 
   // Wrappers que persisten automáticamente
-  const persist = useCallback((key, val) => {
-    saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan, registerRequests, [key]:val });
-  }, [users, user, patients, sessions, payments, agendaItems, plan, registerRequests]);
-
-  const setUsers    = v => { setUsersRaw(v);    saveToStorage({ users:typeof v==="function"?v(users):v, user, patients, sessions, payments, agendaItems, plan, registerRequests, precios }); };
-  const setPatients = v => { setPatientsRaw(v); saveToStorage({ users, user, patients:typeof v==="function"?v(patients):v, sessions, payments, agendaItems, plan, registerRequests }); };
-  const setSessions = v => { setSessionsRaw(v); saveToStorage({ users, user, patients, sessions:typeof v==="function"?v(sessions):v, payments, agendaItems, plan, registerRequests }); };
-  const setPayments = v => { setPaymentsRaw(v); saveToStorage({ users, user, patients, sessions, payments:typeof v==="function"?v(payments):v, agendaItems, plan, registerRequests }); };
-  const setAgenda   = v => { setAgendaRaw(v);   saveToStorage({ users, user, patients, sessions, payments, agendaItems:typeof v==="function"?v(agendaItems):v, plan, registerRequests }); };
-  const setPlan     = v => { setPlanRaw(v);      saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan:typeof v==="function"?v(plan):v, registerRequests }); };
-  const setReg      = v => { setRegRaw(v);       saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan, registerRequests:typeof v==="function"?v(registerRequests):v }); };
+  const persist = (key, v, val) => {
+    try {
+      const data = { users, user, patients, sessions, payments, agendaItems, plan,
+        registerRequests, precios, documentos, plantillas,
+        psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory };
+      if (key) data[key] = val;
+      saveToStorage(data);
+    } catch(e) { console.warn("persist error:", e); }
+  };
+  const setUsers    = v => { const val=typeof v==="function"?v(users):v;    setUsersRaw(val);    persist("users",v,val); };
+  const setPatients = v => { const val=typeof v==="function"?v(patients):v; setPatientsRaw(val); persist("patients",v,val); };
+  const setSessions = v => { const val=typeof v==="function"?v(sessions):v; setSessionsRaw(val); persist("sessions",v,val); };
+  const setPayments = v => { const val=typeof v==="function"?v(payments):v; setPaymentsRaw(val); persist("payments",v,val); };
+  const setAgenda   = v => { const val=typeof v==="function"?v(agendaItems):v; setAgendaRaw(val); persist("agendaItems",v,val); };
+  const setPlan     = v => { const val=typeof v==="function"?v(plan):v;     setPlanRaw(val);     persist("plan",v,val); };
+  const setReg      = v => { const val=typeof v==="function"?v(registerRequests):v; setRegRaw(val); persist("registerRequests",v,val); };
 
   const handleRegisterRequest = (form) => {
     setReg(prev => [...prev, { id:makeId(), date:new Date().toLocaleDateString("es-UY"), ...form, status:"pendiente" }]);
@@ -3784,21 +5649,46 @@ export default function HadrionApp() {
     payments:   <Payments   patients={patients} payments={payments} setPayments={setPayments} />,
     sessions:   <Sessions   patients={patients} sessions={sessions} setSessions={setSessions} setPatients={setPatients} />,
     history:    <History    patients={patients} sessions={sessions} selectedPatientId={selPatId} setPatients={setPatients} />,
-    objectives: <Activities />,
-    activities: <Activities />,
+    objectives: <Activities user={user}/>,
+    activities: <Activities user={user}/>,
     phonology:  <Phonology />,
     reports:    <Reports    patients={patients} sessions={sessions} payments={payments} />,
     plan:       <PlanColaborativo patients={patients} users={users} plan={plan} setPlan={setPlan} />,
-    resources:  <Resources />,
+    resources:  <Resources plantillas={plantillas} setPlantillas={setPlantillas} documentos={documentos} setDocumentos={setDocumentos}/>,
     tea:        <TEAAutismo />,
     asistencias:<Asistencias patients={patients} setPatients={setPatients} />,
-    organizaciones: user?.role === "admin"
+    organizaciones: (user?.role === "admin" || isClinica(user))
       ? <Organizaciones users={users} setUsers={setUsers} precios={precios} />
-      : <div className="fu"><div className="alert alrtd">🔐 Solo administradores.</div></div>,
+      : <div className="fu">
+          <div style={{background:"linear-gradient(135deg,#F5F0FA,#EDE0F5)",borderRadius:18,padding:28,textAlign:"center",marginTop:20}}>
+            <div style={{fontSize:48,marginBottom:12}}>🏫</div>
+            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:700,color:"#7B5EA7",marginBottom:8}}>Función para Clínicas</div>
+            <div style={{fontSize:13,color:"#6B6560",lineHeight:1.7,marginBottom:16}}>La gestión de organizaciones y equipos está disponible en el Plan Clínica o Colegio.</div>
+            <a href="https://wa.me/59899926775?text=Hola%20Adriana%2C%20quiero%20actualizar%20al%20Plan%20Clínica" target="_blank" rel="noopener noreferrer"
+              style={{display:"inline-block",background:"#25D366",color:"white",borderRadius:12,padding:"10px 20px",fontWeight:700,fontSize:13,textDecoration:"none"}}>
+              💬 Actualizar plan
+            </a>
+          </div>
+        </div>,
     admin:      user?.role === "admin"
       ? <Admin users={users} setUsers={setUsers} registerRequests={registerRequests} setRegisterRequests={setReg} currentUser={user} precios={precios} setPrecios={setPrecios} />
       : <div className="fu"><div className="alert alrtd">🔐 Solo administradores.</div></div>,
-    ia:         <IAAsistente patients={patients} C={C}/>,
+    ia:         <IAAsistente patients={patients} C={C} documentos={documentos} setDocumentos={setDocumentos} chatHistory={chatHistory} setChatHistory={setChatHistory}/>,
+    psicologia: <Psicologia patients={patients} sessions={sessions} documentos={documentos} setDocumentos={setDocumentos} datos={psicoDatos} setDatos={setPsicoDatos}/>,
+    tcc:        <TCC patients={patients} documentos={documentos} setDocumentos={setDocumentos} datos={tccDatos} setDatos={setTccDatos}/>,
+    liquidacion: (user?.role === "admin" || isClinica(user))
+      ? <Liquidacion users={users} currentUser={user} configs={liqConfigs} setConfigs={setLiqConfigs} asistenciasData={liqAsistencias} setAsistenciasData={setLiqAsistencias}/>
+      : <div className="fu">
+          <div style={{background:"linear-gradient(135deg,#F5F0FA,#EDE0F5)",borderRadius:18,padding:28,textAlign:"center",marginTop:20}}>
+            <div style={{fontSize:48,marginBottom:12}}>💰</div>
+            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:700,color:"#7B5EA7",marginBottom:8}}>Liquidación de Sueldos</div>
+            <div style={{fontSize:13,color:"#6B6560",lineHeight:1.7,marginBottom:16}}>La liquidación de sueldos del equipo está disponible en el Plan Clínica o Colegio.</div>
+            <a href="https://wa.me/59899926775?text=Hola%20Adriana%2C%20quiero%20el%20Plan%20Clínica" target="_blank" rel="noopener noreferrer"
+              style={{display:"inline-block",background:"#25D366",color:"white",borderRadius:12,padding:"10px 20px",fontWeight:700,fontSize:13,textDecoration:"none"}}>
+              💬 Actualizar plan
+            </a>
+          </div>
+        </div>,
     profile:    <Profile user={user} onLogout={logout} setUser={u => { setUser(u); saveToStorage({ users, user:u, patients, sessions, payments, agendaItems, plan, registerRequests }); }} />,
   };
 
