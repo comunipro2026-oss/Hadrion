@@ -1932,7 +1932,6 @@ function Phonology() {
             </div>
           )}
 
-          )}
 
           {/* Palabra del dia */}
           <div style={{ marginTop:12 }}>
@@ -2725,11 +2724,11 @@ Si les interesa, escríbanme 💜`}
           ))}
 
           <div style={{background:"linear-gradient(135deg,#9B7EBD,#7B5EA7)",borderRadius:14,padding:"14px 16px",color:"white",marginTop:8}}>
-            <div style={{fontWeight:700,fontSize:13,marginBottom:8}}>💰 Precios sugeridos Uruguay 2025</div>
-            {[["Plan Básico","1 usuario","$490 UYU/mes"],["Plan Pro","3 usuarios + IA","$1.200 UYU/mes"],["Plan Clínica","10 usuarios","$2.800 UYU/mes"],["Plan Colegio","30 usuarios","$4.500 UYU/mes"]].map(([p,d,price]) => (
+            <div style={{fontWeight:700,fontSize:13,marginBottom:8}}>💰 Precios actuales</div>
+            {[["Plan Básico","1 usuario","basico"],["Plan Pro","3 usuarios + IA","pro"],["Plan Clínica","10 usuarios","clinica"],["Plan Colegio","30 usuarios","colegio"]].map(([p,d,key]) => (
               <div key={p} style={{display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:"1px solid rgba(255,255,255,.2)"}}>
                 <div><div style={{fontWeight:600,fontSize:12}}>{p}</div><div style={{fontSize:10,opacity:.8}}>{d}</div></div>
-                <div style={{fontWeight:700,fontSize:13}}>{price}</div>
+                <div style={{fontWeight:700,fontSize:13}}>${(precios?.[key]||0).toLocaleString("es-UY")} UYU/mes</div>
               </div>
             ))}
           </div>
@@ -2855,14 +2854,15 @@ function Profile({ user, onLogout, setUser }) {
 
 // ─── FOOTER ───────────────────────────────────────────────────────────────────
 // ─── ORGANIZACIONES ───────────────────────────────────────────────────────────
-const PLANES_ORG = [
-  { id:"basico",   label:"Básico",  maxUsers:1,  precio:490,  color:"#9B7EBD" },
-  { id:"pro",      label:"Pro",     maxUsers:3,  precio:1200, color:"#5B8DB8" },
-  { id:"clinica",  label:"Clínica", maxUsers:10, precio:2800, color:"#2ECC71" },
-  { id:"colegio",  label:"Colegio", maxUsers:30, precio:4500, color:"#E8A020" },
+const PLANES_ORG_BASE = [
+  { id:"basico",   label:"Básico",  maxUsers:1,  color:"#9B7EBD" },
+  { id:"pro",      label:"Pro",     maxUsers:3,  color:"#5B8DB8" },
+  { id:"clinica",  label:"Clínica", maxUsers:10, color:"#2ECC71" },
+  { id:"colegio",  label:"Colegio", maxUsers:30, color:"#E8A020" },
 ];
 
-function Organizaciones({ users, setUsers }) {
+function Organizaciones({ users, setUsers, precios={} }) {
+  const PLANES_ORG = PLANES_ORG_BASE.map(p => ({ ...p, precio: precios[p.id] || 0 }));
   const [orgs, setOrgs]     = useState([
     { id:1, nombre:"Clínica Demo", tipo:"Clinica", plan:"clinica", maxUsers:10,
       contacto:"demo@clinica.com", usuarios:[1,2], activa:true, createdAt:"01/01/2025" }
@@ -3793,7 +3793,7 @@ export default function HadrionApp() {
     tea:        <TEAAutismo />,
     asistencias:<Asistencias patients={patients} setPatients={setPatients} />,
     organizaciones: user?.role === "admin"
-      ? <Organizaciones users={users} setUsers={setUsers} />
+      ? <Organizaciones users={users} setUsers={setUsers} precios={precios} />
       : <div className="fu"><div className="alert alrtd">🔐 Solo administradores.</div></div>,
     admin:      user?.role === "admin"
       ? <Admin users={users} setUsers={setUsers} registerRequests={registerRequests} setRegisterRequests={setReg} currentUser={user} precios={precios} setPrecios={setPrecios} />
