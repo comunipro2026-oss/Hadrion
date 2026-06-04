@@ -2541,7 +2541,7 @@ function Resources({ plantillas=[], setPlantillas=()=>{}, documentos=[], setDocu
 
   const askIA = () => {
     if (!iaQuery.trim()) return;
-    setIaResult("⚠️ La generación con IA no está disponible en esta versión. Para activarla necesitás configurar la función Cloudflare con tu API key. Contactá a Adriana: comunipro12@gmail.com");
+    setIaResult("⚠️ La generación con IA no está disponible en esta versión. Necesitás configurar la función Cloudflare con tu API key. Contactá a Adriana: comunipro12@gmail.com");
   };
 
   // Plantillas base del sistema
@@ -4483,7 +4483,7 @@ function GoalBank({ user }) {
 
 // ─── IA CHAT TERAPÉUTICO ──────────────────────────────────────────────────────
 function IAAsistente({ patients, C, documentos=[], setDocumentos=()=>{}, chatHistory=null, setChatHistory=null }) {
-  const defaultMsg = [{ role:"assistant", content:"⚠️ El Asistente IA no está disponible en esta versión. Para activarlo necesitás configurar la función Cloudflare con tu API key. Contactá a Adriana: comunipro12@gmail.com\n\nEl resto de la plataforma funciona normalmente: pacientes, sesiones, agenda, pagos, actividades, fonología, TEA, reportes, recursos y más." }];
+  const defaultMsg = [{ role:"assistant", content:"⚠️ El Asistente IA no está disponible en esta versión.\n\nEl resto de la plataforma funciona completamente: pacientes, sesiones, agenda, pagos, asistencias, fonología, TEA, actividades, reportes y recursos." }];
   const [messages, setMessagesLocal] = React.useState(chatHistory || defaultMsg);
   const setMessages = (v) => {
     const val = typeof v === "function" ? v(messages) : v;
@@ -4541,7 +4541,7 @@ ${ctx}` };
     const userMsg = { role:"user", content: input.trim() };
     setMessages(prev => [...prev, userMsg, {
       role:"assistant",
-      content:"⚠️ El Asistente IA no está disponible en esta versión. Para activarlo necesitás configurar la función Cloudflare con tu API key. Contactá a Adriana: comunipro12@gmail.com"
+      content:"⚠️ El Asistente IA no está disponible en esta versión. Para activarlo necesitás configurar la función Cloudflare con tu API key.\n\nContactá a Adriana: comunipro12@gmail.com"
     }]);
     setInput("");
   };
