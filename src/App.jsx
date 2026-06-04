@@ -2539,9 +2539,29 @@ function Resources({ plantillas=[], setPlantillas=()=>{}, documentos=[], setDocu
   const [iaResult, setIaResult] = useState("");
   const [iaLoading, setIaLoading] = useState(false);
 
-  const askIA = () => {
+  const askIA = async () => {
     if (!iaQuery.trim()) return;
-    setIaResult("⚠️ La generación con IA no está disponible en esta versión. Necesitás configurar la función Cloudflare con tu API key. Contactá a Adriana: comunipro12@gmail.com");
+    setIaLoading(true);
+    setIaResult("");
+    try {
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          system: "Sos una asistente IA especializada en terapias de salud y educación (fonoaudiología, psicología, psicopedagogía, etc.). Ayudás a generar documentación clínica profesional en español rioplatense (Uruguay). Respondé de forma directa y útil.",
+          messages: [{ role: "user", content: iaQuery }]
+        })
+      });
+      const data = await response.json();
+      const text = data.content?.filter(b => b.type === "text").map(b => b.text).join("\n") || "Sin respuesta.";
+      setIaResult(text);
+    } catch (err) {
+      setIaResult("⚠️ Error al conectar con la IA. Intentá de nuevo.");
+    } finally {
+      setIaLoading(false);
+    }
   };
 
   // Plantillas base del sistema
@@ -4483,7 +4503,38 @@ function GoalBank({ user }) {
 
 // ─── IA CHAT TERAPÉUTICO ──────────────────────────────────────────────────────
 function IAAsistente({ patients, C, documentos=[], setDocumentos=()=>{}, chatHistory=null, setChatHistory=null }) {
-  const defaultMsg = [{ role:"assistant", content:"⚠️ El Asistente IA no está disponible en esta versión.\n\nEl resto de la plataforma funciona completamente: pacientes, sesiones, agenda, pagos, asistencias, fonología, TEA, actividades, reportes y recursos." }];
+  const SYSTEM_PROMPT = `Sos una asistente IA especializada en terapias de salud y educación, integrada en la plataforma Hadrion desarrollada por Adriana Soba (fonoaudióloga, Uruguay).
+
+Tu función es ayudar a profesionales terapéuticos (fonoaudiólogos, psicólogos, psicopedagogos, terapeutas ocupacionales, etc.) a generar documentación clínica de alta calidad en español rioplatense.
+
+PODÉS GENERAR:
+- Informes de progreso para familias
+- Informes de evaluación formal
+- Objetivos terapéuticos específicos y medibles
+- Planes terapéuticos mensuales
+- Cartas para la escuela / instituciones
+- Recomendaciones para el hogar
+- Anamnesis completas
+- Análisis de seguimiento
+- Actividades terapéuticas adaptadas al diagnóstico
+
+ESTILO DE ESCRITURA:
+- Lenguaje profesional pero comprensible para familias cuando corresponda
+- Español rioplatense (vos, vocabulario uruguayo/rioplatense)
+- Usar terminología clínica correcta
+- Informes formales con estructura clara: datos del paciente, objetivos, evolución, recomendaciones
+- Cuando generés un informe formal, incluí encabezado con: nombre del profesional, especialidad, fecha, datos del paciente
+
+IMPORTANTE:
+- Basate siempre en los datos del paciente que te provea el profesional
+- Si no tenés datos suficientes, generá el documento con espacios marcados como [COMPLETAR]
+- Nunca inventés diagnósticos ni datos médicos que no te fueron provistos
+- Podés sugerir objetivos basados en el diagnóstico conocido, aclarando que son sugerencias
+
+Respondé de forma útil, concisa y profesional.`;
+
+  const defaultMsg = [{ role:"assistant", content:"¡Hola! Soy tu Asistente IA Terapéutico 🧠\n\nPuedo ayudarte a generar informes, objetivos, planes terapéuticos, cartas para la escuela y más.\n\nPara empezar:\n1. Seleccioná un paciente (opcional)\n2. Tocá \"Cargar datos\" si elegiste uno\n3. Escribí lo que necesitás o usá los accesos rápidos\n\n¿En qué te ayudo hoy?" }];
+
   const [messages, setMessagesLocal] = React.useState(chatHistory || defaultMsg);
   const setMessages = (v) => {
     const val = typeof v === "function" ? v(messages) : v;
@@ -4496,6 +4547,7 @@ function IAAsistente({ patients, C, documentos=[], setDocumentos=()=>{}, chatHis
   const [especialidad, setEspecialidad] = React.useState("fonoaudióloga");
   const [editIdx, setEditIdx] = React.useState(null);
   const [editText, setEditText] = React.useState("");
+  const [error, setError] = React.useState(null);
   const bottomRef = React.useRef(null);
 
   React.useEffect(() => {
@@ -4523,27 +4575,60 @@ Diagnóstico presuntivo: ${p.diagnosticoP || "no especificado"}
     const p = patients.find(x => x.name === selPat);
     if (!p) return;
     const ctx = getPatientCtx(p);
-    const msg = { role:"user", content:`Cargá estos datos del paciente para el contexto de la consulta:
-
-${ctx}` };
-    const resp = { role:"assistant", content:`✅ Datos de **${p.name}** cargados. Tengo en contexto su diagnóstico (${p.diagnosis}), ${p.sessions || 0} sesiones, objetivos y toda la historia clínica disponible.
-
-¿Qué querés que genere? Por ejemplo:
-• "Haceme un informe de progreso para la familia"
-• "Generame 6 objetivos terapéuticos"
-• "Completá la anamnesis"
-• "Redactá un informe de evaluación formal"` };
+    const msg = { role:"user", content:`Cargá estos datos del paciente para el contexto de la consulta:\n\n${ctx}` };
+    const resp = { role:"assistant", content:`✅ Datos de **${p.name}** cargados correctamente.\n\nTengo en contexto:\n• Diagnóstico: ${p.diagnosis}\n• Edad: ${p.age} años\n• Sesiones realizadas: ${p.sessions || 0}\n• Objetivos: ${(p.goals||[]).slice(0,2).join(", ")}${(p.goals||[]).length > 2 ? "..." : ""}\n\n¿Qué querés que genere?\n• "Haceme un informe de progreso para la familia"\n• "Generame 6 objetivos terapéuticos"\n• "Redactá un informe de evaluación formal"\n• "Carta para la escuela"` };
     setMessages(prev => [...prev, msg, resp]);
   };
 
-  const send = () => {
-    if (!input.trim()) return;
+  const send = async () => {
+    if (!input.trim() || loading) return;
+    setError(null);
     const userMsg = { role:"user", content: input.trim() };
-    setMessages(prev => [...prev, userMsg, {
-      role:"assistant",
-      content:"⚠️ El Asistente IA no está disponible en esta versión. Para activarlo necesitás configurar la función Cloudflare con tu API key.\n\nContactá a Adriana: comunipro12@gmail.com"
-    }]);
+    const newMessages = [...messages, userMsg];
+    setMessages(newMessages);
     setInput("");
+    setLoading(true);
+
+    const apiMessages = newMessages
+      .filter(m => m.role === "user" || m.role === "assistant")
+      .map(m => ({ role: m.role, content: m.content }));
+
+    const systemWithEspecialidad = SYSTEM_PROMPT + `\n\nEl profesional que usa esta sesión es ${especialidad}.`;
+
+    try {
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          system: systemWithEspecialidad,
+          messages: apiMessages,
+        })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData?.error?.message || `Error ${response.status}`);
+      }
+
+      const data = await response.json();
+      const text = data.content
+        .filter(b => b.type === "text")
+        .map(b => b.text)
+        .join("\n");
+
+      setMessages(prev => [...prev, { role:"assistant", content: text }]);
+    } catch (err) {
+      console.error("IA error:", err);
+      setError(err.message || "Error al conectar con la IA");
+      setMessages(prev => [...prev, {
+        role:"assistant",
+        content:`⚠️ Error al conectar con la IA: ${err.message || "Error desconocido"}.\n\nIntentá de nuevo en unos segundos.`
+      }]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const startEdit = (i, text) => { setEditIdx(i); setEditText(text); };
@@ -4553,10 +4638,11 @@ ${ctx}` };
   };
 
   const clearChat = () => {
-    const fresh = [{ role:"assistant", content:"Chat reiniciado. ¿Con qué empezamos?" }];
+    const fresh = [{ role:"assistant", content:"Chat reiniciado 🔄 ¿Con qué empezamos?" }];
     setMessagesLocal(fresh);
     if (setChatHistory) setChatHistory(fresh);
     setSelPat("");
+    setError(null);
   };
 
   const quickPrompts = [
@@ -4575,7 +4661,7 @@ ${ctx}` };
       {/* Header */}
       <div style={{marginBottom:10}}>
         <div className="pt">🧠 Asistente IA</div>
-        <div className="ps">Chat clínico con memoria — Powered by Groq AI</div>
+        <div className="ps">Chat clínico con memoria — Powered by Claude AI</div>
       <div style={{background:"#F5F0FA",borderRadius:12,padding:"10px 14px",marginBottom:10,fontSize:12,color:"#6B6560",lineHeight:1.6}}>
         💡 <strong>Cómo usarlo:</strong> Seleccioná un paciente → tocá "Cargar datos" → escribí lo que necesitás (ej: <em>"haceme un informe para la familia"</em>) → la IA genera el texto → lo editás y lo enviás.
       </div>
