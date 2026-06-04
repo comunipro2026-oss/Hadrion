@@ -2554,8 +2554,14 @@ function Resources({ plantillas=[], setPlantillas=()=>{}, documentos=[], setDocu
           messages: [{ role: "user", content: iaQuery }]
         })
       });
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData?.error?.message || `Error ${response.status}`);
+      }
       const data = await response.json();
-      const text = data.content?.filter(b => b.type === "text").map(b => b.text).join("\n") || "Sin respuesta.";
+      const content = data.content || (data.error ? null : []);
+      if (!content) throw new Error(data.error?.message || "Error de la API");
+      const text = content.filter(b => b.type === "text").map(b => b.text).join("\n") || "Sin respuesta.";
       setIaResult(text);
     } catch (err) {
       setIaResult("⚠️ Error al conectar con la IA. Intentá de nuevo.");
@@ -4613,10 +4619,9 @@ Diagnóstico presuntivo: ${p.diagnosticoP || "no especificado"}
       }
 
       const data = await response.json();
-      const text = data.content
-        .filter(b => b.type === "text")
-        .map(b => b.text)
-        .join("\n");
+      const content = data.content || (data.error ? null : []);
+      if (!content) throw new Error(data.error?.message || "Error de la API");
+      const text = content.filter(b => b.type === "text").map(b => b.text).join("\n") || "Sin respuesta.";
 
       setMessages(prev => [...prev, { role:"assistant", content: text }]);
     } catch (err) {
