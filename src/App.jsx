@@ -5,7 +5,7 @@
 // Prohibida su reproduccion sin autorizacion expresa.
 // ================================================
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 
 // ─── PALETA DE COLORES ───────────────────────────────────────────────────────
 const C = {
@@ -909,7 +909,7 @@ function Sidebar({ active, setActive, user, registerRequests=[] }) {
       {NAV.filter(n => {
         if (n.adminOnly && user?.role !== "admin") return false;
         if (NAV_CLINICA_ONLY.includes(n.id) && !isClinica(user)) return false;
-        if (n.id === "ia" && !isProOrMore(user)) return false;
+        if (NAV_PRO_ONLY.includes(n.id) && !isProOrMore(user)) return false;
         return true;
       }).map(n => (
         <div key={n.id}>
@@ -1523,8 +1523,8 @@ function Payments({ patients, payments, setPayments }) {
 
   const save = () => {
     if (!f.patientId || !f.amount) return;
-    const p = patients.find(x => x.id === parseInt(f.patientId));
-    setPayments(prev => [...prev, { id:makeId(), patientId:parseInt(f.patientId), patient:p?.name||"", amount:parseInt(f.amount), currency:f.currency||"UYU", type:f.type, date:f.date, method:f.method, notes:f.notes||"", status:"pagado" }]);
+    const p = patients.find(x => String(x.id) === String(f.patientId));
+    setPayments(prev => [...prev, { id:makeId(), patientId:p?.id||f.patientId, patient:p?.name||"", amount:parseInt(f.amount), currency:f.currency||"UYU", type:f.type, date:f.date, method:f.method, notes:f.notes||"", status:"pagado" }]);
     setF({ patientId:"", amount:"", type:"Particular", method:"Transferencia", date:new Date().toISOString().slice(0,10), currency:"UYU", notes:"" });
     setShowNew(false);
   };
@@ -1608,13 +1608,12 @@ function Sessions({ patients, sessions, setSessions, setPatients }) {
 
   const save = () => {
     if (!f.patientId || !f.note) return;
-    const p = patients.find(x => x.id === parseInt(f.patientId));
-    const patId = parseInt(f.patientId);
-    if (!patId || !f.note) return;
-    const newSession = { id:makeId(), patientId:patId, patient:p?.name||"", date:new Date().toLocaleDateString("es-UY"), ...f, duration:f.duration||45, activities:f.activities ? f.activities.split(",").map(s => s.trim()) : [] };
+    const p = patients.find(x => String(x.id) === String(f.patientId));
+    if (!p || !f.note) return;
+    const newSession = { id:makeId(), patientId:p.id, patient:p?.name||"", date:new Date().toLocaleDateString("es-UY"), ...f, duration:f.duration||45, activities:f.activities ? f.activities.split(",").map(s => s.trim()) : [] };
     setSessions(prev => [newSession, ...prev]);
     // actualizar contador de sesiones del paciente
-    setPatients(prev => prev.map(pat => pat.id === parseInt(f.patientId) ? { ...pat, sessions: pat.sessions + 1 } : pat));
+    setPatients(prev => prev.map(pat => String(pat.id) === String(f.patientId) ? { ...pat, sessions: pat.sessions + 1 } : pat));
     setF({ patientId:"", objective:"", note:"", progress:50, activities:"", homework:"", estado:"", atencion:"", participacion:"", sensorial:[] });
     setShowNew(false);
   };
@@ -1712,8 +1711,8 @@ function History({ patients, sessions, selectedPatientId, setPatients }) {
   const [ans, setAns] = useState({});
   const [tab, setTab] = useState("anamnesis");
   const [htab, setHtab] = useState("evoluciones");
-  const patient = patients.find(p => p.id === parseInt(pid));
-  const pSess   = sessions.filter(s => s.patientId === parseInt(pid));
+  const patient = patients.find(p => String(p.id) === String(pid));
+  const pSess   = sessions.filter(s => String(s.patientId) === String(pid));
   return (
     <div className="fu">
       <div style={{ marginBottom:14 }}><div className="pt">Historia Clinica</div><div className="ps">Registro integral del paciente</div></div>
@@ -2378,8 +2377,8 @@ function Phonology() {
 // ─── REPORTS ──────────────────────────────────────────────────────────────────
 function Reports({ patients, sessions, payments }) {
   const [pid, setPid] = useState("");
-  const patient = patients.find(p => p.id === parseInt(pid));
-  const pSess   = sessions.filter(s => s.patientId === parseInt(pid));
+  const patient = patients.find(p => String(p.id) === String(pid));
+  const pSess   = sessions.filter(s => String(s.patientId) === String(pid));
   const totalC  = payments.filter(p => p.status === "pagado").reduce((a, b) => a + b.amount, 0);
   const pendiente = payments.filter(p => p.status === "pendiente").reduce((a,b)=>a+b.amount,0);
   const mesActual = new Date().toLocaleDateString("es-UY",{month:"long",year:"numeric"});
@@ -3052,12 +3051,13 @@ function PlanColaborativo({ patients, users, plan, setPlan }) {
   const [showNew, setNew] = useState(false);
   const [f, setF]         = useState({ area:"fono", professional:"", objectives:"", progress:50, notes:"" });
 
-  const patient = patients.find(p => p.id === parseInt(pid));
-  const pPlan   = plan.filter(p => p.patientId === parseInt(pid));
+  const patient = patients.find(p => String(p.id) === String(pid));
+  const pPlan   = plan.filter(p => String(p.patientId) === String(pid));
 
   const save = () => {
     if (!pid || !f.professional) return;
-    setPlan(prev => [...prev, { id:makeId(), patientId:parseInt(pid), ...f, objectives:f.objectives.split(",").map(o=>o.trim()).filter(Boolean), lastUpdate:new Date().toLocaleDateString("es-UY") }]);
+    const p = patients.find(x => String(x.id) === String(pid));
+    setPlan(prev => [...prev, { id:makeId(), patientId:p?.id||pid, ...f, objectives:f.objectives.split(",").map(o=>o.trim()).filter(Boolean), lastUpdate:new Date().toLocaleDateString("es-UY") }]);
     setF({ area:"fono", professional:"", objectives:"", progress:50, notes:"" });
     setNew(false);
   };
@@ -3165,13 +3165,13 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
   const sendWA = () => {
     if (!f.phone) { alert("Ingresa un telefono con codigo de pais para WhatsApp"); return; }
     const phone = f.phone.replace(/\D/g, "");
-    const msg = encodeURIComponent(`Hola ${f.name.split(" ")[0]}! Te doy acceso a Hadrion.\n🔗 hadrion.netlify.app\n📧 Email: ${f.email}\n🔑 Contraseña: ${f.password}\nPlan: ${f.plan} — 14 dias de prueba. Cualquier consulta escribime!`);
+    const msg = encodeURIComponent(`Hola ${f.name.split(" ")[0]}! Te doy acceso a Hadrion.\n🔗 hadrion.pages.dev\n📧 Email: ${f.email}\n🔑 Contraseña: ${f.password}\nPlan: ${f.plan} — 14 dias de prueba. Cualquier consulta escribime!`);
     window.open(`https://wa.me/${phone}?text=${msg}`, "_blank");
   };
 
   const sendEmail = () => {
     const subject = encodeURIComponent("Acceso a Hadrion — Plataforma Clinica");
-    const body    = encodeURIComponent(`Hola ${f.name}!\n\nTe doy acceso a Hadrion, tu plataforma clinica.\n\nURL: https://hadrion.netlify.app\nEmail: ${f.email}\nContraseña: ${f.password}\nPlan: ${f.plan}\n\n14 dias de prueba gratuitos. Cualquier consulta: comunipro12@gmail.com\n\nAdriana Soba`);
+    const body    = encodeURIComponent(`Hola ${f.name}!\n\nTe doy acceso a Hadrion, tu plataforma clinica.\n\nURL: https://hadrion.pages.dev\nEmail: ${f.email}\nContraseña: ${f.password}\nPlan: ${f.plan}\n\n14 dias de prueba gratuitos. Cualquier consulta: comunipro12@gmail.com\n\nAdriana Soba`);
     window.open(`mailto:${f.email}?subject=${subject}&body=${body}`);
   };
 
@@ -3220,7 +3220,7 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
                       const phone = (r.phone||"").replace(/\D/g,"");
                       if (phone) {
                         const msg = encodeURIComponent(`Hola ${r.name.split(" ")[0]}! 🎉 Tu acceso a Hadrion está listo.
-🔗 hadrion-v4.netlify.app
+🔗 hadrion.pages.dev
 📧 Email: ${r.email}
 🔑 Contraseña: ${pwd}
 Tenés ${dias} días de prueba gratis. ¡Bienvenida!
@@ -3407,7 +3407,27 @@ Hadrion es la plataforma clínica diseñada para vos 🌸
 
 #fonoaudiologia #psicopedagogia #terapiaocupacional #autismo #TEA #Uruguay #plataformaclinica #hadrion`}
           </div>
-          <button className="btn btno btnsm" onClick={()=>navigator.clipboard?.writeText("✨ ¿Sos fonoaudióloga...").catch(()=>{})}>
+          <button className="btn btno btnsm" onClick={()=>{
+            const txt = `✨ ¿Sos fonoaudióloga, psicopedagoga o terapeuta y seguís con anotaciones en papel?
+
+Hadrion es la plataforma clínica diseñada para vos 🌸
+
+✅ Registrá sesiones en segundos
+✅ Calculá cuánto cobrar por dependencia (BPS, Mutual, Particular...)
+✅ Asistencias y liquidación automática
+✅ Módulo TEA/Autismo con objetivos por área
+✅ IA terapéutica para generar objetivos e informes
+✅ Historia clínica digital
+✅ Agenda con Google Calendar
+
+📍 Desarrollado en Uruguay para profesionales de habla hispana
+
+👉 Escribime por DM o WhatsApp para conocer los planes
+💜 14 días de prueba gratis
+
+#fonoaudiologia #psicopedagogia #terapiaocupacional #autismo #TEA #Uruguay #plataformaclinica #hadrion`;
+            navigator.clipboard?.writeText(txt).catch(()=>{});
+          }}>
             📋 Copiar texto
           </button>
 
@@ -3578,7 +3598,6 @@ function Profile({ user, onLogout, setUser }) {
   );
 }
 
-// ─── FOOTER ───────────────────────────────────────────────────────────────────
 // ─── ORGANIZACIONES ───────────────────────────────────────────────────────────
 const PLANES_ORG_BASE = [
   { id:"basico",   label:"Básico",       maxUsers:1,  color:"#9B7EBD", tipo:"individual",
@@ -4230,7 +4249,7 @@ function Footer() {
 // ─── APP PRINCIPAL ────────────────────────────────────────────────────────────
 
 // ═══════════════════════════════════════
-// IA TERAPEUTICA - Powered by Claude API
+// IA TERAPEUTICA - Powered by Groq API
 // ═══════════════════════════════════════
 // ─── BANCO DE OBJETIVOS ───────────────────────────────────────────────────────
 const GOALS_DB = {
@@ -4554,14 +4573,25 @@ Si tenés datos del paciente en el contexto los usás para personalizar completa
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ system, messages: msgHistory })
       });
-      const data = await res.json();
+
+      // Parsear JSON incluso si hay error HTTP (la función puede devolver error como JSON)
+      let data;
+      try {
+        data = await res.json();
+      } catch(parseErr) {
+        // Si no es JSON válido (ej: error 502/504 de Cloudflare en HTML)
+        setMessages(prev => [...prev, { role:"assistant", content:`❌ Error HTTP ${res.status}: ${res.statusText || "Sin respuesta del servidor"}. Verificá que la función Cloudflare esté desplegada.` }]);
+        setLoading(false);
+        return;
+      }
+
       if (data.content?.[0]?.text) {
         const respText = data.content[0].text;
         setMessages(prev => [...prev, { role:"assistant", content: respText }]);
         // Auto-guardar si parece un informe (más de 200 chars)
         if (respText.length > 200) {
           const p = patients.find(x=>x.name===selPat);
-          const titulo = `${new Date().toLocaleDateString("es-UY")} — ${tab}${p?" — "+p.name:""}`;
+          const titulo = `${new Date().toLocaleDateString("es-UY")} — IA${p?" — "+p.name:""}`;
           setDocumentos(prev => [{
             id: makeId(), tipo:"ia", titulo,
             contenido: respText,
@@ -4571,22 +4601,24 @@ Si tenés datos del paciente en el contexto los usás para personalizar completa
         }
       } else if (data.error) {
         const errMsg = data.error.message || "No se pudo obtener respuesta.";
-        const isKeyError = errMsg.toLowerCase().includes("api-key") || errMsg.toLowerCase().includes("api_key") || errMsg.toLowerCase().includes("authentication");
+        const isKeyError = errMsg.toLowerCase().includes("api-key") || errMsg.toLowerCase().includes("api_key") || errMsg.toLowerCase().includes("authentication") || errMsg.toLowerCase().includes("invalid_api_key");
         setMessages(prev => [...prev, { role:"assistant", content:isKeyError
-          ? `❌ Error de API Key.
+          ? `❌ Error de API Key de Groq.
 
 Para solucionar:
-1. Entrá a app.netlify.com
-2. Tu sitio → Site configuration → Environment variables
-3. Buscá ANTHROPIC_API_KEY
-4. Actualizá con la nueva key de console.anthropic.com
-5. Trigger deploy
+1. Entrá a console.groq.com y generá una nueva API key
+2. Entrá a Cloudflare Pages → hadrion → Settings → Variables and Secrets
+3. Actualizá GROQ_API_KEY con la nueva key
+4. Hacé un nuevo deploy (o push al repo)
 
 Contactá a Adriana: comunipro12@gmail.com si necesitás ayuda.`
           : `❌ Error: ${errMsg}` }]);
+      } else {
+        // Respuesta inesperada sin content ni error
+        setMessages(prev => [...prev, { role:"assistant", content:`❌ Respuesta inesperada del servidor (HTTP ${res.status}). Revisá que functions/claude.js esté bien desplegada en Cloudflare.` }]);
       }
     } catch(e) {
-      setMessages(prev => [...prev, { role:"assistant", content:"❌ Error de conexión. Verificá tu internet." }]);
+      setMessages(prev => [...prev, { role:"assistant", content:"❌ Error de conexión. Verificá tu internet o que la app esté online." }]);
     }
     setLoading(false);
   };
@@ -4620,7 +4652,7 @@ Contactá a Adriana: comunipro12@gmail.com si necesitás ayuda.`
       {/* Header */}
       <div style={{marginBottom:10}}>
         <div className="pt">🧠 Asistente IA</div>
-        <div className="ps">Chat clínico con memoria — Powered by Claude AI</div>
+        <div className="ps">Chat clínico con memoria — Powered by Groq AI</div>
       <div style={{background:"#F5F0FA",borderRadius:12,padding:"10px 14px",marginBottom:10,fontSize:12,color:"#6B6560",lineHeight:1.6}}>
         💡 <strong>Cómo usarlo:</strong> Seleccioná un paciente → tocá "Cargar datos" → escribí lo que necesitás (ej: <em>"haceme un informe para la familia"</em>) → la IA genera el texto → lo editás y lo enviás.
       </div>
@@ -5846,13 +5878,13 @@ export default function HadrionApp() {
     basicoUSD:12, proUSD:30, clinicaUSD:70, colegioUSD:110,
     mpLinkBasico:"", mpLinkPro:"", mpLinkClinica:"", stripeLink:""
   });
-  const setPrecios = v => { setPreciosRaw(v); saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan, registerRequests, precios:v, documentos, plantillas }); };
+  const setPrecios = v => { setPreciosRaw(v); saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan, registerRequests, precios:v, documentos, plantillas, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory }); };
   // Documentos generados (informes IA guardados)
   const [documentos, setDocumentosRaw] = useState(stored?.documentos || []);
-  const setDocumentos = v => { setDocumentosRaw(v); saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan, registerRequests, precios, documentos:typeof v==="function"?v(documentos):v, plantillas }); };
+  const setDocumentos = v => { const val=typeof v==="function"?v(documentos):v; setDocumentosRaw(val); saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan, registerRequests, precios, documentos:val, plantillas, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory }); };
   // Plantillas personalizadas del usuario
   const [plantillas, setPlantillasRaw] = useState(stored?.plantillas || []);
-  const setPlantillas = v => { setPlantillasRaw(v); saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan, registerRequests, precios, documentos, plantillas:typeof v==="function"?v(plantillas):v }); };
+  const setPlantillas = v => { const val=typeof v==="function"?v(plantillas):v; setPlantillasRaw(val); saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan, registerRequests, precios, documentos, plantillas:val, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory }); };
   // Psicología — registros persistidos
   const [psicoDatos, setPsicoDatosRaw] = useState(stored?.psicoDatos || { registros:[], experimentos:[], jerarquia:[], humor:{} });
   const setPsicoDatos = v => { const val=typeof v==="function"?v(psicoDatos):v; setPsicoDatosRaw(val); persist("psicoDatos",null,val); };
@@ -5914,16 +5946,17 @@ export default function HadrionApp() {
   };
 
   const logout = () => {
-    saveToStorage({ users, user:null, patients, sessions, payments, agendaItems, plan, registerRequests });
+    saveToStorage({ users, user:null, patients, sessions, payments, agendaItems, plan, registerRequests,
+      precios, documentos, plantillas, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory });
     setUser(null); setActive("dashboard");
   };
 
   const saveQS = () => {
     if (!qsF.patientId || !qsF.note) return;
-    const p = patients.find(x => x.id === parseInt(qsF.patientId));
-    const newSess = { id:makeId(), patientId:parseInt(qsF.patientId), patient:p?.name||"", date:new Date().toLocaleDateString("es-UY"), objective:"Sesion rapida", note:qsF.note, progress:50, activities:[], homework:"", estado:"", atencion:"", participacion:"", sensorial:[] };
+    const p = patients.find(x => String(x.id) === String(qsF.patientId));
+    const newSess = { id:makeId(), patientId:p?.id||qsF.patientId, patient:p?.name||"", date:new Date().toLocaleDateString("es-UY"), objective:"Sesion rapida", note:qsF.note, progress:50, activities:[], homework:"", estado:"", atencion:"", participacion:"", sensorial:[] };
     setSessions(prev => [newSess, ...prev]);
-    setPatients(prev => prev.map(pat => pat.id === parseInt(qsF.patientId) ? { ...pat, sessions:pat.sessions+1 } : pat));
+    setPatients(prev => prev.map(pat => String(pat.id) === String(qsF.patientId) ? { ...pat, sessions:pat.sessions+1 } : pat));
     setQsF({ patientId:"", note:"" }); setShowQS(false);
   };
 
@@ -5934,7 +5967,8 @@ export default function HadrionApp() {
     const updatedUsers = users.map(x => x.id === u.id ? userWithToken : x);
     setUsersRaw(updatedUsers);
     setUser(userWithToken);
-    saveToStorage({ users:updatedUsers, user:userWithToken, patients, sessions, payments, agendaItems, plan, registerRequests });
+    saveToStorage({ users:updatedUsers, user:userWithToken, patients, sessions, payments, agendaItems, plan,
+      registerRequests, precios, documentos, plantillas, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory });
   };
 
   const pages = {
