@@ -2544,7 +2544,7 @@ function Resources({ plantillas=[], setPlantillas=()=>{}, documentos=[], setDocu
     setIaLoading(true);
     setIaResult("");
     try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      const response = await fetch("https://hadrion-ai.comunipro12.workers.dev", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -4596,7 +4596,7 @@ Diagnóstico presuntivo: ${p.diagnosticoP || "no especificado"}
     const systemWithEspecialidad = SYSTEM_PROMPT + `\n\nEl profesional que usa esta sesión es ${especialidad}.`;
 
     try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      const response = await fetch("https://hadrion-ai.comunipro12.workers.dev", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
