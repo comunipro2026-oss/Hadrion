@@ -2539,18 +2539,9 @@ function Resources({ plantillas=[], setPlantillas=()=>{}, documentos=[], setDocu
   const [iaResult, setIaResult] = useState("");
   const [iaLoading, setIaLoading] = useState(false);
 
-  const askIA = async () => {
+  const askIA = () => {
     if (!iaQuery.trim()) return;
-    setIaLoading(true); setIaResult("");
-    try {
-      const res = await fetch("/functions/claude", {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ messages:[{role:"user",content:`Sos una terapeuta experta. ${iaQuery}. Respondé en español, sin asteriscos ni markdown, texto listo para imprimir.`}] })
-      });
-      const data = await res.json();
-      setIaResult(data.content?.[0]?.text || "No se pudo obtener respuesta.");
-    } catch(e) { setIaResult("Error de conexión."); }
-    setIaLoading(false);
+    setIaResult("⚠️ La generación con IA no está disponible en esta versión. Para activarla necesitás configurar la función Cloudflare con tu API key. Contactá a Adriana: comunipro12@gmail.com");
   };
 
   // Plantillas base del sistema
@@ -4175,12 +4166,12 @@ function TEAAutismo() {
             <div key={a.area} style={{background:"white",borderRadius:18,overflow:"hidden",boxShadow:"0 2px 12px rgba(0,0,0,.07)",marginBottom:12}}>
               <div style={{padding:"14px 16px",borderBottom:"1px solid #EDE0F5",display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}} onClick={()=>setSelArea(selArea===a.area?null:a.area)}>
                 <span style={{fontWeight:700,fontSize:14,color:a.color}}>{a.icon} {a.area}</span>
-                <span style={{fontSize:12,color:"#9B9590"}}>{selArea===a.area?"▲":"▼"} {a.items.length} obj.</span>
+                <span style={{fontSize:12,color:"#9B9590"}}>{selArea===a.area?"▲":"▼"} {(a.niveles?.[nivel]||[]).length} obj.</span>
               </div>
               {selArea === a.area && (
                 <div style={{padding:"14px 16px"}}>
-                  {(a.niveles?.[nivel] || a.items || []).map((obj,i) => (
-                    <div key={i} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"7px 0",borderBottom:i<(a.niveles?.[nivel]||a.items||[]).length-1?"1px solid #EDE0F5":"none"}}>
+                  {(a.niveles?.[nivel] || []).map((obj,i) => (
+                    <div key={i} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"7px 0",borderBottom:i<(a.niveles?.[nivel]||[]).length-1?"1px solid #EDE0F5":"none"}}>
                       <div style={{width:20,height:20,borderRadius:6,background:a.color+"22",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:700,color:a.color,flexShrink:0,marginTop:1}}>{i+1}</div>
                       <div style={{fontSize:13,color:"#2C2C2C",lineHeight:1.4}}>{obj}</div>
                     </div>
@@ -4492,7 +4483,7 @@ function GoalBank({ user }) {
 
 // ─── IA CHAT TERAPÉUTICO ──────────────────────────────────────────────────────
 function IAAsistente({ patients, C, documentos=[], setDocumentos=()=>{}, chatHistory=null, setChatHistory=null }) {
-  const defaultMsg = [{ role:"assistant", content:"Hola! Soy tu asistente clínico. Podés cargar los datos de un paciente y pedirme informes, objetivos, anamnesis, o lo que necesites. ¿Con qué empezamos?" }];
+  const defaultMsg = [{ role:"assistant", content:"⚠️ El Asistente IA no está disponible en esta versión. Para activarlo necesitás configurar la función Cloudflare con tu API key. Contactá a Adriana: comunipro12@gmail.com\n\nEl resto de la plataforma funciona normalmente: pacientes, sesiones, agenda, pagos, actividades, fonología, TEA, reportes, recursos y más." }];
   const [messages, setMessagesLocal] = React.useState(chatHistory || defaultMsg);
   const setMessages = (v) => {
     const val = typeof v === "function" ? v(messages) : v;
@@ -4545,82 +4536,14 @@ ${ctx}` };
     setMessages(prev => [...prev, msg, resp]);
   };
 
-  const send = async () => {
-    if (!input.trim() || loading) return;
+  const send = () => {
+    if (!input.trim()) return;
     const userMsg = { role:"user", content: input.trim() };
-    const newMessages = [...messages, userMsg];
-    setMessages(newMessages);
+    setMessages(prev => [...prev, userMsg, {
+      role:"assistant",
+      content:"⚠️ El Asistente IA no está disponible en esta versión. Para activarlo necesitás configurar la función Cloudflare con tu API key. Contactá a Adriana: comunipro12@gmail.com"
+    }]);
     setInput("");
-    setLoading(true);
-
-    try {
-      // Build system prompt
-      const system = `Sos una ${especialidad} experta con amplia experiencia clínica en Uruguay. 
-Respondés siempre en español, de forma profesional pero clara.
-Cuando generás informes los hacés completos, formales y listos para entregar.
-Cuando el usuario pide ajustes los hacés directamente sin explicar lo que vas a hacer.
-No usás asteriscos ni markdown. Usás formato de texto plano con saltos de línea.
-Si tenés datos del paciente en el contexto los usás para personalizar completamente la respuesta.`;
-
-      // Only send last 20 messages to avoid token limits
-      const msgHistory = newMessages.slice(-20).map(m => ({
-        role: m.role,
-        content: m.content
-      }));
-
-      const res = await fetch("/functions/claude", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ system, messages: msgHistory })
-      });
-
-      // Parsear JSON incluso si hay error HTTP (la función puede devolver error como JSON)
-      let data;
-      try {
-        data = await res.json();
-      } catch(parseErr) {
-        // Si no es JSON válido (ej: error 502/504 de Cloudflare en HTML)
-        setMessages(prev => [...prev, { role:"assistant", content:`❌ Error HTTP ${res.status}: ${res.statusText || "Sin respuesta del servidor"}. Verificá que la función Cloudflare esté desplegada.` }]);
-        setLoading(false);
-        return;
-      }
-
-      if (data.content?.[0]?.text) {
-        const respText = data.content[0].text;
-        setMessages(prev => [...prev, { role:"assistant", content: respText }]);
-        // Auto-guardar si parece un informe (más de 200 chars)
-        if (respText.length > 200) {
-          const p = patients.find(x=>x.name===selPat);
-          const titulo = `${new Date().toLocaleDateString("es-UY")} — IA${p?" — "+p.name:""}`;
-          setDocumentos(prev => [{
-            id: makeId(), tipo:"ia", titulo,
-            contenido: respText,
-            fecha: new Date().toLocaleDateString("es-UY"),
-            paciente: selPat || ""
-          }, ...prev].slice(0,100)); // max 100 docs
-        }
-      } else if (data.error) {
-        const errMsg = data.error.message || "No se pudo obtener respuesta.";
-        const isKeyError = errMsg.toLowerCase().includes("api-key") || errMsg.toLowerCase().includes("api_key") || errMsg.toLowerCase().includes("authentication") || errMsg.toLowerCase().includes("invalid_api_key");
-        setMessages(prev => [...prev, { role:"assistant", content:isKeyError
-          ? `❌ Error de API Key de Groq.
-
-Para solucionar:
-1. Entrá a console.groq.com y generá una nueva API key
-2. Entrá a Cloudflare Pages → hadrion → Settings → Variables and Secrets
-3. Actualizá GROQ_API_KEY con la nueva key
-4. Hacé un nuevo deploy (o push al repo)
-
-Contactá a Adriana: comunipro12@gmail.com si necesitás ayuda.`
-          : `❌ Error: ${errMsg}` }]);
-      } else {
-        // Respuesta inesperada sin content ni error
-        setMessages(prev => [...prev, { role:"assistant", content:`❌ Respuesta inesperada del servidor (HTTP ${res.status}). Revisá que functions/claude.js esté bien desplegada en Cloudflare.` }]);
-      }
-    } catch(e) {
-      setMessages(prev => [...prev, { role:"assistant", content:"❌ Error de conexión. Verificá tu internet o que la app esté online." }]);
-    }
-    setLoading(false);
   };
 
   const startEdit = (i, text) => { setEditIdx(i); setEditText(text); };
