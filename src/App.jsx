@@ -6,6 +6,7 @@
 // ================================================
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 // ─── PALETA DE COLORES ───────────────────────────────────────────────────────
 const C = {
@@ -841,16 +842,82 @@ const loadFromStorage = () => {
   } catch(e) { return null; }
 };
 
+// ─── SUPABASE ────────────────────────────────────────────────────────────────
+const SB_URL = "https://lgpqyjevdwstbnerawmp.supabase.co";
+const SB_KEY = "sb_publishable_ezLQMGeIrqgHPMyINUGHKw_mTDTNR61";
+const sbFetch = async (path, opts = {}) => {
+  const res = await fetch(`${SB_URL}/rest/v1/${path}`, {
+    headers: {
+      "apikey": SB_KEY,
+      "Authorization": `Bearer ${SB_KEY}`,
+      "Content-Type": "application/json",
+      "Prefer": opts.prefer || "return=representation",
+      ...opts.headers,
+    },
+    ...opts,
+  });
+  if (!res.ok) { const e = await res.text(); throw new Error(e); }
+  return res.status === 204 ? null : res.json();
+};
+
+// Login terapeuta desde Supabase
+const sbLogin = async (email, password) => {
+  const rows = await sbFetch(`hadrion_users?email=eq.${encodeURIComponent(email)}&password=eq.${encodeURIComponent(password)}&select=*`);
+  return rows?.[0] || null;
+};
+
+// Cargar todos los usuarios de una organización
+const sbGetUsers = async (orgId) => {
+  return sbFetch(`hadrion_users?org_id=eq.${orgId}&select=*`);
+};
+
+// Guardar/actualizar asistencia
+const sbSaveAsistencia = async (userId, orgId, dia, estado, mes) => {
+  return sbFetch(`hadrion_asistencias`, {
+    method: "POST",
+    prefer: "resolution=merge-duplicates,return=representation",
+    body: JSON.stringify({ user_id: userId, org_id: orgId, dia, estado, mes }),
+  });
+};
+
+// Cargar asistencias de un mes para toda la org
+const sbGetAsistencias = async (orgId, mes) => {
+  return sbFetch(`hadrion_asistencias?org_id=eq.${orgId}&mes=eq.${mes}&select=*`);
+};
+
+// Guardar config de sueldo
+const sbSaveConfig = async (userId, orgId, mes, cfg) => {
+  return sbFetch(`hadrion_sueldos_config`, {
+    method: "POST",
+    prefer: "resolution=merge-duplicates,return=representation",
+    body: JSON.stringify({ user_id: userId, org_id: orgId, mes, ...cfg }),
+  });
+};
+
+// Cargar configs de sueldo de una org y mes
+const sbGetConfigs = async (orgId, mes) => {
+  return sbFetch(`hadrion_sueldos_config?org_id=eq.${orgId}&mes=eq.${mes}&select=*`);
+};
+
+// Crear usuario terapeuta
+const sbCreateUser = async (userData) => {
+  return sbFetch(`hadrion_users`, {
+    method: "POST",
+    body: JSON.stringify(userData),
+  });
+};
+
 // ─── COMPONENTES BASE ─────────────────────────────────────────────────────────
 function Modal({ title, onClose, children }) {
-  return (
+  return createPortal(
     <div className="overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
         <button className="xbtn" onClick={onClose}>✕</button>
         {title && <div className="modalt">{title}</div>}
         {children}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -1513,6 +1580,7 @@ function Patients({ patients, setPatients, setActive, setSelPatId, sessions }) {
           <div style={{ display:"flex", gap:7, flexWrap:"wrap", marginBottom:12 }}>
             <button className="btn btng btnsm" onClick={() => { setEditF({ name:sel.name, age:sel.age, diagnosis:sel.diagnosis, phone:sel.phone, email:sel.email, guardian:sel.guardian, notes:sel.notes }); setEditing(true); }}>✏️ Editar</button>
             <button className="btn btng btnsm" onClick={() => { setPatients(prev => prev.map(p => p.id === sel.id ? { ...p, status:"archived" } : p)); setSel(null); }}>📦 Archivar</button>
+            <button className="btn btnd btnsm" onClick={() => { if(window.confirm(`¿Eliminar a ${sel.name}? Esta acción no se puede deshacer.`)) { setPatients(prev => prev.filter(p => p.id !== sel.id)); setSel(null); } }}>🗑️ Eliminar</button>
             <button className="btn btno btnsm" onClick={() => { setSelPatId(sel.id); setActive("history"); setSel(null); }}>📋 Historia</button>
           </div>
           <div className="sep" />
@@ -2329,13 +2397,33 @@ function Phonology() {
         <div style={{ marginLeft:"auto", background:C.terraF, borderRadius:10, padding:"6px 12px", fontSize:13, fontWeight:700, color:C.terra }}>⭐ {score}</div>
       </div>
 
-      {!sel && (
-        <div style={{background:"#F5F0FA",borderRadius:14,padding:"14px 16px",marginBottom:12,textAlign:"center"}}>
-          <div style={{fontSize:28,marginBottom:6}}>👆</div>
-          <div style={{fontWeight:700,fontSize:13,color:"#7B5EA7",marginBottom:4}}>Seleccioná un fonema de la grilla</div>
-          <div style={{fontSize:12,color:"#9B9590"}}>Tocá cualquier letra o vocal para comenzar el ejercicio de <strong>{stage}</strong></div>
-        </div>
-      )}
+      {!sel && (() => {
+        const info = {
+          Escucha:      { icon:"🔊", titulo:"Escucha el fonema", desc:"El profesional dice el sonido y el niño lo identifica. Toca el fonema para escucharlo y ver las palabras que empiezan con ese sonido." },
+          Imagen:       { icon:"🖼️", titulo:"Asocia imagen y fonema", desc:"El niño une la imagen con la letra inicial. Seleccioná un fonema para ver imágenes de palabras que empiezan con ese sonido." },
+          Letra:        { icon:"🔤", titulo:"Reconoce la letra escrita", desc:"Escucha el sonido y toca la letra correcta entre 3 opciones. Ejercita la asociación sonido–grafema." },
+          Silaba:       { icon:"✂️", titulo:"Conteo silábico", desc:"Da una palmada por cada sílaba. Seleccioná un fonema para ver palabras con ese fonema inicial y practicar la segmentación silábica." },
+          Segmentacion: { icon:"🔍", titulo:"Segmenta los sonidos", desc:"Di cada sonido de la palabra por separado. Seleccioná un fonema para ver las palabras separadas letra por letra." },
+          Fusion:       { icon:"🔗", titulo:"Fusiona los sonidos", desc:"Toca cada letra y adivina la palabra completa. Ejercita la síntesis fonémica juntando sonidos." },
+          Manipulacion: { icon:"🔀", titulo:"Manipula fonemas", desc:"Cambiá el fonema inicial de una palabra para formar una nueva. Ejercita la conciencia fonémica avanzada." },
+        };
+        const { icon, titulo, desc } = info[stage] || {};
+        return (
+          <div style={{background:"#F5F0FA",borderRadius:14,padding:"16px",marginBottom:12}}>
+            <div style={{display:"flex",alignItems:"flex-start",gap:12}}>
+              <div style={{fontSize:32,flexShrink:0}}>{icon}</div>
+              <div>
+                <div style={{fontWeight:700,fontSize:14,color:"#7B5EA7",marginBottom:4}}>{titulo}</div>
+                <div style={{fontSize:12,color:"#6B6560",lineHeight:1.6}}>{desc}</div>
+              </div>
+            </div>
+            <div style={{marginTop:12,paddingTop:10,borderTop:"1px solid #EDE0F5",display:"flex",alignItems:"center",gap:8}}>
+              <div style={{fontSize:16}}>👆</div>
+              <div style={{fontSize:12,color:"#9B9590"}}>Tocá un fonema de la grilla para comenzar</div>
+            </div>
+          </div>
+        );
+      })()}
 
       {sel && (
         <div style={{ background:C.terraF, borderRadius:16, padding:16, marginBottom:12, border:`2px solid ${C.terraL}` }}>
@@ -5355,22 +5443,60 @@ Profesional: ___________________`}
 function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:setConfigsProp=()=>{}, asistenciasData={}, setAsistenciasData=()=>{} }) {
   const mesActual = new Date().toISOString().slice(0,7);
   const [mes, setMes] = useState(mesActual);
-  // Use persistent configs from props
-  const configs = configsProp;
+  const [sbUsers, setSbUsers]   = useState([]);
+  const [sbAsis,  setSbAsis]    = useState({});   // { userId: { dia: estado } }
+  const [sbCfgs,  setSbCfgs]    = useState({});   // { userId: config }
+  const [sbLoading, setSbLoading] = useState(false);
+  const [sbError,   setSbError]   = useState(null);
+  const [showAddUser, setShowAddUser] = useState(false);
+  const [newUser, setNewUser] = useState({ name:"", email:"", password:"", specialty:"Fonoaudiologa" });
+
+  // ¿El admin tiene org_id en Supabase?
+  const orgId = currentUser?.org_id || null;
+  const usandoSb = !!orgId;
+
+  // Cargar datos desde Supabase cuando cambia mes u org
+  useEffect(() => {
+    if (!usandoSb) return;
+    setSbLoading(true);
+    setSbError(null);
+    Promise.all([
+      sbGetUsers(orgId),
+      sbGetAsistencias(orgId, mes),
+      sbGetConfigs(orgId, mes),
+    ]).then(([users, asis, cfgs]) => {
+      setSbUsers(users || []);
+      // Convertir asistencias array → { userId: { dia: estado } }
+      const asisMap = {};
+      (asis || []).forEach(a => {
+        if (!asisMap[a.user_id]) asisMap[a.user_id] = {};
+        asisMap[a.user_id][a.dia] = a.estado;
+      });
+      setSbAsis(asisMap);
+      // Convertir configs array → { userId: config }
+      const cfgMap = {};
+      (cfgs || []).forEach(c => { cfgMap[c.user_id] = c; });
+      setSbCfgs(cfgMap);
+      setSbLoading(false);
+    }).catch(e => { setSbError(e.message); setSbLoading(false); });
+  }, [orgId, mes]);
+
+  // Usar datos de Supabase si hay org, sino localStorage
+  const configs = usandoSb ? sbCfgs : configsProp;
   const setConfigs = setConfigsProp;
-  
-  // Get config for a user, with defaults
-  const getConfig = (uid) => configs[uid] || {
-    tarifaSesion: 0,
-    complementoMonto: 0,
-    complementoPeriodo: "mensual",
-    descuentoFalta: 0,
-    tipoDescuento: "monto",
-    activo: true
-  };
-  // Use persistent asistencias from props
-  const asistencias = asistenciasData;
+  const asistencias = usandoSb ? sbAsis : asistenciasData;
   const setAsistencias = setAsistenciasData;
+  const profes = usandoSb
+    ? sbUsers.filter(u => u.role !== "admin")
+    : users.filter(u => u.role !== "admin" || currentUser?.role === "admin");
+
+  const getConfig = (uid) => configs[uid] || {
+    tarifa_sesion: 0, complemento_monto: 0, complemento_periodo: "mensual",
+    descuento_falta: 0, tipo_descuento: "monto", activo: true,
+    // compat con claves locales
+    tarifaSesion: 0, complementoMonto: 0, complementoPeriodo: "mensual",
+    descuentoFalta: 0, tipoDescuento: "monto",
+  };
   // asistencias[userId][dia] = "P"|"F"|"FJ"|"R" (R=reposición)
   const [selUser, setSelUser] = useState(null);
   const [showLiq, setShowLiq] = useState(false);
@@ -5399,13 +5525,19 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
   const diasSegQuincena  = diasHabiles.filter(d=>parseInt(d.split("-")[2])>15);
 
   const toggleAsis = (uid, dia) => {
-    setAsistencias(prev => {
+    const ciclo = ["P","F","FJ","R"];
+    setSbAsis(prev => {
       const ua = { ...(prev[uid]||{}) };
-      if(!ua[dia])       ua[dia]="P";
-      else if(ua[dia]==="P")  ua[dia]="F";
-      else if(ua[dia]==="F")  ua[dia]="FJ";
-      else if(ua[dia]==="FJ") ua[dia]="R";
-      else delete ua[dia];
+      const cur = ua[dia];
+      const idx = ciclo.indexOf(cur);
+      if (idx === ciclo.length - 1 || idx === -1) { delete ua[dia]; }
+      else { ua[dia] = ciclo[idx === -1 ? 0 : idx + 1]; }
+      if (!usandoSb) setAsistencias({ ...prev, [uid]:ua });
+      else { // sync Supabase
+        const nuevoEstado = ua[dia] || null;
+        if (nuevoEstado) sbSaveAsistencia(uid, orgId, dia, nuevoEstado, mes).catch(console.warn);
+        else sbFetch(`hadrion_asistencias?user_id=eq.${uid}&dia=eq.${dia}`, { method:"DELETE", prefer:"" }).catch(console.warn);
+      }
       return { ...prev, [uid]:ua };
     });
   };
@@ -5420,13 +5552,14 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
   };
 
   const calcLiq = (uid) => {
-    const ua   = asistencias[uid] || {};
+    const ua   = (usandoSb ? sbAsis : asistencias)[uid] || {};
     const cfg  = getConfig(uid);
-    const tarifa = Number(cfg.tarifaSesion)||0;
-    const comp   = Number(cfg.complementoMonto)||0;
-    const periodo = cfg.complementoPeriodo || "mensual";
-    const descMonto = Number(cfg.descuentoFalta)||0;
-    const tipoDesc  = cfg.tipoDescuento || "monto";
+    // compatibilidad claves Supabase (snake_case) y localStorage (camelCase)
+    const tarifa  = Number(cfg.tarifa_sesion || cfg.tarifaSesion) || 0;
+    const comp    = Number(cfg.complemento_monto || cfg.complementoMonto) || 0;
+    const periodo = cfg.complemento_periodo || cfg.complementoPeriodo || "mensual";
+    const descMonto = Number(cfg.descuento_falta || cfg.descuentoFalta) || 0;
+    const tipoDesc  = cfg.tipo_descuento || cfg.tipoDescuento || "monto";
 
     const presentes   = diasHabiles.filter(d=>ua[d]==="P").length;
     const faltas      = diasHabiles.filter(d=>ua[d]==="F").length;
@@ -5458,20 +5591,57 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
              brutoSesiones, descuento, complementoTotal, complementoCuota, neto, tarifa, comp, periodo };
   };
 
-  const profes = users.filter(u => u.role !== "admin" || currentUser?.role === "admin");
   const totalNomina = profes.reduce((s,u)=>s+calcLiq(u.id).neto,0);
 
   const saveConfig = (uid, cfg) => {
-    setConfigs(prev=>({...prev,[uid]:cfg}));
+    if (usandoSb) {
+      sbSaveConfig(uid, orgId, mes, {
+        tarifa_sesion: cfg.tarifaSesion || 0,
+        complemento_monto: cfg.complementoMonto || 0,
+        complemento_periodo: cfg.complementoPeriodo || "mensual",
+        descuento_falta: cfg.descuentoFalta || 0,
+        tipo_descuento: cfg.tipoDescuento || "monto",
+      }).then(() => setSbCfgs(prev => ({ ...prev, [uid]:cfg }))).catch(console.warn);
+    } else {
+      setConfigs(prev=>({...prev,[uid]:cfg}));
+    }
     setEditConfig(null);
+  };
+
+  const addUserSb = async () => {
+    if (!newUser.name || !newUser.email || !newUser.password) return;
+    const init = newUser.name.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
+    try {
+      const created = await sbCreateUser({
+        org_id: orgId, email: newUser.email, password: newUser.password,
+        name: newUser.name, specialty: newUser.specialty, role:"profesional",
+        avatar: init, color: C.terra,
+      });
+      setSbUsers(prev => [...prev, ...(Array.isArray(created) ? created : [created])]);
+      setNewUser({ name:"", email:"", password:"", specialty:"Fonoaudiologa" });
+      setShowAddUser(false);
+    } catch(e) { alert("Error: " + e.message); }
   };
 
   return (
     <div className="fu">
-      <div style={{marginBottom:14}}>
-        <div className="pt">💰 Liquidación de Sueldos</div>
-        <div className="ps">Cálculo automático por asistencias, tarifas y complementos</div>
+      <div style={{marginBottom:14,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <div>
+          <div className="pt">💰 Liquidación de Sueldos</div>
+          <div className="ps">Cálculo automático por asistencias, tarifas y complementos</div>
+        </div>
+        {usandoSb && (
+          <button className="btn btnp btnsm" onClick={() => setShowAddUser(true)}>+ Terapeuta</button>
+        )}
       </div>
+
+      {sbError && <div className="alert alrtd" style={{marginBottom:12}}>⚠️ Error Supabase: {sbError}</div>}
+      {sbLoading && <div className="alert alrti" style={{marginBottom:12}}>⏳ Cargando datos de la organización...</div>}
+      {!usandoSb && (
+        <div className="alert alrti" style={{marginBottom:12,fontSize:12}}>
+          💡 Modo local — los datos se guardan solo en este navegador. Para ver las asistencias de tus terapeutas en tiempo real, configurá tu cuenta como organización.
+        </div>
+      )}
 
       {/* Selector mes */}
       <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14,background:"white",borderRadius:14,padding:"12px 16px",boxShadow:"0 1px 6px rgba(0,0,0,.05)"}}>
@@ -5607,7 +5777,7 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
 
       {/* Modal config profesional */}
       {editConfig && (
-        <Modal title={`⚙️ Configurar — ${users.find(u=>u.id===editConfig.uid)?.name}`} onClose={()=>setEditConfig(null)}>
+        <Modal title={`⚙️ Configurar — ${[...profes,...users].find(u=>u.id===editConfig.uid)?.name||"Terapeuta"}`} onClose={()=>setEditConfig(null)}>
           <div className="alert alrti" style={{marginBottom:12}}>Configurá la tarifa y complemento de este profesional.</div>
 
           <div className="fg">
@@ -5695,6 +5865,30 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
 
           <button className="btn btnp btnfull" onClick={()=>saveConfig(editConfig.uid, editConfig)}>✅ Guardar configuración</button>
           <button className="btn btng btnfull" onClick={()=>setEditConfig(null)}>Cancelar</button>
+        </Modal>
+      )}
+
+      {showAddUser && (
+        <Modal title="➕ Agregar terapeuta" onClose={() => setShowAddUser(false)}>
+          <div className="fg"><label className="lbl">Nombre completo</label>
+            <input className="inp" value={newUser.name} onChange={e=>setNewUser({...newUser,name:e.target.value})} placeholder="Ana García" />
+          </div>
+          <div className="fg"><label className="lbl">Email</label>
+            <input className="inp" type="email" value={newUser.email} onChange={e=>setNewUser({...newUser,email:e.target.value})} placeholder="ana@clinica.com" />
+          </div>
+          <div className="fg"><label className="lbl">Contraseña inicial</label>
+            <input className="inp" type="text" value={newUser.password} onChange={e=>setNewUser({...newUser,password:e.target.value})} placeholder="Mínimo 6 caracteres" />
+          </div>
+          <div className="fg"><label className="lbl">Especialidad</label>
+            <select className="inp" value={newUser.specialty} onChange={e=>setNewUser({...newUser,specialty:e.target.value})}>
+              {["Fonoaudiologa","Psicopedagoga","Psicóloga","T.O.","Fisioterapeuta","Otro"].map(s=><option key={s}>{s}</option>)}
+            </select>
+          </div>
+          <div className="alert alrti" style={{fontSize:11,marginBottom:8}}>
+            La terapeuta podrá iniciar sesión con este email y contraseña. Podés cambiar la contraseña más adelante.
+          </div>
+          <button className="btn btnp btnfull" onClick={addUserSb}>Crear terapeuta</button>
+          <button className="btn btng btnfull" onClick={()=>setShowAddUser(false)}>Cancelar</button>
         </Modal>
       )}
     </div>
