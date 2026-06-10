@@ -746,10 +746,10 @@ html,body{height:100%;background:#FDF8FF;}
 textarea.inp{resize:vertical;min-height:74px;}
 .lbl{font-size:11px;font-weight:700;color:#9B9590;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px;}
 .fg{margin-bottom:12px;}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:flex;align-items:flex-end;justify-content:center;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:flex;align-items:flex-end;justify-content:center;overflow-y:auto;}
 @media(min-width:600px){.overlay{align-items:center;}}
-.modal{background:white;border-radius:24px 24px 0 0;padding:22px 18px 34px;width:100%;max-height:92vh;overflow-y:auto;}
-@media(min-width:600px){.modal{border-radius:20px;max-width:540px;}}
+.modal{background:white;border-radius:24px 24px 0 0;padding:22px 18px 34px;width:100%;max-height:88dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;flex-shrink:0;}
+@media(min-width:600px){.modal{border-radius:20px;max-width:540px;max-height:90vh;}}
 .modalt{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#2C2C2C;margin-bottom:16px;}
 .xbtn{float:right;background:none;border:none;font-size:22px;cursor:pointer;color:#9B9590;padding:0 0 6px 8px;}
 .pt{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:#2C2C2C;}
@@ -1152,24 +1152,78 @@ function Dashboard({ user, patients, sessions, payments, setActive, setShowQS, a
 
 // ─── AGENDA ───────────────────────────────────────────────────────────────────
 function Agenda({ patients, items, setItems }) {
-  const [showNew,  setShowNew]  = useState(false);
-  const [editItem, setEditItem] = useState(null);
+  const [showNew,   setShowNew]   = useState(false);
+  const [editItem,  setEditItem]  = useState(null);
   const [syncingId, setSyncingId] = useState(null);
-  const [f, setF] = useState({ patient:"", time:"09:00", type:"Sesion", date:new Date().toISOString().slice(0,10), duration:45 });
+
+  const emptySession = { time:"09:00" };
+  const [f, setF] = useState({
+    patient:"", date:new Date().toISOString().slice(0,10),
+    duration:45, type:"Sesion",
+    sesiones:1,                         // cuántas veces por semana: 1, 2 o 3
+    slots:[ emptySession ],             // horarios por día de la semana
+    repetir:false,                      // repetir semanalmente
+    semanas:4,                          // cuántas semanas repetir
+  });
 
   const todayKey    = new Date().toISOString().slice(0, 10);
   const tomorrowKey = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
 
+  // Ajusta el array de slots cuando cambia la cantidad de sesiones/semana
+  const setSesiones = (n) => {
+    const num = parseInt(n);
+    const current = f.slots;
+    const next = Array.from({ length:num }, (_, i) => current[i] || { time:"09:00" });
+    setF(prev => ({ ...prev, sesiones:num, slots:next }));
+  };
+
+  // Genera todas las fechas para un slot dado (día de la semana base + repeticiones)
+  const generarFechas = (baseDate, slotIndex, semanas, totalSlots) => {
+    // Distribuye los slots: primer día = baseDate, resto = días siguientes de la semana
+    const dates = [];
+    const base = new Date(baseDate + "T12:00:00");
+    for (let w = 0; w < semanas; w++) {
+      const d = new Date(base);
+      d.setDate(d.getDate() + w * 7 + slotIndex);
+      dates.push(d.toISOString().slice(0, 10));
+    }
+    return dates;
+  };
+
   const save = () => {
-    if (!f.patient || !f.time) return;
-    const p   = patients.find(x => x.name === f.patient);
-    const end = addMinutes(f.time, parseInt(f.duration) || 45);
-    setItems(prev => [...prev, { id:makeId(), patient:f.patient, time:f.time, end, type:f.type, color:p?.color || C.terra, date:f.date }]);
-    setF({ patient:"", time:"09:00", type:"Sesion", date:new Date().toISOString().slice(0,10), duration:45 });
+    if (!f.patient) return;
+    const p = patients.find(x => x.name === f.patient);
+    const color = p?.color || C.terra;
+    const dur = parseInt(f.duration) || 45;
+    const semanas = f.repetir ? parseInt(f.semanas) || 1 : 1;
+    const nuevos = [];
+
+    f.slots.forEach((slot, slotIdx) => {
+      if (!slot.time) return;
+      const fechas = generarFechas(f.date, slotIdx, semanas, f.slots.length);
+      fechas.forEach(fecha => {
+        nuevos.push({
+          id: makeId(),
+          patient: f.patient,
+          time: slot.time,
+          end: addMinutes(slot.time, dur),
+          type: f.type,
+          color,
+          date: fecha,
+          recurrente: f.repetir,
+        });
+      });
+    });
+
+    setItems(prev => [...prev, ...nuevos]);
+    setF({
+      patient:"", date:new Date().toISOString().slice(0,10),
+      duration:45, type:"Sesion", sesiones:1, slots:[{ time:"09:00" }],
+      repetir:false, semanas:4,
+    });
     setShowNew(false);
   };
 
-  // Agregar a Google Calendar (link directo, sin OAuth falso)
   const addToGcal = (item) => {
     setSyncingId(item.id);
     const fmt = s => s.replace(/[-:]/g, "");
@@ -1184,11 +1238,40 @@ function Agenda({ patients, items, setItems }) {
     setTimeout(() => setSyncingId(null), 2000);
   };
 
+  const TurnoCard = ({ a, showDate }) => (
+    <div className="card" style={{ marginBottom:8 }}>
+      <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+        <div style={{ width:9, height:9, borderRadius:"50%", background:a.color, flexShrink:0 }} />
+        <div style={{ fontWeight:700, fontSize:showDate?13:14, color:C.charcoal, minWidth:showDate?90:48 }}>
+          {showDate ? `${a.date} ${a.time}` : a.time}
+        </div>
+        <div style={{ flex:1 }}>
+          <div style={{ fontWeight:600, fontSize:13 }}>{a.patient}</div>
+          <div style={{ fontSize:11, color:C.grayL }}>
+            {a.type} — hasta {a.end}
+            {a.recurrente && <span style={{marginLeft:4,background:C.purpleF,color:C.purple,borderRadius:4,padding:"1px 5px",fontSize:10}}>🔁</span>}
+          </div>
+        </div>
+        <div style={{ display:"flex", gap:5, alignItems:"center", flexShrink:0 }}>
+          <span className="badge" style={{ background:a.color+"22", color:a.color, fontSize:10 }}>{a.type}</span>
+          <button className="btn btnsm" style={{ background:"#4285F4", color:"white", padding:"6px 10px", fontSize:11, borderRadius:8, minHeight:36 }}
+            onClick={() => addToGcal(a)}>
+            {syncingId === a.id ? "..." : "📅 GCal"}
+          </button>
+          <button style={{background:"#F5F0FA",border:"none",borderRadius:8,padding:"6px 10px",fontSize:11,fontWeight:700,color:"#9B7EBD",cursor:"pointer",minHeight:36}}
+            onClick={()=>setEditItem({...a})}>✏️</button>
+          <button style={{background:"#FDECEA",border:"none",borderRadius:8,padding:"6px 10px",fontSize:11,fontWeight:700,color:"#C0392B",cursor:"pointer",minHeight:36}}
+            onClick={()=>setItems(prev=>prev.filter(x=>x.id!==a.id))}>🗑️</button>
+        </div>
+      </div>
+    </div>
+  );
+
   const grouped = [
     { label:"Hoy",    key:todayKey },
     { label:"Manana", key:tomorrowKey },
   ];
-  const future = items.filter(a => a.date > tomorrowKey).sort((a,b) => a.date.localeCompare(b.date));
+  const future = items.filter(a => a.date > tomorrowKey).sort((a,b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
 
   return (
     <div className="fu">
@@ -1207,27 +1290,7 @@ function Agenda({ patients, items, setItems }) {
           {items.filter(a => a.date === key).length === 0
             ? <div style={{ color:C.grayL, fontSize:12, paddingBottom:8 }}>Sin turnos</div>
             : items.filter(a => a.date === key).sort((a,b) => a.time.localeCompare(b.time)).map(a => (
-              <div key={a.id} className="card" style={{ marginBottom:8 }}>
-                <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                  <div style={{ width:9, height:9, borderRadius:"50%", background:a.color, flexShrink:0 }} />
-                  <div style={{ fontWeight:700, fontSize:14, color:C.charcoal, minWidth:48 }}>{a.time}</div>
-                  <div style={{ flex:1 }}>
-                    <div style={{ fontWeight:600, fontSize:13 }}>{a.patient}</div>
-                    <div style={{ fontSize:11, color:C.grayL }}>{a.type} — hasta {a.end}</div>
-                  </div>
-                  <div style={{ display:"flex", gap:5, alignItems:"center" }}>
-                    <span className="badge" style={{ background:a.color+"22", color:a.color, fontSize:10 }}>{a.type}</span>
-                    <button className="btn btnsm" style={{ background:"#4285F4", color:"white", padding:"6px 10px", fontSize:11, borderRadius:8, minHeight:36 }}
-                      onClick={() => addToGcal(a)} title="Agregar a Google Calendar">
-                      {syncingId === a.id ? "..." : "📅 GCal"}
-                    </button>
-                    <button style={{background:"#F5F0FA",border:"none",borderRadius:8,padding:"6px 10px",fontSize:11,fontWeight:700,color:"#9B7EBD",cursor:"pointer",minHeight:36}}
-                      onClick={()=>setEditItem({...a})} title="Editar cita">✏️</button>
-                    <button style={{background:"#FDECEA",border:"none",borderRadius:8,padding:"6px 10px",fontSize:11,fontWeight:700,color:"#C0392B",cursor:"pointer",minHeight:36}}
-                      onClick={()=>setItems(prev=>prev.filter(x=>x.id!==a.id))} title="Eliminar cita">🗑️</button>
-                  </div>
-                </div>
-              </div>
+              <TurnoCard key={a.id} a={a} showDate={false} />
             ))
           }
         </div>
@@ -1236,17 +1299,7 @@ function Agenda({ patients, items, setItems }) {
       {future.length > 0 && (
         <div>
           <div className="dayl">Proximos</div>
-          {future.map(a => (
-            <div key={a.id} className="card" style={{ marginBottom:8 }}>
-              <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                <div style={{ width:9, height:9, borderRadius:"50%", background:a.color, flexShrink:0 }} />
-                <div style={{ fontWeight:700, fontSize:13, color:C.charcoal, minWidth:80 }}>{a.date} {a.time}</div>
-                <div style={{ flex:1, fontSize:13 }}>{a.patient} — {a.type}</div>
-                <button className="btn btnsm" style={{ background:"#4285F4", color:"white", fontSize:11, borderRadius:8, minHeight:36 }}
-                  onClick={() => addToGcal(a)}>📅 GCal</button>
-              </div>
-            </div>
-          ))}
+          {future.map(a => <TurnoCard key={a.id} a={a} showDate={true} />)}
         </div>
       )}
 
@@ -1274,7 +1327,7 @@ function Agenda({ patients, items, setItems }) {
             setItems(prev=>prev.map(x=>x.id===editItem.id
               ? {...x, patient:editItem.patient, date:editItem.date, time:editItem.time,
                   type:editItem.type, end:addMinutes(editItem.time,45),
-                  color:patients.find(p=>p.name===editItem.patient)?.color||"#9B7EBD"}
+                  color:patients.find(p=>p.name===editItem.patient)?.color||C.terra}
               : x));
             setEditItem(null);
           }}>Guardar cambios</button>
@@ -1284,25 +1337,91 @@ function Agenda({ patients, items, setItems }) {
 
       {showNew && (
         <Modal title="Nuevo Turno" onClose={() => setShowNew(false)}>
+          {/* Paciente */}
           <div className="fg"><label className="lbl">Paciente</label>
             <select className="inp" value={f.patient} onChange={e => setF({ ...f, patient:e.target.value })}>
               <option value="">Selecciona...</option>
               {patients.map(p => <option key={p.id}>{p.name}</option>)}
             </select>
           </div>
-          <div className="fg"><label className="lbl">Fecha</label><input type="date" className="inp" value={f.date} onChange={e => setF({ ...f, date:e.target.value })} /></div>
-          <div className="fg"><label className="lbl">Hora</label><input type="time" className="inp" value={f.time} onChange={e => setF({ ...f, time:e.target.value })} /></div>
-          <div className="fg"><label className="lbl">Duracion (minutos)</label>
-            <select className="inp" value={f.duration} onChange={e => setF({ ...f, duration:e.target.value })}>
-              {[30,45,60,90].map(d => <option key={d} value={d}>{d} minutos</option>)}
-            </select>
+
+          {/* Fecha de inicio */}
+          <div className="fg"><label className="lbl">Fecha de inicio</label>
+            <input type="date" className="inp" value={f.date} onChange={e => setF({ ...f, date:e.target.value })} />
           </div>
-          <div className="fg"><label className="lbl">Tipo</label>
-            <select className="inp" value={f.type} onChange={e => setF({ ...f, type:e.target.value })}>
-              {["Sesion","Evaluacion","Seguimiento","Primera consulta"].map(t => <option key={t}>{t}</option>)}
-            </select>
+
+          {/* Sesiones por semana */}
+          <div className="fg">
+            <label className="lbl">Sesiones por semana</label>
+            <div style={{ display:"flex", gap:8 }}>
+              {[1,2,3].map(n => (
+                <button key={n} onClick={() => setSesiones(n)}
+                  style={{
+                    flex:1, padding:"10px 0", borderRadius:10, border:"1.5px solid",
+                    borderColor: f.sesiones===n ? C.terra : "#EDE0F5",
+                    background: f.sesiones===n ? C.terraF : "white",
+                    color: f.sesiones===n ? C.terraD : C.gray,
+                    fontWeight:700, fontSize:14, cursor:"pointer", fontFamily:"sans-serif",
+                  }}>
+                  {n}x
+                </button>
+              ))}
+            </div>
           </div>
-          <button className="btn btnp btnfull" onClick={save}>Guardar turno</button>
+
+          {/* Horarios — uno por cada día de la semana */}
+          {f.slots.map((slot, i) => (
+            <div key={i} className="fg">
+              <label className="lbl">{f.sesiones === 1 ? "Hora" : `Hora sesión ${i+1} (día ${i===0?"inicio":"+"+i})`}</label>
+              <input type="time" className="inp" value={slot.time}
+                onChange={e => {
+                  const next = [...f.slots];
+                  next[i] = { ...next[i], time:e.target.value };
+                  setF(prev => ({ ...prev, slots:next }));
+                }} />
+            </div>
+          ))}
+
+          {/* Duración y Tipo */}
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+            <div className="fg"><label className="lbl">Duración</label>
+              <select className="inp" value={f.duration} onChange={e => setF({ ...f, duration:e.target.value })}>
+                {[30,45,60,90].map(d => <option key={d} value={d}>{d} min</option>)}
+              </select>
+            </div>
+            <div className="fg"><label className="lbl">Tipo</label>
+              <select className="inp" value={f.type} onChange={e => setF({ ...f, type:e.target.value })}>
+                {["Sesion","Evaluacion","Seguimiento","Primera consulta"].map(t => <option key={t}>{t}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* Repetición semanal */}
+          <div style={{
+            background: f.repetir ? C.terraF : "#F8F8F8",
+            borderRadius:12, padding:"12px 14px", marginBottom:8,
+            border:`1.5px solid ${f.repetir ? C.terraL : "#EDE0F5"}`,
+            transition:"all .2s"
+          }}>
+            <label style={{ display:"flex", alignItems:"center", gap:10, cursor:"pointer" }}>
+              <input type="checkbox" checked={f.repetir} onChange={e => setF({ ...f, repetir:e.target.checked })}
+                style={{ width:18, height:18, accentColor:C.terra, cursor:"pointer" }} />
+              <span style={{ fontWeight:600, fontSize:13, color:C.charcoal }}>🔁 Repetir todas las semanas</span>
+            </label>
+            {f.repetir && (
+              <div className="fg" style={{ marginTop:10, marginBottom:0 }}>
+                <label className="lbl">¿Cuántas semanas?</label>
+                <select className="inp" value={f.semanas} onChange={e => setF({ ...f, semanas:e.target.value })}>
+                  {[2,3,4,6,8,10,12,16,20,24,48,52].map(s => <option key={s} value={s}>{s} semanas ({Math.round(s/4.33)} meses aprox)</option>)}
+                </select>
+                <div style={{ fontSize:11, color:C.grayL, marginTop:4 }}>
+                  Se crearán {f.slots.length * parseInt(f.semanas || 1)} turnos en total.
+                </div>
+              </div>
+            )}
+          </div>
+
+          <button className="btn btnp btnfull" onClick={save}>Guardar turno{f.repetir ? "s" : ""}</button>
           <div className="alert alrti" style={{ marginTop:8, fontSize:11 }}>
             Despues de guardar, toca "📅 GCal" en el turno para abrirlo en Google Calendar automaticamente.
           </div>
