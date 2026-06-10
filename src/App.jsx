@@ -907,6 +907,45 @@ const sbCreateUser = async (userData) => {
   });
 };
 
+// ── Pacientes en Supabase ─────────────────────────────────────────────────────
+
+const sbSyncPacientes = async (userId, orgId, pacientes) => {
+  const rows = pacientes.map(p => ({
+    user_id: userId, org_id: orgId,
+    nombre: p.name, diagnostico: p.diagnosis || p.diagnostico || "",
+    dependencia: p.dependencia || "Particular",
+    tarifa_sesion: Number(p.tarifaPorSesion) || 0,
+    complemento: Number(p.complemento) || 0,
+    currency: p.currency || "UYU", status: p.status || "active",
+    local_id: String(p.id),
+  }));
+  return sbFetch(`hadrion_pacientes`, {
+    method: "POST",
+    prefer: "resolution=merge-duplicates,return=representation",
+    body: JSON.stringify(rows),
+  });
+};
+
+const sbGetPacientesOrg = async (orgId) => {
+  return sbFetch(`hadrion_pacientes?org_id=eq.${orgId}&status=eq.active&select=*`);
+};
+
+const sbSavePacAsistencia = async (pacId, userId, orgId, dia, estado, mes) => {
+  if (estado) {
+    return sbFetch(`hadrion_asistencias_pacientes`, {
+      method: "POST",
+      prefer: "resolution=merge-duplicates,return=representation",
+      body: JSON.stringify({ pac_id: pacId, user_id: userId, org_id: orgId, dia, estado, mes }),
+    });
+  } else {
+    return sbFetch(`hadrion_asistencias_pacientes?pac_id=eq.${pacId}&dia=eq.${dia}`, { method: "DELETE", prefer: "" });
+  }
+};
+
+const sbGetPacAsistenciasOrg = async (orgId, mes) => {
+  return sbFetch(`hadrion_asistencias_pacientes?org_id=eq.${orgId}&mes=eq.${mes}&select=*`);
+};
+
 // ─── COMPONENTES BASE ─────────────────────────────────────────────────────────
 function Modal({ title, onClose, children }) {
   return createPortal(
@@ -4067,7 +4106,11 @@ function Organizaciones({ users, setUsers, precios={} }) {
 }
 
 // ─── ASISTENCIAS ─────────────────────────────────────────────────────────────
-function Asistencias({ patients, setPatients }) {
+function Asistencias({ patients, setPatients, currentUser }) {
+  const orgId   = currentUser?.org_id || null;
+  const userId   = currentUser?.id    || null;
+  const usandoSb = !!orgId && !!userId;
+
   const myPats = patients.filter(p => p.status === "active");
   const [mes, setMes] = useState(() => {
     const h = new Date();
@@ -4076,6 +4119,21 @@ function Asistencias({ patients, setPatients }) {
   const [editTarifa, setEditTarifa] = useState(false);
   const [selPat, setSelPat]         = useState(null);
   const [tarifaF, setTarifaF]       = useState({});
+  // sbPacIds: map local_id → uuid de Supabase
+  const [sbPacIds, setSbPacIds]     = useState({});
+
+  // Sincronizar pacientes a Supabase al montar si el usuario tiene org_id
+  useEffect(() => {
+    if (!usandoSb || myPats.length === 0) return;
+    sbSyncPacientes(userId, orgId, myPats)
+      .then(rows => {
+        if (!rows) return;
+        const map = {};
+        (Array.isArray(rows) ? rows : [rows]).forEach(r => { if (r.local_id) map[r.local_id] = r.id; });
+        setSbPacIds(map);
+      })
+      .catch(console.warn);
+  }, [usandoSb, userId, orgId]);
 
   const cambiarMes = d => {
     const [y,m] = mes.split("-").map(Number);
@@ -4105,6 +4163,14 @@ function Asistencias({ patients, setPatients }) {
       else if (a[dia] === "P") a[dia] = "F";
       else if (a[dia] === "F") a[dia] = "FJ";
       else delete a[dia];
+      // Sync a Supabase si el terapeuta tiene org
+      if (usandoSb) {
+        const sbPacId = sbPacIds[String(patId)];
+        if (sbPacId) {
+          const nuevoEstado = a[dia] || null;
+          sbSavePacAsistencia(sbPacId, userId, orgId, dia, nuevoEstado, mes).catch(console.warn);
+        }
+      }
       return { ...p, asistencias: a };
     }));
   };
@@ -5465,14 +5531,18 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
   const mesActual = new Date().toISOString().slice(0,7);
   const [mes, setMes] = useState(mesActual);
   const [sbUsers, setSbUsers]   = useState([]);
-  const [sbAsis,  setSbAsis]    = useState({});   // { userId: { dia: estado } }
-  const [sbCfgs,  setSbCfgs]    = useState({});   // { userId: config }
+  const [sbAsis,  setSbAsis]    = useState({});
+  const [sbCfgs,  setSbCfgs]    = useState({});
   const [sbLoading, setSbLoading] = useState(false);
   const [sbError,   setSbError]   = useState(null);
   const [showAddUser, setShowAddUser] = useState(false);
   const [newUser, setNewUser] = useState({ name:"", email:"", password:"", specialty:"Fonoaudiologa" });
+  // Para vista de pacientes del admin
+  const [sbPacientes, setSbPacientes]   = useState([]); // todos los pacientes de la org
+  const [sbPacAsis,   setSbPacAsis]     = useState({}); // { pacId: { dia: estado } }
+  const [selTerapeuta, setSelTerapeuta] = useState(null); // terapeuta expandido
+  const [vistaOrg, setVistaOrg]         = useState(false); // true = vista pacientes org
 
-  // ¿El admin tiene org_id en Supabase?
   const orgId = currentUser?.org_id || null;
   const usandoSb = !!orgId;
 
@@ -5485,19 +5555,26 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
       sbGetUsers(orgId),
       sbGetAsistencias(orgId, mes),
       sbGetConfigs(orgId, mes),
-    ]).then(([users, asis, cfgs]) => {
-      setSbUsers(users || []);
-      // Convertir asistencias array → { userId: { dia: estado } }
+      sbGetPacientesOrg(orgId),
+      sbGetPacAsistenciasOrg(orgId, mes),
+    ]).then(([usrs, asis, cfgs, pacs, pacAsis]) => {
+      setSbUsers(usrs || []);
       const asisMap = {};
       (asis || []).forEach(a => {
         if (!asisMap[a.user_id]) asisMap[a.user_id] = {};
         asisMap[a.user_id][a.dia] = a.estado;
       });
       setSbAsis(asisMap);
-      // Convertir configs array → { userId: config }
       const cfgMap = {};
       (cfgs || []).forEach(c => { cfgMap[c.user_id] = c; });
       setSbCfgs(cfgMap);
+      setSbPacientes(pacs || []);
+      const pacAsiMap = {};
+      (pacAsis || []).forEach(a => {
+        if (!pacAsiMap[a.pac_id]) pacAsiMap[a.pac_id] = {};
+        pacAsiMap[a.pac_id][a.dia] = a.estado;
+      });
+      setSbPacAsis(pacAsiMap);
       setSbLoading(false);
     }).catch(e => { setSbError(e.message); setSbLoading(false); });
   }, [orgId, mes]);
@@ -5644,17 +5721,122 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
     } catch(e) { alert("Error: " + e.message); }
   };
 
+  // ── Helpers vista pacientes org
+  const getColorPac = v => {
+    if(!v)       return {bg:"#F0F0F0",c:"#aaa",label:"–"};
+    if(v==="P")  return {bg:"#E8F8EF",c:"#1a7a3c",label:"P"};
+    if(v==="F")  return {bg:"#FDECEA",c:"#C0392B",label:"F"};
+    if(v==="FJ") return {bg:"#FEF3E0",c:"#E8A020",label:"FJ"};
+    return {bg:"#F0F0F0",c:"#aaa",label:"–"};
+  };
+  const fmtDepOrg = dep => {
+    const colors={Particular:"#9B7EBD",BPS:"#5B8DB8",FONASA:"#2ECC71",Mutual:"#8B7BB5",Prepaga:"#E8A020","Obra social":"#E8719C"};
+    return colors[dep]||"#9B9590";
+  };
+  const getResPac = (pac) => {
+    const a = sbPacAsis[pac.id] || {};
+    const presentes = diasHabiles.filter(d=>a[d]==="P").length;
+    const faltas    = diasHabiles.filter(d=>a[d]==="F").length;
+    const faltasJ   = diasHabiles.filter(d=>a[d]==="FJ").length;
+    const tarifa = Number(pac.tarifa_sesion)||0;
+    const comp   = Number(pac.complemento)||0;
+    return { presentes, faltas, faltasJ, total: presentes*(tarifa+comp), tarifa, comp };
+  };
+  const renderVistaPacientes = () => {
+    const terapeutas = sbUsers.filter(u => u.role !== "admin");
+    if (terapeutas.length === 0) return React.createElement("div",{style:{textAlign:"center",padding:"30px 0",color:"#9B9590"}},"No hay terapeutas");
+    return terapeutas.map(t => {
+      const misPacs = sbPacientes.filter(p => p.user_id === t.id);
+      const gt = misPacs.reduce((s,p)=>s+getResPac(p).total,0);
+      const exp = selTerapeuta === t.id;
+      return (
+        <div key={t.id} style={{background:"white",borderRadius:18,marginBottom:14,boxShadow:"0 2px 12px rgba(0,0,0,.07)",overflow:"hidden"}}>
+          <div onClick={()=>setSelTerapeuta(exp?null:t.id)}
+            style={{padding:"14px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer",background:exp?"#F5F0FA":"white"}}>
+            <div style={{display:"flex",alignItems:"center",gap:10}}>
+              <div style={{width:40,height:40,borderRadius:12,background:t.color||"#9B7EBD",display:"flex",alignItems:"center",justifyContent:"center",color:"white",fontWeight:700,fontSize:14}}>
+                {t.avatar||t.name?.slice(0,2).toUpperCase()}
+              </div>
+              <div>
+                <div style={{fontWeight:700,fontSize:14}}>{t.name}</div>
+                <div style={{fontSize:11,color:"#9B9590"}}>{t.specialty} · {misPacs.length} pac.</div>
+              </div>
+            </div>
+            <div style={{textAlign:"right"}}>
+              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontWeight:700,color:"#7B5EA7"}}>{"$"+gt.toLocaleString("es-UY")}</div>
+              <div style={{fontSize:10,color:"#9B9590"}}>{exp?"ocultar":"ver pacientes"}</div>
+            </div>
+          </div>
+          {exp && misPacs.length===0 && <div style={{padding:"12px 16px",fontSize:12,color:"#9B9590"}}>Sin pacientes sincronizados aún — el terapeuta debe ingresar a Asistencias para sincronizar.</div>}
+          {exp && misPacs.map(pac=>{
+            const res=getResPac(pac);
+            const dep=pac.dependencia||"Particular";
+            const dc=fmtDepOrg(dep);
+            return (
+              <div key={pac.id} style={{borderTop:"1px solid #EDE0F5"}}>
+                <div style={{padding:"12px 16px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                  <div>
+                    <div style={{fontWeight:700,fontSize:13}}>{pac.nombre}</div>
+                    <div style={{display:"flex",gap:5,alignItems:"center",marginTop:2}}>
+                      <span style={{fontSize:10,background:dc+"22",color:dc,borderRadius:6,padding:"1px 7px",fontWeight:700}}>{dep}</span>
+                      <span style={{fontSize:11,color:"#9B9590"}}>{"$"+res.tarifa.toLocaleString("es-UY")+"/ses"+(res.comp>0?" +$"+res.comp.toLocaleString("es-UY")+" compl.":"")}</span>
+                    </div>
+                  </div>
+                  <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:700,color:dc}}>{"$"+res.total.toLocaleString("es-UY")}</div>
+                </div>
+                <div style={{padding:"0 16px 12px"}}>
+                  <div style={{overflowX:"auto"}}>
+                    <div style={{display:"flex",gap:4,minWidth:"max-content",paddingBottom:4}}>
+                      {diasHabiles.map(dia=>{
+                        const dobj=new Date(dia+"T12:00:00");
+                        const v=(sbPacAsis[pac.id]||{})[dia];
+                        const {bg,c,label}=getColorPac(v);
+                        return (<div key={dia} style={{width:30,height:38,borderRadius:7,border:"1px solid "+c+"44",background:bg,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:1,flexShrink:0}}>
+                          <div style={{fontSize:8,color:"#9B9590",lineHeight:1}}>{String(dobj.getDate()).padStart(2,"0")}</div>
+                          <div style={{fontSize:10,fontWeight:700,color:c,lineHeight:1}}>{label}</div>
+                        </div>);
+                      })}
+                    </div>
+                  </div>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:6,marginTop:8}}>
+                    {[["Presentes",res.presentes,"#E8F8EF","#1a7a3c"],["Faltas",res.faltas,"#FDECEA","#C0392B"],["Justif.",res.faltasJ,"#FEF3E0","#E8A020"],["A cobrar","$"+res.total.toLocaleString("es-UY"),"#F5F0FA","#9B7EBD"]].map(([l,v,bg,c])=>(
+                      <div key={l} style={{background:bg,borderRadius:10,padding:"8px 6px",textAlign:"center"}}>
+                        <div style={{fontSize:13,fontWeight:700,color:c,wordBreak:"break-word"}}>{v}</div>
+                        <div style={{fontSize:10,color:c,marginTop:2}}>{l}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      );
+    });
+  };
+
   return (
     <div className="fu">
       <div style={{marginBottom:14,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
         <div>
-          <div className="pt">💰 Liquidación de Sueldos</div>
-          <div className="ps">Cálculo automático por asistencias, tarifas y complementos</div>
+          <div className="pt">💰 Liquidación</div>
+          <div className="ps">{vistaOrg?"Pacientes por terapeuta":"Liquidación de sueldos del equipo"}</div>
         </div>
-        {usandoSb && (
+        {usandoSb && !vistaOrg && (
           <button className="btn btnp btnsm" onClick={() => setShowAddUser(true)}>+ Terapeuta</button>
         )}
       </div>
+
+      {usandoSb && (
+        <div style={{display:"flex",gap:8,marginBottom:14}}>
+          <button onClick={()=>setVistaOrg(false)}
+            style={{flex:1,padding:"9px 0",borderRadius:12,border:"none",cursor:"pointer",fontWeight:700,fontSize:13,
+              background:!vistaOrg?"#9B7EBD":"#EDE0F5",color:!vistaOrg?"white":"#7B5EA7"}}>💰 Sueldos</button>
+          <button onClick={()=>setVistaOrg(true)}
+            style={{flex:1,padding:"9px 0",borderRadius:12,border:"none",cursor:"pointer",fontWeight:700,fontSize:13,
+              background:vistaOrg?"#9B7EBD":"#EDE0F5",color:vistaOrg?"white":"#7B5EA7"}}>📆 Pacientes</button>
+        </div>
+      )}
 
       {sbError && <div className="alert alrtd" style={{marginBottom:12}}>⚠️ Error Supabase: {sbError}</div>}
       {sbLoading && <div className="alert alrti" style={{marginBottom:12}}>⏳ Cargando datos de la organización...</div>}
@@ -5663,6 +5845,10 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
           💡 Modo local — los datos se guardan solo en este navegador. Para ver las asistencias de tus terapeutas en tiempo real, configurá tu cuenta como organización.
         </div>
       )}
+
+      {vistaOrg && usandoSb && !sbLoading && renderVistaPacientes()}
+
+      {!vistaOrg && <>
 
       {/* Selector mes */}
       <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14,background:"white",borderRadius:14,padding:"12px 16px",boxShadow:"0 1px 6px rgba(0,0,0,.05)"}}>
@@ -5912,6 +6098,7 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
           <button className="btn btng btnfull" onClick={()=>setShowAddUser(false)}>Cancelar</button>
         </Modal>
       )}
+      </> /* fin vista sueldos */}
     </div>
   );
 }
@@ -6333,7 +6520,7 @@ export default function HadrionApp() {
     plan:       <PlanColaborativo patients={patients} users={users} plan={plan} setPlan={setPlan} />,
     resources:  <Resources plantillas={plantillas} setPlantillas={setPlantillas} documentos={documentos} setDocumentos={setDocumentos}/>,
     tea:        <TEAAutismo />,
-    asistencias:<Asistencias patients={patients} setPatients={setPatients} />,
+    asistencias:<Asistencias patients={patients} setPatients={setPatients} currentUser={user} />,
     organizaciones: (user?.role === "admin" || isClinica(user))
       ? <Organizaciones users={users} setUsers={setUsers} precios={precios} />
       : <div className="fu">
