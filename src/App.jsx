@@ -1067,12 +1067,14 @@ function Login({ onLogin, users, onRegisterRequest }) {
         onLogin(sbUser);
         return;
       }
+      // Supabase no encontró el usuario — intentar local
     } catch(e) {
-      // Si Supabase falla (sin conexión, etc.), seguimos con login local
-      console.warn("Supabase login error, usando login local:", e.message);
+      setErr("Error de conexion: " + e.message);
+      setLoading(false);
+      return;
     }
 
-    // 2. Fallback: login local
+    // 2. Fallback: login local (solo si Supabase no encontró el usuario)
     const u = users.find(u => u.email === f.email && u.password === f.pass);
     if (!u) { setErr("Email o contrasena incorrectos."); setLoading(false); return; }
     if (u.status === "inactive") { setErr("Cuenta inactiva. Contacta al administrador."); setLoading(false); return; }
