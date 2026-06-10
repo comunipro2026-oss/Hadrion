@@ -26,10 +26,6 @@ const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+G
 
 // ─── DATOS INICIALES ─────────────────────────────────────────────────────────
 const INIT_USERS = [
-  { id:1, name:"Adriana Soba",   email:"comunipro12@gmail.com", password:"admin123",
-    role:"admin",         specialty:"Fonoaudiologa",   plan:"Pro",    status:"active",
-    createdAt:"01/01/2025", avatar:"AS", color:C.terra,  lastLogin:"Hoy 08:30",
-    subscriptionEnd:null, dataExpiresAt:null, trialDays:14 },
   { id:2, name:"Ana Garcia",     email:"ana@clinica.cl",         password:"123456",
     role:"profesional",   specialty:"Psicopedagoga",   plan:"Basico", status:"active",
     createdAt:"15/03/2025", avatar:"AG", color:C.sage,   lastLogin:"Ayer 16:00",
