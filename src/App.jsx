@@ -1011,13 +1011,34 @@ function Login({ onLogin, users, onRegisterRequest }) {
   const [regF, setRegF]     = useState({ name:"", email:"", specialty:"", phone:"", message:"" });
   const [regSent, setRegSent] = useState(false);
 
-  const login = () => {
+  const [loading, setLoading] = useState(false);
+
+  const login = async () => {
     if (!f.email || !f.pass) { setErr("Completa todos los campos."); return; }
-    const u = users.find(u => u.email === f.email && u.password === f.pass);
-    if (!u) { setErr("Email o contrasena incorrectos."); return; }
-    if (u.status === "inactive") { setErr("Cuenta inactiva. Contacta al administrador."); return; }
-    if (u.status === "pending")  { setErr("Cuenta pendiente de aprobacion. Te contactamos pronto."); return; }
+    setLoading(true);
     setErr("");
+
+    // 1. Intentar login en Supabase primero
+    try {
+      const sbUser = await sbLogin(f.email, f.pass);
+      if (sbUser) {
+        if (sbUser.status === "inactive") { setErr("Cuenta inactiva. Contacta al administrador."); setLoading(false); return; }
+        if (sbUser.status === "pending")  { setErr("Cuenta pendiente de aprobacion. Te contactamos pronto."); setLoading(false); return; }
+        setLoading(false);
+        onLogin(sbUser);
+        return;
+      }
+    } catch(e) {
+      // Si Supabase falla (sin conexión, etc.), seguimos con login local
+      console.warn("Supabase login error, usando login local:", e.message);
+    }
+
+    // 2. Fallback: login local
+    const u = users.find(u => u.email === f.email && u.password === f.pass);
+    if (!u) { setErr("Email o contrasena incorrectos."); setLoading(false); return; }
+    if (u.status === "inactive") { setErr("Cuenta inactiva. Contacta al administrador."); setLoading(false); return; }
+    if (u.status === "pending")  { setErr("Cuenta pendiente de aprobacion. Te contactamos pronto."); setLoading(false); return; }
+    setLoading(false);
     onLogin(u);
   };
 
@@ -1055,7 +1076,7 @@ function Login({ onLogin, users, onRegisterRequest }) {
               </div>
             </div>
             {err && <div className="alert alrtd">{err}</div>}
-            <button className="btn btnp btnfull" style={{ borderRadius:12 }} onClick={login}>→ Ingresar</button>
+            <button className="btn btnp btnfull" style={{ borderRadius:12 }} onClick={login} disabled={loading}>{loading ? "⏳ Verificando..." : "→ Ingresar"}</button>
             <div style={{ textAlign:"center", marginTop:12, fontSize:12, color:C.grayL }}>
               ¿Olvidaste tu contrasena? <span style={{ color:C.terra, cursor:"pointer", fontWeight:600 }} onClick={() => setForgot(true)}>Recuperar acceso</span>
             </div>
