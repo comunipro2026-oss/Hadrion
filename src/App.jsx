@@ -27,9 +27,10 @@ const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+G
 // ─── DATOS INICIALES ─────────────────────────────────────────────────────────
 const INIT_USERS = [
   { id:1, name:"Adriana Soba",   email:"comunipro12@gmail.com", password:"admin123",
-    role:"admin",         specialty:"Fonoaudiologa",   plan:"Pro",    status:"active",
+    role:"admin",         specialty:"Fonoaudiologa",   plan:"Clinica", status:"active",
     createdAt:"01/01/2025", avatar:"AS", color:C.terra,  lastLogin:"Hoy 08:30",
-    subscriptionEnd:null, dataExpiresAt:null, trialDays:14 },
+    subscriptionEnd:null, dataExpiresAt:null, trialDays:14,
+    org_id:"aaaaaaaa-0000-0000-0000-000000000000" },
   { id:2, name:"Ana Garcia",     email:"ana@clinica.cl",         password:"123456",
     role:"profesional",   specialty:"Psicopedagoga",   plan:"Basico", status:"active",
     createdAt:"15/03/2025", avatar:"AG", color:C.sage,   lastLogin:"Ayer 16:00",
@@ -1011,13 +1012,22 @@ function Login({ onLogin, users, onRegisterRequest }) {
   const [regF, setRegF]     = useState({ name:"", email:"", specialty:"", phone:"", message:"" });
   const [regSent, setRegSent] = useState(false);
 
-  const login = () => {
+  const login = async () => {
     if (!f.email || !f.pass) { setErr("Completa todos los campos."); return; }
+    setErr("");
+    try {
+      const sbUser = await sbLogin(f.email, f.pass);
+      if (sbUser) {
+        if (sbUser.status === "inactive") { setErr("Cuenta inactiva. Contacta al administrador."); return; }
+        if (sbUser.status === "pending")  { setErr("Cuenta pendiente de aprobacion. Te contactamos pronto."); return; }
+        onLogin(sbUser);
+        return;
+      }
+    } catch(e) { console.warn("sbLogin error:", e); }
     const u = users.find(u => u.email === f.email && u.password === f.pass);
     if (!u) { setErr("Email o contrasena incorrectos."); return; }
     if (u.status === "inactive") { setErr("Cuenta inactiva. Contacta al administrador."); return; }
     if (u.status === "pending")  { setErr("Cuenta pendiente de aprobacion. Te contactamos pronto."); return; }
-    setErr("");
     onLogin(u);
   };
 
