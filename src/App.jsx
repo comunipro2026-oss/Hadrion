@@ -27,10 +27,9 @@ const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+G
 // ─── DATOS INICIALES ─────────────────────────────────────────────────────────
 const INIT_USERS = [
   { id:1, name:"Adriana Soba",   email:"comunipro12@gmail.com", password:"admin123",
-    role:"admin",         specialty:"Fonoaudiologa",   plan:"Clinica", status:"active",
+    role:"admin",         specialty:"Fonoaudiologa",   plan:"Pro",    status:"active",
     createdAt:"01/01/2025", avatar:"AS", color:C.terra,  lastLogin:"Hoy 08:30",
-    subscriptionEnd:null, dataExpiresAt:null, trialDays:14,
-    org_id:"aaaaaaaa-0000-0000-0000-000000000000" },
+    subscriptionEnd:null, dataExpiresAt:null, trialDays:14 },
   { id:2, name:"Ana Garcia",     email:"ana@clinica.cl",         password:"123456",
     role:"profesional",   specialty:"Psicopedagoga",   plan:"Basico", status:"active",
     createdAt:"15/03/2025", avatar:"AG", color:C.sage,   lastLogin:"Ayer 16:00",
@@ -737,6 +736,8 @@ html,body{height:100%;background:#FDF8FF;}
 .btnp:hover{background:#7B5EA7;}
 .btno{background:transparent;border:1.5px solid #9B7EBD;color:#9B7EBD;}
 .btno:hover{background:#F5F0FA;}
+.btni{background:#EBF3FB;color:#5B8DB8;}
+.btni:hover{background:#C9DDF0;}
 .btng{background:#EDE0F5;color:#2C2C2C;}
 .btng:hover{background:#C9B8E8;}
 .btnd{background:#FDECEA;color:#C0392B;}
@@ -960,7 +961,7 @@ const NAV = [
 ];
 
 // ─── ACCESO POR PLAN ─────────────────────────────────────────────────────────
-const isClinica = (user) => ["Clinica","Colegio"].includes(user?.plan) || user?.role === "admin";
+const isClinica = (user) => ["Clinica","Colegio"].includes(user?.plan) || user?.role === "admin" || user?.role === "org_admin";
 const isProOrMore = (user) => ["Pro","Clinica","Colegio"].includes(user?.plan) || user?.role === "admin";
 
 // Nav items filtrados por plan
@@ -1012,22 +1013,20 @@ function Login({ onLogin, users, onRegisterRequest }) {
   const [regF, setRegF]     = useState({ name:"", email:"", specialty:"", phone:"", message:"" });
   const [regSent, setRegSent] = useState(false);
 
+  const [loading, setLoading] = useState(false);
   const login = async () => {
     if (!f.email || !f.pass) { setErr("Completa todos los campos."); return; }
-    setErr("");
-    try {
-      const sbUser = await sbLogin(f.email, f.pass);
-      if (sbUser) {
-        if (sbUser.status === "inactive") { setErr("Cuenta inactiva. Contacta al administrador."); return; }
-        if (sbUser.status === "pending")  { setErr("Cuenta pendiente de aprobacion. Te contactamos pronto."); return; }
-        onLogin(sbUser);
-        return;
-      }
-    } catch(e) { console.warn("sbLogin error:", e); }
-    const u = users.find(u => u.email === f.email && u.password === f.pass);
-    if (!u) { setErr("Email o contrasena incorrectos."); return; }
-    if (u.status === "inactive") { setErr("Cuenta inactiva. Contacta al administrador."); return; }
-    if (u.status === "pending")  { setErr("Cuenta pendiente de aprobacion. Te contactamos pronto."); return; }
+    setLoading(true); setErr("");
+    // 1) Buscar local primero
+    let u = users.find(u => u.email === f.email && u.password === f.pass);
+    // 2) Si no está local, intentar Supabase
+    if (!u) {
+      try { u = await sbLogin(f.email, f.pass); } catch(e) { /* ignorar */ }
+    }
+    setLoading(false);
+    if (!u) { setErr("Email o contraseña incorrectos."); return; }
+    if (u.status === "inactive") { setErr("Cuenta inactiva. Contactá al administrador."); return; }
+    if (u.status === "pending")  { setErr("Cuenta pendiente de aprobación. Te contactamos pronto."); return; }
     onLogin(u);
   };
 
@@ -1056,7 +1055,7 @@ function Login({ onLogin, users, onRegisterRequest }) {
               <div style={{ position:"relative" }}>
                 <input className="inp" type={f.show ? "text" : "password"} placeholder="••••••••"
                   value={f.pass} onChange={e => setF({ ...f, pass:e.target.value })}
-                  onKeyDown={e => e.key === "Enter" && login()}
+                  onKeyDown={e => e.key === "Enter" && !loading && login()}
                   style={{ paddingRight:44 }} />
                 <button onClick={() => setF({ ...f, show:!f.show })}
                   style={{ position:"absolute", right:12, top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", fontSize:16, color:C.grayL }}>
@@ -1065,7 +1064,9 @@ function Login({ onLogin, users, onRegisterRequest }) {
               </div>
             </div>
             {err && <div className="alert alrtd">{err}</div>}
-            <button className="btn btnp btnfull" style={{ borderRadius:12 }} onClick={login}>→ Ingresar</button>
+            <button className="btn btnp btnfull" style={{ borderRadius:12 }} onClick={login} disabled={loading}>
+              {loading ? "Verificando…" : "→ Ingresar"}
+            </button>
             <div style={{ textAlign:"center", marginTop:12, fontSize:12, color:C.grayL }}>
               ¿Olvidaste tu contrasena? <span style={{ color:C.terra, cursor:"pointer", fontWeight:600 }} onClick={() => setForgot(true)}>Recuperar acceso</span>
             </div>
@@ -3389,9 +3390,21 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
     setNew(false);
   };
 
-  const chgStatus = (id, s) => setUsers(prev => prev.map(u => u.id===id ? { ...u, status:s } : u));
-  const chgRole   = (id, r) => setUsers(prev => prev.map(u => u.id===id ? { ...u, role:r }   : u));
-  const del       = (id)    => { if (id === currentUser?.id) { alert("No puedes eliminar tu propia cuenta."); return; } setUsers(prev => prev.filter(u => u.id !== id)); };
+  const chgStatus = async (id, s) => {
+    setUsers(prev => prev.map(u => u.id===id ? { ...u, status:s } : u));
+    try { await sbFetch(`hadrion_users?id=eq.${id}`, { method:"PATCH", body: JSON.stringify({ status:s }) }); } catch(e) { console.warn(e); }
+  };
+  const chgRole   = (id, r) => setUsers(prev => prev.map(u => u.id===id ? { ...u, role:r } : u));
+  const del = async (id) => {
+    if (id === currentUser?.id) { alert("No podés eliminar tu propia cuenta."); return; }
+    if (!window.confirm("¿Eliminar este usuario? Sus datos se conservan 30 días y luego se purgan.")) return;
+    const deletedAt = new Date().toISOString();
+    const dataExpiresAt = new Date(Date.now() + 30*24*60*60*1000).toISOString().slice(0,10);
+    setUsers(prev => prev.map(u => u.id===id ? { ...u, status:"inactive", deletedAt, dataExpiresAt } : u));
+    try {
+      await sbFetch(`hadrion_users?id=eq.${id}`, { method:"PATCH", body: JSON.stringify({ status:"inactive", deletedAt, dataExpiresAt }) });
+    } catch(e) { console.warn(e); }
+  };
 
   const sIcon  = { active:"🟢", pending:"🟡", inactive:"⚪" };
   const sLabel = { active:"Activo", pending:"Pendiente", inactive:"Inactivo" };
@@ -3846,31 +3859,82 @@ const PLANES_ORG_BASE = [
 
 function Organizaciones({ users, setUsers, precios={} }) {
   const PLANES_ORG = PLANES_ORG_BASE.map(p => ({ ...p, precio: precios[p.id] || 0 }));
-  const [orgs, setOrgs]     = useState([
-    { id:1, nombre:"Clínica Demo", tipo:"Clinica", plan:"clinica", maxUsers:10,
-      contacto:"demo@clinica.com", usuarios:[1,2], activa:true, createdAt:"01/01/2025" }
-  ]);
+  const [orgs, setOrgs]     = useState([]);
+  const [sbLoading, setSbLoading] = useState(false);
   const [showNew, setShowNew] = useState(false);
-  const [f, setF]             = useState({ nombre:"", tipo:"Clinica", plan:"pro", contacto:"", telefono:"" });
+  const [f, setF]             = useState({ nombre:"", tipo:"Clinica", plan:"clinica", contacto:"", telefono:"", maxUsers:"10", adminEmail:"", adminPassword:"", adminName:"" });
   const [selOrg, setSelOrg]   = useState(null);
-
+  const [showSendModal, setShowSendModal] = useState(false);
+  const [lastCreated, setLastCreated] = useState(null); // { org, adminUser }
   const tiposOrg = ["Clinica","Escuela","Colegio","Centro terapeutico","Hospital","Otro"];
 
-  const addOrg = () => {
-    if (!f.nombre) return;
-    const plan = PLANES_ORG.find(p => p.id === f.plan);
-    setOrgs(prev => [...prev, {
-      id: makeId(), nombre:f.nombre, tipo:f.tipo, plan:f.plan,
-      maxUsers: plan?.maxUsers || 3, contacto:f.contacto,
-      telefono:f.telefono, usuarios:[], activa:true,
-      createdAt:new Date().toLocaleDateString("es-UY")
-    }]);
-    setF({ nombre:"", tipo:"Clinica", plan:"pro", contacto:"", telefono:"" });
-    setShowNew(false);
+  // Cargar orgs de Supabase al montar
+  useEffect(() => {
+    setSbLoading(true);
+    sbFetch("hadrion_organizaciones?select=*&order=created_at.desc")
+      .then(data => { setOrgs(data || []); setSbLoading(false); })
+      .catch(() => { setSbLoading(false); });
+  }, []);
+
+  const saveOrgSb = async (org) => {
+    return sbFetch("hadrion_organizaciones", {
+      method:"POST",
+      prefer:"resolution=merge-duplicates,return=representation",
+      body: JSON.stringify(org),
+    });
   };
 
-  const orgUsers = org => users.filter(u => (org.usuarios||[]).includes(u.id));
-  const canAddUser = org => orgUsers(org).length < org.maxUsers;
+  const addOrg = async () => {
+    if (!f.nombre || !f.adminEmail || !f.adminPassword || !f.adminName) {
+      return alert("Completá nombre de org, nombre del admin, email y contraseña.");
+    }
+    const orgId = crypto.randomUUID ? crypto.randomUUID() : makeId();
+    const now = new Date().toLocaleDateString("es-UY");
+    const plan = PLANES_ORG.find(p => p.id === f.plan);
+    const newOrg = {
+      id: orgId, nombre: f.nombre, tipo: f.tipo, plan: f.plan,
+      max_users: parseInt(f.maxUsers) || (plan?.maxUsers || 10),
+      contacto: f.contacto, telefono: f.telefono,
+      activa: true, created_at: new Date().toISOString(),
+    };
+    const init = f.adminName.split(" ").map(w=>w[0]).join("").toUpperCase().slice(0,2);
+    const cols = [C.terra,C.sage,C.info,C.purple,C.gold];
+    const adminUser = {
+      name: f.adminName, email: f.adminEmail, password: f.adminPassword,
+      role: "org_admin", org_id: orgId, plan: f.plan, status: "active",
+      specialty: "Administrador", phone: f.telefono,
+      avatar: init, color: cols[orgs.length % cols.length],
+    };
+    try {
+      await saveOrgSb(newOrg);
+      await sbFetch("hadrion_users", { method:"POST", body: JSON.stringify(adminUser) });
+      const fresh = await sbFetch("hadrion_organizaciones?select=*&order=created_at.desc");
+      setOrgs(fresh || []);
+      setLastCreated({ org: newOrg, adminUser });
+      setShowNew(false);
+      setShowSendModal(true);
+      setF({ nombre:"", tipo:"Clinica", plan:"clinica", contacto:"", telefono:"", maxUsers:"10", adminEmail:"", adminPassword:"", adminName:"" });
+    } catch(e) { alert("Error al guardar: " + e.message); }
+  };
+
+  const updateOrgSb = async (org) => {
+    const { id, ...rest } = org;
+    await sbFetch(`hadrion_organizaciones?id=eq.${id}`, {
+      method:"PATCH", body: JSON.stringify(rest),
+    }).catch(console.warn);
+    setOrgs(prev => prev.map(o => o.id === id ? org : o));
+    setSelOrg(null);
+  };
+
+  const deleteOrgSb = async (id) => {
+    if (!window.confirm("¿Eliminar esta organización y todos sus datos?")) return;
+    await sbFetch(`hadrion_organizaciones?id=eq.${id}`, { method:"DELETE", prefer:"" }).catch(console.warn);
+    setOrgs(prev => prev.filter(o => o.id !== id));
+    setSelOrg(null);
+  };
+
+  const orgUsers = org => users.filter(u => u.org_id === org.id);
+  const canAddUser = org => orgUsers(org).length < (org.max_users || 10);
 
   return (
     <div className="fu">
@@ -3882,53 +3946,34 @@ function Organizaciones({ users, setUsers, precios={} }) {
         <button className="btn btnp btnsm" onClick={()=>setShowNew(true)}>+ Nueva org.</button>
       </div>
 
-      {/* Planes disponibles */}
-      <div style={{marginBottom:4,fontSize:11,fontWeight:700,color:C.grayL,textTransform:"uppercase",letterSpacing:1}}>Planes individuales</div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:12}}>
-        {PLANES_ORG.filter(p=>p.tipo==="individual").map(p => (
-          <div key={p.id} style={{background:"white",borderRadius:12,padding:"12px 14px",border:`2px solid ${p.color}33`}}>
-            <div style={{fontWeight:700,fontSize:13,color:p.color}}>{p.label}</div>
-            <div style={{fontSize:10,color:"#9B9590",marginTop:2}}>1 usuario — acceso individual</div>
-            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:700,color:"#2C2C2C",marginTop:4}}>${p.precio.toLocaleString("es-UY")} UYU/mes</div>
-            {p.features && <div style={{marginTop:6}}>{p.features.slice(0,3).map(f=><div key={f} style={{fontSize:9,color:"#9B9590"}}>✓ {f}</div>)}</div>}
-          </div>
-        ))}
-      </div>
-      <div style={{marginBottom:4,fontSize:11,fontWeight:700,color:C.grayL,textTransform:"uppercase",letterSpacing:1}}>Planes para clínicas y centros</div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:16}}>
-        {PLANES_ORG.filter(p=>p.tipo==="clinica").map(p => (
-          <div key={p.id} style={{background:"white",borderRadius:12,padding:"12px 14px",border:`2px solid ${p.color}33`}}>
-            <div style={{fontWeight:700,fontSize:13,color:p.color}}>{p.label}</div>
-            <div style={{fontSize:10,color:"#9B9590",marginTop:2}}>Hasta {p.maxUsers} usuarios — multiusuario</div>
-            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:700,color:"#2C2C2C",marginTop:4}}>${p.precio.toLocaleString("es-UY")} UYU/mes</div>
-            {p.features && <div style={{marginTop:6}}>{p.features.slice(0,3).map(f=><div key={f} style={{fontSize:9,color:"#9B9590"}}>✓ {f}</div>)}</div>}
-          </div>
-        ))}
-      </div>
+      {sbLoading && <div style={{textAlign:"center",padding:20,color:"#9B9590"}}>Cargando…</div>}
 
-      {orgs.length === 0 && (
+      {!sbLoading && orgs.length === 0 && (
         <div style={{textAlign:"center",padding:"30px 0",color:"#9B9590"}}>
           <div style={{fontSize:36}}>🏫</div>
           <div style={{fontWeight:600}}>Sin organizaciones registradas</div>
+          <div style={{fontSize:12,marginTop:4}}>Creá la primera organización con el botón de arriba</div>
         </div>
       )}
 
       {orgs.map(org => {
         const plan = PLANES_ORG.find(p => p.id === org.plan);
         const miembros = orgUsers(org);
-        const pct = miembros.length / org.maxUsers * 100;
+        const maxU = org.max_users || 10;
+        const pct = miembros.length / maxU * 100;
+        const createdStr = org.created_at ? new Date(org.created_at).toLocaleDateString("es-UY") : "—";
         return (
           <div key={org.id} style={{background:"white",borderRadius:18,overflow:"hidden",boxShadow:"0 2px 12px rgba(0,0,0,.07)",marginBottom:14}}>
             <div style={{padding:"14px 16px",borderBottom:"1px solid #EDE0F5",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
               <div>
                 <div style={{fontWeight:700,fontSize:14}}>{org.nombre}</div>
-                <div style={{fontSize:11,color:"#9B9590",marginTop:2}}>{org.tipo} · Plan {plan?.label} · {org.createdAt}</div>
+                <div style={{fontSize:11,color:"#9B9590",marginTop:2}}>{org.tipo} · Plan {plan?.label||org.plan} · {createdStr}</div>
               </div>
               <div style={{display:"flex",gap:6,alignItems:"center"}}>
                 <span style={{fontSize:10,background:org.activa?"#E8F8EF":"#FDECEA",color:org.activa?"#1a7a3c":"#C0392B",borderRadius:20,padding:"2px 8px",fontWeight:700}}>
                   {org.activa?"Activa":"Inactiva"}
                 </span>
-                <button onClick={()=>setSelOrg(selOrg?.id===org.id?null:org)}
+                <button onClick={()=>setSelOrg({...org})}
                   style={{background:"#F5F0FA",border:"none",borderRadius:8,padding:"6px 10px",cursor:"pointer",fontSize:11,fontWeight:700,color:"#9B7EBD"}}>
                   ⚙️
                 </button>
@@ -3939,43 +3984,36 @@ function Organizaciones({ users, setUsers, precios={} }) {
                 <div style={{flex:1,background:"#EDE0F5",borderRadius:8,height:7,overflow:"hidden"}}>
                   <div style={{height:"100%",borderRadius:8,background:plan?.color||"#9B7EBD",width:`${Math.min(pct,100)}%`,transition:"width .3s"}}/>
                 </div>
-                <span style={{fontSize:12,fontWeight:700,color:plan?.color||"#9B7EBD"}}>{miembros.length}/{org.maxUsers}</span>
+                <span style={{fontSize:12,fontWeight:700,color:plan?.color||"#9B7EBD"}}>{miembros.length}/{maxU}</span>
                 <span style={{fontSize:11,color:"#9B9590"}}>usuarios</span>
               </div>
               <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
                 {miembros.map(u => (
                   <div key={u.id} style={{display:"flex",alignItems:"center",gap:5,background:"#F5F0FA",borderRadius:20,padding:"4px 10px"}}>
-                    <div style={{width:20,height:20,borderRadius:"50%",background:u.color,display:"flex",alignItems:"center",justifyContent:"center",color:"white",fontSize:9,fontWeight:700}}>{u.avatar}</div>
-                    <span style={{fontSize:11,fontWeight:500}}>{u.name.split(" ")[0]}</span>
+                    <div style={{width:20,height:20,borderRadius:"50%",background:u.color||C.terra,display:"flex",alignItems:"center",justifyContent:"center",color:"white",fontSize:9,fontWeight:700}}>{u.avatar||u.name?.[0]}</div>
+                    <span style={{fontSize:11,fontWeight:500}}>{u.name?.split(" ")[0]}</span>
+                    <span style={{fontSize:9,color:"#9B9590",background:"#EDE0F5",borderRadius:8,padding:"1px 5px"}}>{u.role==="org_admin"?"Admin":"Terapeuta"}</span>
                   </div>
                 ))}
-                {canAddUser(org) && (
-                  <button style={{background:"#EDE0F5",border:"none",borderRadius:20,padding:"4px 10px",fontSize:11,cursor:"pointer",color:"#9B7EBD",fontFamily:"sans-serif"}}
-                    onClick={()=>{
-                      const available = users.filter(u => !orgs.some(o => (o.usuarios||[]).includes(u.id)));
-                      if (available.length === 0) { alert("No hay usuarios disponibles para agregar."); return; }
-                      const name = prompt("Email del usuario a agregar:");
-                      const u = users.find(x => x.email === name);
-                      if (!u) { alert("Usuario no encontrado."); return; }
-                      setOrgs(prev => prev.map(o => o.id===org.id ? {...o, usuarios:[...(o.usuarios||[]),u.id]} : o));
-                    }}>
-                    + Agregar usuario
-                  </button>
+                {!canAddUser(org) && (
+                  <div style={{fontSize:11,color:"#E8A020",marginTop:6,width:"100%"}}>
+                    ⚠️ Límite de {maxU} usuarios alcanzado. Editá la org para aumentar el cupo.
+                  </div>
                 )}
               </div>
-              {!canAddUser(org) && (
-                <div style={{fontSize:11,color:"#E8A020",marginTop:6}}>
-                  ⚠️ Límite de usuarios alcanzado. Actualizá el plan para agregar más.
-                </div>
-              )}
             </div>
           </div>
         );
       })}
 
+      {/* Modal nueva org */}
       {showNew && (
         <Modal title="Nueva Organización" onClose={()=>setShowNew(false)}>
-          <div className="fg"><label className="lbl">Nombre</label>
+          <div style={{background:"#F5F0FA",borderRadius:10,padding:"10px 12px",marginBottom:12,fontSize:12,color:"#7B5EA7",lineHeight:1.5}}>
+            Al crear la organización se crea automáticamente un <strong>usuario administrador</strong> que podrá ingresar a la app y gestionar su equipo.
+          </div>
+          <div style={{fontWeight:700,fontSize:12,color:C.grayL,marginBottom:8,textTransform:"uppercase",letterSpacing:.5}}>Datos de la organización</div>
+          <div className="fg"><label className="lbl">Nombre de la organización *</label>
             <input className="inp" placeholder="Ej: Clínica Los Pinos" value={f.nombre} onChange={e=>setF({...f,nombre:e.target.value})}/>
           </div>
           <div className="fg"><label className="lbl">Tipo</label>
@@ -3983,49 +4021,84 @@ function Organizaciones({ users, setUsers, precios={} }) {
               {tiposOrg.map(t=><option key={t}>{t}</option>)}
             </select>
           </div>
-          <div className="fg"><label className="lbl">Plan</label>
-            <select className="inp" value={f.plan} onChange={e=>setF({...f,plan:e.target.value})}>
-              {PLANES_ORG.map(p=>(
-                <option key={p.id} value={p.id}>{p.label} — hasta {p.maxUsers} usuarios — ${p.precio.toLocaleString("es-UY")} UYU/mes</option>
-              ))}
-            </select>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+            <div className="fg"><label className="lbl">Plan</label>
+              <select className="inp" value={f.plan} onChange={e=>setF({...f,plan:e.target.value})}>
+                {PLANES_ORG.map(p=><option key={p.id} value={p.id}>{p.label}</option>)}
+              </select>
+            </div>
+            <div className="fg"><label className="lbl">Cupo de usuarios</label>
+              <input className="inp" type="number" min="1" max="200" value={f.maxUsers} onChange={e=>setF({...f,maxUsers:e.target.value})} placeholder="Ej: 19"/>
+            </div>
           </div>
           <div className="fg"><label className="lbl">Email de contacto</label>
             <input className="inp" type="email" value={f.contacto} onChange={e=>setF({...f,contacto:e.target.value})}/>
           </div>
-          <div className="fg"><label className="lbl">Teléfono (WhatsApp)</label>
+          <div className="fg"><label className="lbl">Teléfono WhatsApp</label>
             <input className="inp" type="tel" placeholder="(+598) 9..." value={f.telefono} onChange={e=>setF({...f,telefono:e.target.value})}/>
           </div>
-          <div style={{background:"#F5F0FA",borderRadius:12,padding:12,marginBottom:12}}>
-            <div style={{fontSize:11,fontWeight:700,color:"#9B9590",marginBottom:4,textTransform:"uppercase"}}>Resumen del plan seleccionado</div>
-            {(() => { const p = PLANES_ORG.find(pl=>pl.id===f.plan);
-              return p ? (
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                  <div><div style={{fontWeight:700,color:p.color}}>{p.label}</div><div style={{fontSize:12,color:"#9B9590"}}>Hasta {p.maxUsers} usuarios</div></div>
-                  <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:700,color:p.color}}>${p.precio.toLocaleString("es-UY")}/mes</div>
-                </div>
-              ) : null;
-            })()}
+          <div style={{fontWeight:700,fontSize:12,color:C.grayL,margin:"12px 0 8px",textTransform:"uppercase",letterSpacing:.5}}>Usuario administrador de la org</div>
+          <div className="fg"><label className="lbl">Nombre completo *</label>
+            <input className="inp" placeholder="Nombre del admin de la org" value={f.adminName} onChange={e=>setF({...f,adminName:e.target.value})}/>
           </div>
-          <button className="btn btnp btnfull" onClick={addOrg}>Crear organización</button>
+          <div className="fg"><label className="lbl">Email *</label>
+            <input className="inp" type="email" placeholder="admin@clinica.com" value={f.adminEmail} onChange={e=>setF({...f,adminEmail:e.target.value})}/>
+          </div>
+          <div className="fg"><label className="lbl">Contraseña *</label>
+            <input className="inp" placeholder="Contraseña inicial" value={f.adminPassword} onChange={e=>setF({...f,adminPassword:e.target.value})}/>
+          </div>
+          <button className="btn btnp btnfull" onClick={addOrg}>Crear organización →</button>
         </Modal>
       )}
 
+      {/* Modal enviar credenciales */}
+      {showSendModal && lastCreated && (
+        <Modal title="✅ Organización creada" onClose={()=>setShowSendModal(false)}>
+          <div style={{background:"#E8F8EF",borderRadius:10,padding:"10px 12px",marginBottom:14,fontSize:13,color:"#1a7a3c",fontWeight:600}}>
+            {lastCreated.org.nombre} creada correctamente
+          </div>
+          <div style={{fontSize:13,color:"#2C2C2C",marginBottom:4,fontWeight:700}}>Enviá las credenciales al administrador:</div>
+          <div style={{background:"#F5F0FA",borderRadius:10,padding:"10px 12px",marginBottom:14,fontSize:12,color:"#2C2C2C",lineHeight:1.7}}>
+            📧 <b>Email:</b> {lastCreated.adminUser.email}<br/>
+            🔑 <b>Contraseña:</b> {lastCreated.adminUser.password}<br/>
+            🌐 <b>Link:</b> https://hadrion.pages.dev
+          </div>
+          <button className="btn btnp btnfull" style={{background:"#25D366",marginBottom:8}} onClick={()=>{
+            const phone = (lastCreated.adminUser.phone||"").replace(/\D/g,"");
+            const msg = encodeURIComponent(
+              `Hola ${lastCreated.adminUser.name} 👋\n\nTe creé el acceso de administrador en Hadrion para *${lastCreated.org.nombre}*.\n\n📧 Email: ${lastCreated.adminUser.email}\n🔑 Contraseña: ${lastCreated.adminUser.password}\n\n👉 Ingresá desde: https://hadrion.pages.dev\n\nDesde tu cuenta podés crear y gestionar los usuarios de tu organización. ¡Cualquier duda me avisás! 🎉`
+            );
+            window.open(phone ? `https://wa.me/${phone}?text=${msg}` : `https://wa.me/?text=${msg}`, "_blank");
+          }}>💬 Enviar por WhatsApp</button>
+          <button className="btn btni btnfull" style={{marginBottom:8}} onClick={()=>{
+            const subject = encodeURIComponent(`Acceso a Hadrion — ${lastCreated.org.nombre}`);
+            const body = encodeURIComponent(
+              `Hola ${lastCreated.adminUser.name},\n\nTe creé el acceso de administrador en Hadrion para ${lastCreated.org.nombre}.\n\nEmail: ${lastCreated.adminUser.email}\nContraseña: ${lastCreated.adminUser.password}\nLink: https://hadrion.pages.dev\n\nDesde tu cuenta podés crear y gestionar los usuarios de tu organización.\n\nCualquier duda me avisás.\n\nAdriana Soba`
+            );
+            window.open(`mailto:${lastCreated.adminUser.email}?subject=${subject}&body=${body}`, "_blank");
+          }}>✉️ Enviar por Email</button>
+          <button className="btn btng btnfull" onClick={()=>setShowSendModal(false)}>Listo</button>
+        </Modal>
+      )}
+
+      {/* Modal editar org */}
       {selOrg && (
         <Modal title={`⚙️ ${selOrg.nombre}`} onClose={()=>setSelOrg(null)}>
-          <div className="alert alrti" style={{marginBottom:12}}>Configuración de la organización</div>
           <div className="fg"><label className="lbl">Nombre</label>
-            <input className="inp" value={selOrg.nombre}
-              onChange={e=>setSelOrg({...selOrg,nombre:e.target.value})}/>
+            <input className="inp" value={selOrg.nombre} onChange={e=>setSelOrg({...selOrg,nombre:e.target.value})}/>
           </div>
-          <div className="fg"><label className="lbl">Plan</label>
-            <select className="inp" value={selOrg.plan}
-              onChange={e=>{
-                const p=PLANES_ORG.find(pl=>pl.id===e.target.value);
-                setSelOrg({...selOrg,plan:e.target.value,maxUsers:p?.maxUsers||3});
-              }}>
-              {PLANES_ORG.map(p=><option key={p.id} value={p.id}>{p.label} — {p.maxUsers} usuarios — ${p.precio.toLocaleString("es-UY")} UYU/mes</option>)}
-            </select>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+            <div className="fg"><label className="lbl">Plan</label>
+              <select className="inp" value={selOrg.plan}
+                onChange={e=>setSelOrg({...selOrg,plan:e.target.value})}>
+                {PLANES_ORG.map(p=><option key={p.id} value={p.id}>{p.label}</option>)}
+              </select>
+            </div>
+            <div className="fg"><label className="lbl">Cupo usuarios</label>
+              <input className="inp" type="number" min="1" max="200"
+                value={selOrg.max_users||10}
+                onChange={e=>setSelOrg({...selOrg,max_users:parseInt(e.target.value)||10})}/>
+            </div>
           </div>
           <div className="fg"><label className="lbl">Estado</label>
             <select className="inp" value={selOrg.activa?"activa":"inactiva"}
@@ -4035,19 +4108,13 @@ function Organizaciones({ users, setUsers, precios={} }) {
             </select>
           </div>
           <div className="fg"><label className="lbl">Email de contacto</label>
-            <input className="inp" value={selOrg.contacto||""}
-              onChange={e=>setSelOrg({...selOrg,contacto:e.target.value})}/>
+            <input className="inp" value={selOrg.contacto||""} onChange={e=>setSelOrg({...selOrg,contacto:e.target.value})}/>
           </div>
-          <button className="btn btnp btnfull" onClick={()=>{
-            setOrgs(prev=>prev.map(o=>o.id===selOrg.id?selOrg:o));
-            setSelOrg(null);
-          }}>Guardar cambios</button>
-          <button className="btn btnd btnfull" onClick={()=>{
-            if(window.confirm("¿Eliminar esta organización?")) {
-              setOrgs(prev=>prev.filter(o=>o.id!==selOrg.id));
-              setSelOrg(null);
-            }
-          }}>🗑️ Eliminar organización</button>
+          <div className="fg"><label className="lbl">Teléfono WhatsApp</label>
+            <input className="inp" value={selOrg.telefono||""} onChange={e=>setSelOrg({...selOrg,telefono:e.target.value})}/>
+          </div>
+          <button className="btn btnp btnfull" onClick={()=>updateOrgSb(selOrg)}>Guardar cambios</button>
+          <button className="btn btnd btnfull" onClick={()=>deleteOrgSb(selOrg.id)}>🗑️ Eliminar organización</button>
           <button className="btn btng btnfull" onClick={()=>setSelOrg(null)}>Cancelar</button>
         </Modal>
       )}
@@ -5465,10 +5532,12 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
   const [editPat,   setEditPat]   = useState(null); // paciente para editar tarifa
   const [tarifaF,   setTarifaF]   = useState({});
   const [showAddUser, setShowAddUser] = useState(false);
-  const [newUser, setNewUser] = useState({ name:"", email:"", password:"", specialty:"Fonoaudiologa" });
+  const [newUser, setNewUser] = useState({ name:"", email:"", password:"", specialty:"Fonoaudiologa", phone:"" });
 
   const orgId    = currentUser?.org_id || null;
   const usandoSb = !!orgId;
+  const esOrgAdmin = currentUser?.role === "org_admin";
+  const esAdmin    = currentUser?.role === "admin";
 
   // ── Cargar datos Supabase ───────────────────────────────────────────────────
   useEffect(() => {
@@ -5593,7 +5662,9 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
   };
 
   const profes = usandoSb
-    ? sbUsers.filter(u => u.role !== "admin")
+    ? (esOrgAdmin || esAdmin
+        ? sbUsers.filter(u => u.role === "profesional")
+        : sbUsers.filter(u => u.id === currentUser?.id))
     : users.filter(u => u.role === "profesional");
 
   const totalNomina = profes.reduce((s,u) => s + calcLiqTerapeuta(u.id).neto, 0);
@@ -5626,7 +5697,13 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
         const us = await sbGetUsers(orgId);
         setSbUsers(us||[]);
         setShowAddUser(false);
-        setNewUser({ name:"", email:"", password:"", specialty:"Fonoaudiologa" });
+        // Abrir WhatsApp con credenciales pre-armadas
+        const phone = (newUser.phone||"").replace(/\D/g,"");
+        const msg = encodeURIComponent(
+          `Hola ${newUser.name} 👋\n\nTe creé un usuario en Hadrion para que puedas ingresar:\n\n📧 Email: ${newUser.email}\n🔑 Contraseña: ${newUser.password}\n\n👉 Ingresá desde: https://hadrion.pages.dev\n\nCualquier duda me avisás. ¡Bienvenid@ al equipo! 🎉`
+        );
+        window.open(phone ? `https://wa.me/${phone}?text=${msg}` : `https://wa.me/?text=${msg}`, "_blank");
+        setNewUser({ name:"", email:"", password:"", specialty:"Fonoaudiologa", phone:"" });
       } catch(e) { alert("Error: "+e.message); }
     }
   };
@@ -5916,10 +5993,17 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
             </div>
           ))}
           <div className="fg">
+            <label className="lbl">Teléfono WhatsApp <span style={{fontWeight:400,color:"#9B9590"}}>(opcional)</span></label>
+            <input className="inp" type="tel" placeholder="598999..." value={newUser.phone} onChange={e=>setNewUser({...newUser,phone:e.target.value})}/>
+          </div>
+          <div className="fg">
             <label className="lbl">Especialidad</label>
             <select className="inp" value={newUser.specialty} onChange={e=>setNewUser({...newUser,specialty:e.target.value})}>
               {["Fonoaudiologa","Psicóloga","Psicopedagoga","T.O.","Kinesióloga","Otro"].map(s=><option key={s}>{s}</option>)}
             </select>
+          </div>
+          <div style={{fontSize:11,color:"#9B7EBD",background:"#F5F0FA",borderRadius:8,padding:"8px 10px",marginBottom:8}}>
+            💬 Al crear, se abrirá WhatsApp con las credenciales listas para enviar.
           </div>
           <button className="btn btnp btnfull" onClick={addUser}>Crear terapeuta</button>
           <button className="btn btng btnfull" onClick={()=>setShowAddUser(false)}>Cancelar</button>
@@ -6324,12 +6408,19 @@ export default function HadrionApp() {
   const setUserAndPersist = (u) => {
     const token = makeId();
     const userWithToken = { ...u, sessionToken: token, lastLogin: new Date().toLocaleString("es-UY") };
-    // Actualizar token en lista de usuarios
-    const updatedUsers = users.map(x => x.id === u.id ? userWithToken : x);
+    // Actualizar en lista local si existe, si no agregar
+    const exists = users.find(x => x.id === u.id);
+    const updatedUsers = exists
+      ? users.map(x => x.id === u.id ? userWithToken : x)
+      : [...users, userWithToken];
     setUsersRaw(updatedUsers);
     setUser(userWithToken);
     saveToStorage({ users:updatedUsers, user:userWithToken, patients, sessions, payments, agendaItems, plan,
       registerRequests, precios, documentos, plantillas, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory });
+    // Sync lastLogin a Supabase en background
+    if (u.id && typeof u.id === "string") {
+      sbFetch(`hadrion_users?id=eq.${u.id}`, { method:"PATCH", body: JSON.stringify({ lastLogin: new Date().toISOString() }) }).catch(()=>{});
+    }
   };
 
   const pages = {
@@ -6347,17 +6438,13 @@ export default function HadrionApp() {
     resources:  <Resources plantillas={plantillas} setPlantillas={setPlantillas} documentos={documentos} setDocumentos={setDocumentos}/>,
     tea:        <TEAAutismo />,
     asistencias:<Asistencias patients={patients} setPatients={setPatients} />,
-    organizaciones: (user?.role === "admin" || isClinica(user))
+    organizaciones: user?.role === "admin"
       ? <Organizaciones users={users} setUsers={setUsers} precios={precios} />
       : <div className="fu">
           <div style={{background:"linear-gradient(135deg,#F5F0FA,#EDE0F5)",borderRadius:18,padding:28,textAlign:"center",marginTop:20}}>
             <div style={{fontSize:48,marginBottom:12}}>🏫</div>
-            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:700,color:"#7B5EA7",marginBottom:8}}>Función para Clínicas</div>
-            <div style={{fontSize:13,color:"#6B6560",lineHeight:1.7,marginBottom:16}}>La gestión de organizaciones y equipos está disponible en el Plan Clínica o Colegio.</div>
-            <a href="https://wa.me/59899926775?text=Hola%20Adriana%2C%20quiero%20actualizar%20al%20Plan%20Clínica" target="_blank" rel="noopener noreferrer"
-              style={{display:"inline-block",background:"#25D366",color:"white",borderRadius:12,padding:"10px 20px",fontWeight:700,fontSize:13,textDecoration:"none"}}>
-              💬 Actualizar plan
-            </a>
+            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:700,color:"#7B5EA7",marginBottom:8}}>Función para Administradores</div>
+            <div style={{fontSize:13,color:"#6B6560",lineHeight:1.7,marginBottom:16}}>La gestión de organizaciones está disponible solo para Adriana.</div>
           </div>
         </div>,
     admin:      user?.role === "admin"
