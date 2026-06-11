@@ -26,6 +26,10 @@ const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+G
 
 // ─── DATOS INICIALES ─────────────────────────────────────────────────────────
 const INIT_USERS = [
+  { id:1, name:"Adriana Soba",   email:"comunipro12@gmail.com", password:"admin123",
+    role:"admin",         specialty:"Fonoaudiologa",   plan:"Pro",    status:"active",
+    createdAt:"01/01/2025", avatar:"AS", color:C.terra,  lastLogin:"Hoy 08:30",
+    subscriptionEnd:null, dataExpiresAt:null, trialDays:14 },
   { id:2, name:"Ana Garcia",     email:"ana@clinica.cl",         password:"123456",
     role:"profesional",   specialty:"Psicopedagoga",   plan:"Basico", status:"active",
     createdAt:"15/03/2025", avatar:"AG", color:C.sage,   lastLogin:"Ayer 16:00",
@@ -903,45 +907,6 @@ const sbCreateUser = async (userData) => {
   });
 };
 
-// ── Pacientes en Supabase ─────────────────────────────────────────────────────
-
-const sbSyncPacientes = async (userId, orgId, pacientes) => {
-  const rows = pacientes.map(p => ({
-    user_id: userId, org_id: orgId,
-    nombre: p.name, diagnostico: p.diagnosis || p.diagnostico || "",
-    dependencia: p.dependencia || "Particular",
-    tarifa_sesion: Number(p.tarifaPorSesion) || 0,
-    complemento: Number(p.complemento) || 0,
-    currency: p.currency || "UYU", status: p.status || "active",
-    local_id: String(p.id),
-  }));
-  return sbFetch(`hadrion_pacientes`, {
-    method: "POST",
-    prefer: "resolution=merge-duplicates,return=representation",
-    body: JSON.stringify(rows),
-  });
-};
-
-const sbGetPacientesOrg = async (orgId) => {
-  return sbFetch(`hadrion_pacientes?org_id=eq.${orgId}&status=eq.active&select=*`);
-};
-
-const sbSavePacAsistencia = async (pacId, userId, orgId, dia, estado, mes) => {
-  if (estado) {
-    return sbFetch(`hadrion_asistencias_pacientes`, {
-      method: "POST",
-      prefer: "resolution=merge-duplicates,return=representation",
-      body: JSON.stringify({ pac_id: pacId, user_id: userId, org_id: orgId, dia, estado, mes }),
-    });
-  } else {
-    return sbFetch(`hadrion_asistencias_pacientes?pac_id=eq.${pacId}&dia=eq.${dia}`, { method: "DELETE", prefer: "" });
-  }
-};
-
-const sbGetPacAsistenciasOrg = async (orgId, mes) => {
-  return sbFetch(`hadrion_asistencias_pacientes?org_id=eq.${orgId}&mes=eq.${mes}&select=*`);
-};
-
 // ─── COMPONENTES BASE ─────────────────────────────────────────────────────────
 function Modal({ title, onClose, children }) {
   return createPortal(
@@ -1046,36 +1011,13 @@ function Login({ onLogin, users, onRegisterRequest }) {
   const [regF, setRegF]     = useState({ name:"", email:"", specialty:"", phone:"", message:"" });
   const [regSent, setRegSent] = useState(false);
 
-  const [loading, setLoading] = useState(false);
-
-  const login = async () => {
+  const login = () => {
     if (!f.email || !f.pass) { setErr("Completa todos los campos."); return; }
-    setLoading(true);
-    setErr("");
-
-    // 1. Intentar login en Supabase primero
-    try {
-      const sbUser = await sbLogin(f.email, f.pass);
-      if (sbUser) {
-        if (sbUser.status === "inactive") { setErr("Cuenta inactiva. Contacta al administrador."); setLoading(false); return; }
-        if (sbUser.status === "pending")  { setErr("Cuenta pendiente de aprobacion. Te contactamos pronto."); setLoading(false); return; }
-        setLoading(false);
-        onLogin(sbUser);
-        return;
-      }
-      // Supabase no encontró el usuario — intentar local
-    } catch(e) {
-      setErr("Error de conexion: " + e.message);
-      setLoading(false);
-      return;
-    }
-
-    // 2. Fallback: login local (solo si Supabase no encontró el usuario)
     const u = users.find(u => u.email === f.email && u.password === f.pass);
-    if (!u) { setErr("Email o contrasena incorrectos."); setLoading(false); return; }
-    if (u.status === "inactive") { setErr("Cuenta inactiva. Contacta al administrador."); setLoading(false); return; }
-    if (u.status === "pending")  { setErr("Cuenta pendiente de aprobacion. Te contactamos pronto."); setLoading(false); return; }
-    setLoading(false);
+    if (!u) { setErr("Email o contrasena incorrectos."); return; }
+    if (u.status === "inactive") { setErr("Cuenta inactiva. Contacta al administrador."); return; }
+    if (u.status === "pending")  { setErr("Cuenta pendiente de aprobacion. Te contactamos pronto."); return; }
+    setErr("");
     onLogin(u);
   };
 
@@ -1113,7 +1055,7 @@ function Login({ onLogin, users, onRegisterRequest }) {
               </div>
             </div>
             {err && <div className="alert alrtd">{err}</div>}
-            <button className="btn btnp btnfull" style={{ borderRadius:12 }} onClick={login} disabled={loading}>{loading ? "⏳ Verificando..." : "→ Ingresar"}</button>
+            <button className="btn btnp btnfull" style={{ borderRadius:12 }} onClick={login}>→ Ingresar</button>
             <div style={{ textAlign:"center", marginTop:12, fontSize:12, color:C.grayL }}>
               ¿Olvidaste tu contrasena? <span style={{ color:C.terra, cursor:"pointer", fontWeight:600 }} onClick={() => setForgot(true)}>Recuperar acceso</span>
             </div>
@@ -4104,11 +4046,7 @@ function Organizaciones({ users, setUsers, precios={} }) {
 }
 
 // ─── ASISTENCIAS ─────────────────────────────────────────────────────────────
-function Asistencias({ patients, setPatients, currentUser }) {
-  const orgId   = currentUser?.org_id || null;
-  const userId   = currentUser?.id    || null;
-  const usandoSb = !!orgId && !!userId;
-
+function Asistencias({ patients, setPatients }) {
   const myPats = patients.filter(p => p.status === "active");
   const [mes, setMes] = useState(() => {
     const h = new Date();
@@ -4117,21 +4055,6 @@ function Asistencias({ patients, setPatients, currentUser }) {
   const [editTarifa, setEditTarifa] = useState(false);
   const [selPat, setSelPat]         = useState(null);
   const [tarifaF, setTarifaF]       = useState({});
-  // sbPacIds: map local_id → uuid de Supabase
-  const [sbPacIds, setSbPacIds]     = useState({});
-
-  // Sincronizar pacientes a Supabase al montar si el usuario tiene org_id
-  useEffect(() => {
-    if (!usandoSb || myPats.length === 0) return;
-    sbSyncPacientes(userId, orgId, myPats)
-      .then(rows => {
-        if (!rows) return;
-        const map = {};
-        (Array.isArray(rows) ? rows : [rows]).forEach(r => { if (r.local_id) map[r.local_id] = r.id; });
-        setSbPacIds(map);
-      })
-      .catch(console.warn);
-  }, [usandoSb, userId, orgId]);
 
   const cambiarMes = d => {
     const [y,m] = mes.split("-").map(Number);
@@ -4161,14 +4084,6 @@ function Asistencias({ patients, setPatients, currentUser }) {
       else if (a[dia] === "P") a[dia] = "F";
       else if (a[dia] === "F") a[dia] = "FJ";
       else delete a[dia];
-      // Sync a Supabase si el terapeuta tiene org
-      if (usandoSb) {
-        const sbPacId = sbPacIds[String(patId)];
-        if (sbPacId) {
-          const nuevoEstado = a[dia] || null;
-          sbSavePacAsistencia(sbPacId, userId, orgId, dia, nuevoEstado, mes).catch(console.warn);
-        }
-      }
       return { ...p, asistencias: a };
     }));
   };
@@ -5524,88 +5439,51 @@ Profesional: ___________________`}
 }
 
 
-// ─── LIQUIDACIÓN DE SUELDOS ───────────────────────────────────────────────────
+// ─── LIQUIDACION (reemplaza función existente ~línea 5443) ───────────────────
+// Lógica: el admin ve cada terapeuta → dentro, cada paciente con sus
+// asistencias, tarifa propia, dependencia y complemento → suma todo → sueldo.
+
 function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:setConfigsProp=()=>{}, asistenciasData={}, setAsistenciasData=()=>{} }) {
   const mesActual = new Date().toISOString().slice(0,7);
-  const [mes, setMes] = useState(mesActual);
-  const [sbUsers, setSbUsers]   = useState([]);
-  const [sbAsis,  setSbAsis]    = useState({});
-  const [sbCfgs,  setSbCfgs]    = useState({});
+  const [mes, setMes]             = useState(mesActual);
+  const [sbUsers,   setSbUsers]   = useState([]);
+  const [sbPats,    setSbPats]    = useState([]);   // pacientes de la org
+  const [sbAsis,    setSbAsis]    = useState({});   // { patientId: { dia: estado } }
   const [sbLoading, setSbLoading] = useState(false);
   const [sbError,   setSbError]   = useState(null);
+  const [expanded,  setExpanded]  = useState({});   // { userId: bool }
+  const [editPat,   setEditPat]   = useState(null); // paciente para editar tarifa
+  const [tarifaF,   setTarifaF]   = useState({});
   const [showAddUser, setShowAddUser] = useState(false);
   const [newUser, setNewUser] = useState({ name:"", email:"", password:"", specialty:"Fonoaudiologa" });
-  // Para vista de pacientes del admin
-  const [sbPacientes, setSbPacientes]   = useState([]); // todos los pacientes de la org
-  const [sbPacAsis,   setSbPacAsis]     = useState({}); // { pacId: { dia: estado } }
-  const [selTerapeuta, setSelTerapeuta] = useState(null); // terapeuta expandido
-  const [vistaOrg, setVistaOrg]         = useState(false); // true = vista pacientes org
 
-  const orgId = currentUser?.org_id || null;
+  const orgId    = currentUser?.org_id || null;
   const usandoSb = !!orgId;
 
-  // Cargar datos desde Supabase cuando cambia mes u org
+  // ── Cargar datos Supabase ───────────────────────────────────────────────────
   useEffect(() => {
     if (!usandoSb) return;
     setSbLoading(true);
     setSbError(null);
     Promise.all([
       sbGetUsers(orgId),
-      sbGetAsistencias(orgId, mes),
-      sbGetConfigs(orgId, mes),
-      sbGetPacientesOrg(orgId),
-      sbGetPacAsistenciasOrg(orgId, mes),
-    ]).then(([usrs, asis, cfgs, pacs, pacAsis]) => {
-      setSbUsers(usrs || []);
-      const asisMap = {};
-      (asis || []).forEach(a => {
-        if (!asisMap[a.user_id]) asisMap[a.user_id] = {};
-        asisMap[a.user_id][a.dia] = a.estado;
+      sbFetch(`hadrion_pacientes?org_id=eq.${orgId}&status=eq.active&select=*`),
+      sbFetch(`hadrion_asistencias?org_id=eq.${orgId}&mes=eq.${mes}&select=*`),
+    ]).then(([us, pats, asis]) => {
+      setSbUsers(us || []);
+      setSbPats(pats || []);
+      // Mapa: { patientId: { dia: estado } }
+      const m = {};
+      (asis||[]).forEach(a => {
+        if (!m[a.patient_id]) m[a.patient_id] = {};
+        m[a.patient_id][a.dia] = a.estado;
       });
-      setSbAsis(asisMap);
-      const cfgMap = {};
-      (cfgs || []).forEach(c => { cfgMap[c.user_id] = c; });
-      setSbCfgs(cfgMap);
-      setSbPacientes(pacs || []);
-      const pacAsiMap = {};
-      (pacAsis || []).forEach(a => {
-        if (!pacAsiMap[a.pac_id]) pacAsiMap[a.pac_id] = {};
-        pacAsiMap[a.pac_id][a.dia] = a.estado;
-      });
-      setSbPacAsis(pacAsiMap);
+      setSbAsis(m);
       setSbLoading(false);
     }).catch(e => { setSbError(e.message); setSbLoading(false); });
   }, [orgId, mes]);
 
-  // Usar datos de Supabase si hay org, sino localStorage
-  const configs = usandoSb ? sbCfgs : configsProp;
-  const setConfigs = setConfigsProp;
-  const asistencias = usandoSb ? sbAsis : asistenciasData;
-  const setAsistencias = setAsistenciasData;
-  const profes = usandoSb
-    ? sbUsers.filter(u => u.role !== "admin")
-    : users.filter(u => u.role !== "admin" || currentUser?.role === "admin");
-
-  const getConfig = (uid) => configs[uid] || {
-    tarifa_sesion: 0, complemento_monto: 0, complemento_periodo: "mensual",
-    descuento_falta: 0, tipo_descuento: "monto", activo: true,
-    // compat con claves locales
-    tarifaSesion: 0, complementoMonto: 0, complementoPeriodo: "mensual",
-    descuentoFalta: 0, tipoDescuento: "monto",
-  };
-  // asistencias[userId][dia] = "P"|"F"|"FJ"|"R" (R=reposición)
-  const [selUser, setSelUser] = useState(null);
-  const [showLiq, setShowLiq] = useState(false);
-  const [editConfig, setEditConfig] = useState(null);
-
-  const cambiarMes = d => {
-    const [y,m] = mes.split("-").map(Number);
-    const n = new Date(y, m-1+d, 1);
-    setMes(`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}`);
-  };
-
-  const nomMes = new Date(mes+"-01T12:00:00").toLocaleDateString("es-UY",{month:"long",year:"numeric"});
-
+  // ── Días hábiles ────────────────────────────────────────────────────────────
   const getDiasHabiles = m => {
     const [y,mo] = m.split("-").map(Number);
     const dias = [];
@@ -5617,486 +5495,426 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
     return dias;
   };
   const diasHabiles = getDiasHabiles(mes);
-  const diasPrimQuincena = diasHabiles.filter(d=>parseInt(d.split("-")[2])<=15);
-  const diasSegQuincena  = diasHabiles.filter(d=>parseInt(d.split("-")[2])>15);
+  const nomMes = new Date(mes+"-01T12:00:00").toLocaleDateString("es-UY",{month:"long",year:"numeric"});
 
-  const toggleAsis = (uid, dia) => {
-    const ciclo = ["P","F","FJ","R"];
-    setSbAsis(prev => {
-      const ua = { ...(prev[uid]||{}) };
-      const cur = ua[dia];
-      const idx = ciclo.indexOf(cur);
-      if (idx === ciclo.length - 1 || idx === -1) { delete ua[dia]; }
-      else { ua[dia] = ciclo[idx === -1 ? 0 : idx + 1]; }
-      if (!usandoSb) setAsistencias({ ...prev, [uid]:ua });
-      else { // sync Supabase
-        const nuevoEstado = ua[dia] || null;
-        if (nuevoEstado) sbSaveAsistencia(uid, orgId, dia, nuevoEstado, mes).catch(console.warn);
-        else sbFetch(`hadrion_asistencias?user_id=eq.${uid}&dia=eq.${dia}`, { method:"DELETE", prefer:"" }).catch(console.warn);
-      }
-      return { ...prev, [uid]:ua };
-    });
+  const cambiarMes = d => {
+    const [y,m] = mes.split("-").map(Number);
+    const n = new Date(y,m-1+d,1);
+    setMes(`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}`);
   };
 
   const getColor = v => {
-    if(!v)         return {bg:"#F0F0F0",c:"#aaa",label:"–"};
-    if(v==="P")    return {bg:"#E8F8EF",c:"#1a7a3c",label:"P"};
-    if(v==="F")    return {bg:"#FDECEA",c:"#C0392B",label:"F"};
-    if(v==="FJ")   return {bg:"#FEF3E0",c:"#E8A020",label:"FJ"};
-    if(v==="R")    return {bg:"#EBF3FB",c:"#5B8DB8",label:"R"};
-    return {bg:"#F0F0F0",c:"#aaa",label:"–"};
-  };
-
-  const calcLiq = (uid) => {
-    const ua   = (usandoSb ? sbAsis : asistencias)[uid] || {};
-    const cfg  = getConfig(uid);
-    // compatibilidad claves Supabase (snake_case) y localStorage (camelCase)
-    const tarifa  = Number(cfg.tarifa_sesion || cfg.tarifaSesion) || 0;
-    const comp    = Number(cfg.complemento_monto || cfg.complementoMonto) || 0;
-    const periodo = cfg.complemento_periodo || cfg.complementoPeriodo || "mensual";
-    const descMonto = Number(cfg.descuento_falta || cfg.descuentoFalta) || 0;
-    const tipoDesc  = cfg.tipo_descuento || cfg.tipoDescuento || "monto";
-
-    const presentes   = diasHabiles.filter(d=>ua[d]==="P").length;
-    const faltas      = diasHabiles.filter(d=>ua[d]==="F").length;
-    const faltasJ     = diasHabiles.filter(d=>ua[d]==="FJ").length;
-    const reposiciones= diasHabiles.filter(d=>ua[d]==="R").length;
-    const sesiones    = presentes + reposiciones;
-
-    const brutoSesiones = sesiones * tarifa;
-
-    // Descuento por faltas injustificadas
-    // Si es monto: descMonto fijo por cada falta
-    // Si es porcentaje: descMonto% del valor de una sesión por cada falta
-    let descuento = 0;
-    if(tipoDesc==="monto") {
-      descuento = faltas * descMonto;
-    } else {
-      // porcentaje del valor de cada sesión perdida
-      descuento = faltas * tarifa * (descMonto / 100);
-    }
-
-    // Complemento: comp es siempre el monto MENSUAL total
-    // Si es quincenal, se paga en 2 cuotas de comp/2 pero el total mensual es el mismo
-    const complementoTotal = comp;
-    const complementoCuota = periodo==="quincenal" ? comp/2 : comp;
-
-    const neto = brutoSesiones - descuento + complementoTotal;
-
-    return { presentes, faltas, faltasJ, reposiciones, sesiones,
-             brutoSesiones, descuento, complementoTotal, complementoCuota, neto, tarifa, comp, periodo };
-  };
-
-  const totalNomina = profes.reduce((s,u)=>s+calcLiq(u.id).neto,0);
-
-  const saveConfig = (uid, cfg) => {
-    if (usandoSb) {
-      sbSaveConfig(uid, orgId, mes, {
-        tarifa_sesion: cfg.tarifaSesion || 0,
-        complemento_monto: cfg.complementoMonto || 0,
-        complemento_periodo: cfg.complementoPeriodo || "mensual",
-        descuento_falta: cfg.descuentoFalta || 0,
-        tipo_descuento: cfg.tipoDescuento || "monto",
-      }).then(() => setSbCfgs(prev => ({ ...prev, [uid]:cfg }))).catch(console.warn);
-    } else {
-      setConfigs(prev=>({...prev,[uid]:cfg}));
-    }
-    setEditConfig(null);
-  };
-
-  const addUserSb = async () => {
-    if (!newUser.name || !newUser.email || !newUser.password) return;
-    const init = newUser.name.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
-    try {
-      const created = await sbCreateUser({
-        org_id: orgId, email: newUser.email, password: newUser.password,
-        name: newUser.name, specialty: newUser.specialty, role:"profesional",
-        avatar: init, color: C.terra,
-      });
-      setSbUsers(prev => [...prev, ...(Array.isArray(created) ? created : [created])]);
-      setNewUser({ name:"", email:"", password:"", specialty:"Fonoaudiologa" });
-      setShowAddUser(false);
-    } catch(e) { alert("Error: " + e.message); }
-  };
-
-  // ── Helpers vista pacientes org
-  const getColorPac = v => {
-    if(!v)       return {bg:"#F0F0F0",c:"#aaa",label:"–"};
+    if(!v)       return {bg:"#F0F0F0",c:"#aaa",  label:"–"};
     if(v==="P")  return {bg:"#E8F8EF",c:"#1a7a3c",label:"P"};
     if(v==="F")  return {bg:"#FDECEA",c:"#C0392B",label:"F"};
     if(v==="FJ") return {bg:"#FEF3E0",c:"#E8A020",label:"FJ"};
+    if(v==="R")  return {bg:"#EBF3FB",c:"#5B8DB8",label:"R"};
     return {bg:"#F0F0F0",c:"#aaa",label:"–"};
   };
-  const fmtDepOrg = dep => {
-    const colors={Particular:"#9B7EBD",BPS:"#5B8DB8",FONASA:"#2ECC71",Mutual:"#8B7BB5",Prepaga:"#E8A020","Obra social":"#E8719C"};
-    return colors[dep]||"#9B9590";
+
+  const fmtDep = dep => {
+    const colors = { Particular:"#9B7EBD", BPS:"#5B8DB8", FONASA:"#2ECC71", Mutual:"#8B7BB5", Prepaga:"#E8A020", "Obra social":"#E8719C" };
+    return colors[dep] || "#9B9590";
   };
-  const getResPac = (pac) => {
-    const a = sbPacAsis[pac.id] || {};
-    const presentes = diasHabiles.filter(d=>a[d]==="P").length;
-    const faltas    = diasHabiles.filter(d=>a[d]==="F").length;
-    const faltasJ   = diasHabiles.filter(d=>a[d]==="FJ").length;
-    const tarifa = Number(pac.tarifa_sesion)||0;
-    const comp   = Number(pac.complemento)||0;
-    return { presentes, faltas, faltasJ, total: presentes*(tarifa+comp), tarifa, comp };
-  };
-  const renderVistaPacientes = () => {
-    const terapeutas = sbUsers.filter(u => u.role !== "admin");
-    if (terapeutas.length === 0) return React.createElement("div",{style:{textAlign:"center",padding:"30px 0",color:"#9B9590"}},"No hay terapeutas");
-    return terapeutas.map(t => {
-      const misPacs = sbPacientes.filter(p => p.user_id === t.id);
-      const gt = misPacs.reduce((s,p)=>s+getResPac(p).total,0);
-      const exp = selTerapeuta === t.id;
-      return (
-        <div key={t.id} style={{background:"white",borderRadius:18,marginBottom:14,boxShadow:"0 2px 12px rgba(0,0,0,.07)",overflow:"hidden"}}>
-          <div onClick={()=>setSelTerapeuta(exp?null:t.id)}
-            style={{padding:"14px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer",background:exp?"#F5F0FA":"white"}}>
-            <div style={{display:"flex",alignItems:"center",gap:10}}>
-              <div style={{width:40,height:40,borderRadius:12,background:t.color||"#9B7EBD",display:"flex",alignItems:"center",justifyContent:"center",color:"white",fontWeight:700,fontSize:14}}>
-                {t.avatar||t.name?.slice(0,2).toUpperCase()}
-              </div>
-              <div>
-                <div style={{fontWeight:700,fontSize:14}}>{t.name}</div>
-                <div style={{fontSize:11,color:"#9B9590"}}>{t.specialty} · {misPacs.length} pac.</div>
-              </div>
-            </div>
-            <div style={{textAlign:"right"}}>
-              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontWeight:700,color:"#7B5EA7"}}>{"$"+gt.toLocaleString("es-UY")}</div>
-              <div style={{fontSize:10,color:"#9B9590"}}>{exp?"ocultar":"ver pacientes"}</div>
-            </div>
-          </div>
-          {exp && misPacs.length===0 && <div style={{padding:"12px 16px",fontSize:12,color:"#9B9590"}}>Sin pacientes sincronizados aún — el terapeuta debe ingresar a Asistencias para sincronizar.</div>}
-          {exp && misPacs.map(pac=>{
-            const res=getResPac(pac);
-            const dep=pac.dependencia||"Particular";
-            const dc=fmtDepOrg(dep);
-            return (
-              <div key={pac.id} style={{borderTop:"1px solid #EDE0F5"}}>
-                <div style={{padding:"12px 16px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                  <div>
-                    <div style={{fontWeight:700,fontSize:13}}>{pac.nombre}</div>
-                    <div style={{display:"flex",gap:5,alignItems:"center",marginTop:2}}>
-                      <span style={{fontSize:10,background:dc+"22",color:dc,borderRadius:6,padding:"1px 7px",fontWeight:700}}>{dep}</span>
-                      <span style={{fontSize:11,color:"#9B9590"}}>{"$"+res.tarifa.toLocaleString("es-UY")+"/ses"+(res.comp>0?" +$"+res.comp.toLocaleString("es-UY")+" compl.":"")}</span>
-                    </div>
-                  </div>
-                  <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:700,color:dc}}>{"$"+res.total.toLocaleString("es-UY")}</div>
-                </div>
-                <div style={{padding:"0 16px 12px"}}>
-                  <div style={{overflowX:"auto"}}>
-                    <div style={{display:"flex",gap:4,minWidth:"max-content",paddingBottom:4}}>
-                      {diasHabiles.map(dia=>{
-                        const dobj=new Date(dia+"T12:00:00");
-                        const v=(sbPacAsis[pac.id]||{})[dia];
-                        const {bg,c,label}=getColorPac(v);
-                        return (<div key={dia} style={{width:30,height:38,borderRadius:7,border:"1px solid "+c+"44",background:bg,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:1,flexShrink:0}}>
-                          <div style={{fontSize:8,color:"#9B9590",lineHeight:1}}>{String(dobj.getDate()).padStart(2,"0")}</div>
-                          <div style={{fontSize:10,fontWeight:700,color:c,lineHeight:1}}>{label}</div>
-                        </div>);
-                      })}
-                    </div>
-                  </div>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:6,marginTop:8}}>
-                    {[["Presentes",res.presentes,"#E8F8EF","#1a7a3c"],["Faltas",res.faltas,"#FDECEA","#C0392B"],["Justif.",res.faltasJ,"#FEF3E0","#E8A020"],["A cobrar","$"+res.total.toLocaleString("es-UY"),"#F5F0FA","#9B7EBD"]].map(([l,v,bg,c])=>(
-                      <div key={l} style={{background:bg,borderRadius:10,padding:"8px 6px",textAlign:"center"}}>
-                        <div style={{fontSize:13,fontWeight:700,color:c,wordBreak:"break-word"}}>{v}</div>
-                        <div style={{fontSize:10,color:c,marginTop:2}}>{l}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      );
+
+  // ── Toggle asistencia de UN paciente ────────────────────────────────────────
+  const toggleAsisPaciente = (patId, dia) => {
+    const ciclo = ["P","F","FJ","R"];
+    setSbAsis(prev => {
+      const ua  = { ...(prev[patId]||{}) };
+      const cur = ua[dia];
+      const idx = ciclo.indexOf(cur);
+      if (idx === ciclo.length-1 || idx === -1) delete ua[dia];
+      else ua[dia] = ciclo[idx === -1 ? 0 : idx+1];
+      // Sync Supabase si aplica
+      if (usandoSb) {
+        const nuevoEstado = ua[dia] || null;
+        if (nuevoEstado) {
+          sbFetch("hadrion_asistencias", {
+            method:"POST",
+            prefer:"resolution=merge-duplicates",
+            body: JSON.stringify({ patient_id:patId, org_id:orgId, dia, estado:nuevoEstado, mes }),
+          }).catch(console.warn);
+        } else {
+          sbFetch(`hadrion_asistencias?patient_id=eq.${patId}&dia=eq.${dia}`, { method:"DELETE", prefer:"" }).catch(console.warn);
+        }
+      }
+      return { ...prev, [patId]:ua };
     });
   };
 
+  // ── Calcular stats de UN paciente ───────────────────────────────────────────
+  const calcPaciente = (pat) => {
+    const a        = sbAsis[pat.id] || {};
+    const presentes  = diasHabiles.filter(d => a[d]==="P").length;
+    const faltas     = diasHabiles.filter(d => a[d]==="F").length;
+    const faltasJ    = diasHabiles.filter(d => a[d]==="FJ").length;
+    const recupera   = diasHabiles.filter(d => a[d]==="R").length;
+    const sesiones   = presentes + recupera;
+    const tarifa     = Number(pat.tarifaPorSesion) || 0;
+    const comp       = Number(pat.complemento)     || 0;
+    const subtotal   = sesiones * tarifa + comp;
+    return { presentes, faltas, faltasJ, recupera, sesiones, tarifa, comp, subtotal };
+  };
+
+  // ── Calcular liquidación total de un terapeuta (suma sus pacientes) ─────────
+  const calcLiqTerapeuta = (userId) => {
+    const misPacientes = (usandoSb ? sbPats : []).filter(p => p.user_id === userId);
+    const rows = misPacientes.map(pat => ({ pat, res: calcPaciente(pat) }));
+
+    const totalSesiones   = rows.reduce((s,r)=>s+r.res.sesiones, 0);
+    const totalFaltas     = rows.reduce((s,r)=>s+r.res.faltas, 0);
+    const totalFaltasJ    = rows.reduce((s,r)=>s+r.res.faltasJ, 0);
+    const totalRecupera   = rows.reduce((s,r)=>s+r.res.recupera, 0);
+    const totalBruto      = rows.reduce((s,r)=>s+r.res.sesiones*r.res.tarifa, 0);
+    const totalCompl      = rows.reduce((s,r)=>s+r.res.comp, 0);
+    const neto            = totalBruto + totalCompl;
+
+    // Agrupar por dependencia
+    const depMap = {};
+    rows.forEach(({pat, res}) => {
+      const dep = pat.dependencia || "Particular";
+      if (!depMap[dep]) depMap[dep] = { total:0, pats:[] };
+      depMap[dep].total += res.subtotal;
+      depMap[dep].pats.push({ pat, res });
+    });
+
+    return { rows, totalSesiones, totalFaltas, totalFaltasJ, totalRecupera, totalBruto, totalCompl, neto, depMap, misPacientes };
+  };
+
+  const profes = usandoSb
+    ? sbUsers.filter(u => u.role !== "admin")
+    : users.filter(u => u.role === "profesional");
+
+  const totalNomina = profes.reduce((s,u) => s + calcLiqTerapeuta(u.id).neto, 0);
+
+  // ── Guardar tarifa de paciente ───────────────────────────────────────────────
+  const guardarTarifaPac = () => {
+    if (!editPat) return;
+    setSbPats(prev => prev.map(p => p.id === editPat.id
+      ? { ...p, tarifaPorSesion: parseFloat(tarifaF.tarifaPorSesion)||0, complemento: parseFloat(tarifaF.complemento)||0, dependencia: tarifaF.dependencia, currency: tarifaF.currency }
+      : p
+    ));
+    if (usandoSb) {
+      sbFetch(`hadrion_pacientes?id=eq.${editPat.id}`, {
+        method:"PATCH",
+        body: JSON.stringify({ tarifaPorSesion: parseFloat(tarifaF.tarifaPorSesion)||0, complemento: parseFloat(tarifaF.complemento)||0, dependencia: tarifaF.dependencia, currency: tarifaF.currency }),
+      }).catch(console.warn);
+    }
+    setEditPat(null);
+  };
+
+  // ── Agregar terapeuta ────────────────────────────────────────────────────────
+  const addUser = async () => {
+    if (!newUser.name||!newUser.email||!newUser.password) return alert("Completá todos los campos");
+    if (usandoSb) {
+      try {
+        await sbFetch("hadrion_users", {
+          method:"POST",
+          body: JSON.stringify({ ...newUser, org_id:orgId, role:"profesional", plan:"Pro", status:"active", color:C.terra }),
+        });
+        const us = await sbGetUsers(orgId);
+        setSbUsers(us||[]);
+        setShowAddUser(false);
+        setNewUser({ name:"", email:"", password:"", specialty:"Fonoaudiologa" });
+      } catch(e) { alert("Error: "+e.message); }
+    }
+  };
+
+  // ── RENDER ──────────────────────────────────────────────────────────────────
   return (
     <div className="fu">
-      <div style={{marginBottom:14,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-        <div>
-          <div className="pt">💰 Liquidación</div>
-          <div className="ps">{vistaOrg?"Pacientes por terapeuta":"Liquidación de sueldos del equipo"}</div>
-        </div>
-        {usandoSb && !vistaOrg && (
-          <button className="btn btnp btnsm" onClick={() => setShowAddUser(true)}>+ Terapeuta</button>
-        )}
+      <div style={{marginBottom:14}}>
+        <div className="pt">💰 Liquidación de sueldos</div>
+        <div className="ps">Asistencias por paciente · Cálculo automático por terapeuta</div>
       </div>
 
-      {usandoSb && (
-        <div style={{display:"flex",gap:8,marginBottom:14}}>
-          <button onClick={()=>setVistaOrg(false)}
-            style={{flex:1,padding:"9px 0",borderRadius:12,border:"none",cursor:"pointer",fontWeight:700,fontSize:13,
-              background:!vistaOrg?"#9B7EBD":"#EDE0F5",color:!vistaOrg?"white":"#7B5EA7"}}>💰 Sueldos</button>
-          <button onClick={()=>setVistaOrg(true)}
-            style={{flex:1,padding:"9px 0",borderRadius:12,border:"none",cursor:"pointer",fontWeight:700,fontSize:13,
-              background:vistaOrg?"#9B7EBD":"#EDE0F5",color:vistaOrg?"white":"#7B5EA7"}}>📆 Pacientes</button>
-        </div>
-      )}
-
-      {sbError && <div className="alert alrtd" style={{marginBottom:12}}>⚠️ Error Supabase: {sbError}</div>}
-      {sbLoading && <div className="alert alrti" style={{marginBottom:12}}>⏳ Cargando datos de la organización...</div>}
-      {!usandoSb && (
-        <div className="alert alrti" style={{marginBottom:12,fontSize:12}}>
-          💡 Modo local — los datos se guardan solo en este navegador. Para ver las asistencias de tus terapeutas en tiempo real, configurá tu cuenta como organización.
-        </div>
-      )}
-
-      {vistaOrg && usandoSb && !sbLoading && renderVistaPacientes()}
-
-      {!vistaOrg && <>
-
       {/* Selector mes */}
-      <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14,background:"white",borderRadius:14,padding:"12px 16px",boxShadow:"0 1px 6px rgba(0,0,0,.05)"}}>
+      <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16,background:"white",borderRadius:14,padding:"12px 16px",boxShadow:"0 1px 6px rgba(0,0,0,.05)"}}>
         <button onClick={()=>cambiarMes(-1)} style={{background:"#EDE0F5",border:"none",borderRadius:8,width:34,height:34,cursor:"pointer",fontSize:18,fontWeight:700}}>‹</button>
         <div style={{flex:1,textAlign:"center",fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:700,textTransform:"capitalize"}}>{nomMes}</div>
         <button onClick={()=>cambiarMes(1)} style={{background:"#EDE0F5",border:"none",borderRadius:8,width:34,height:34,cursor:"pointer",fontSize:18,fontWeight:700}}>›</button>
       </div>
 
-      {/* Leyenda */}
-      <div style={{background:"#F5F0FA",borderRadius:12,padding:"10px 14px",marginBottom:14}}>
-        <div style={{fontWeight:700,fontSize:12,color:"#7B5EA7",marginBottom:8}}>Tocá cada día para registrar la asistencia del profesional:</div>
-        <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:6}}>
-          {[["P","Trabajó","#E8F8EF","#1a7a3c"],["F","Falta injust.","#FDECEA","#C0392B"],["FJ","Falta just.","#FEF3E0","#E8A020"],["R","Reposición","#EBF3FB","#5B8DB8"],["–","Sin marcar","#F0F0F0","#aaa"]].map(([l,d,bg,c])=>(
-            <div key={l} style={{display:"flex",alignItems:"center",gap:6,fontSize:11,color:"#6B6560"}}>
-              <div style={{width:26,height:26,borderRadius:6,background:bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:700,color:c,border:`1px solid ${c}44`}}>{l}</div>
-              <span>{d}</span>
-            </div>
-          ))}
-        </div>
-        <div style={{fontSize:11,color:"#9B9590"}}>P y R cuentan como sesión cobrable · F descuenta si hay penalidad configurada · FJ no descuenta</div>
-      </div>
-
-      {/* Profesionales */}
-      {profes.map(u => {
-        const liq = calcLiq(u.id);
-        const cfg = configs[u.id] || {};
-        const ua  = asistencias[u.id] || {};
-        return (
-          <div key={u.id} style={{background:"white",borderRadius:18,overflow:"hidden",boxShadow:"0 2px 12px rgba(0,0,0,.07)",marginBottom:14}}>
-            <div style={{padding:"14px 16px",borderBottom:"1px solid #EDE0F5",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-              <div style={{display:"flex",alignItems:"center",gap:10}}>
-                <div style={{width:38,height:38,borderRadius:11,background:u.color||"#9B7EBD",display:"flex",alignItems:"center",justifyContent:"center",color:"white",fontWeight:700,fontSize:13}}>{u.avatar}</div>
-                <div>
-                  <div style={{fontWeight:700,fontSize:13}}>{u.name}</div>
-                  <div style={{fontSize:11,color:"#9B9590"}}>{u.specialty} · {u.plan}</div>
-                </div>
-              </div>
-              <div style={{display:"flex",gap:6,alignItems:"center"}}>
-                <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontWeight:700,color:"#9B7EBD"}}>${liq.neto.toLocaleString("es-UY")}</div>
-                <button onClick={()=>setEditConfig({uid:u.id,...getConfig(u.id)})}
-                  style={{background:"#F5F0FA",border:"none",borderRadius:8,padding:"6px 10px",cursor:"pointer",fontSize:11,fontWeight:700,color:"#9B7EBD"}}>⚙️</button>
-              </div>
-            </div>
-
-            {/* Config summary */}
-            <div style={{padding:"8px 16px",background:"#FAFAFA",borderBottom:"1px solid #EDE0F5",display:"flex",gap:12,flexWrap:"wrap"}}>
-              <span style={{fontSize:11,color:"#9B9590"}}>Tarifa: <b>${(cfg.tarifaSesion||0).toLocaleString("es-UY")}/ses</b></span>
-              {(cfg.complementoMonto||0)>0 && <span style={{fontSize:11,color:"#9B9590"}}>Complemento: <b>${(cfg.complementoMonto||0).toLocaleString("es-UY")}/{cfg.complementoPeriodo==="quincenal"?"quinc":"mes"}</b></span>}
-              {(cfg.descuentoFalta||0)>0 && <span style={{fontSize:11,color:"#C0392B"}}>Desc/falta: <b>{cfg.tipoDescuento==="porcentaje"?cfg.descuentoFalta+"%":"$"+(cfg.descuentoFalta||0)}</b></span>}
-            </div>
-
-            {/* Grilla asistencias */}
-            <div style={{padding:"12px 16px"}}>
-              <div style={{overflowX:"auto",marginBottom:10}}>
-                <div style={{display:"flex",gap:3,minWidth:"max-content",paddingBottom:4}}>
-                  {diasHabiles.map(dia=>{
-                    const d = new Date(dia+"T12:00:00");
-                    const v = ua[dia];
-                    const {bg,c,label} = getColor(v);
-                    const isQ2 = parseInt(dia.split("-")[2])>15;
-                    return (
-                      <button key={dia} onClick={()=>toggleAsis(u.id,dia)}
-                        style={{width:30,height:38,borderRadius:7,border:`1px solid ${c}44`,background:bg,cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:1,flexShrink:0,borderTop:isQ2?"2px solid #9B7EBD44":undefined}}>
-                        <div style={{fontSize:8,color:"#9B9590",lineHeight:1}}>{String(d.getDate()).padStart(2,"0")}</div>
-                        <div style={{fontSize:10,fontWeight:700,color:c,lineHeight:1}}>{label}</div>
-                      </button>
-                    );
-                  })}
-                </div>
-                <div style={{fontSize:9,color:"#9B9590",marginTop:4}}>La línea azul separa primera y segunda quincena</div>
-              </div>
-
-              {/* Resumen */}
-              <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:6,marginBottom:10}}>
-                {[["Sesiones",liq.sesiones,"#E8F8EF","#1a7a3c"],["Faltas",liq.faltas,"#FDECEA","#C0392B"],["Just.",liq.faltasJ,"#FEF3E0","#E8A020"],["Repos.",liq.reposiciones,"#EBF3FB","#5B8DB8"]].map(([l,v,bg,c])=>(
-                  <div key={l} style={{background:bg,borderRadius:10,padding:"8px 6px",textAlign:"center"}}>
-                    <div style={{fontSize:14,fontWeight:700,color:c}}>{v}</div>
-                    <div style={{fontSize:10,color:c}}>{l}</div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Desglose */}
-              <div style={{background:"#F5F0FA",borderRadius:12,padding:12}}>
-                <div style={{fontWeight:700,fontSize:12,marginBottom:8}}>Desglose liquidación</div>
-                {[
-                  [`${liq.sesiones} ses × $${liq.tarifa.toLocaleString("es-UY")}/ses`, liq.brutoSesiones, false],
-                  liq.complementoTotal>0 ? [
-                    liq.periodo==="quincenal"
-                      ? `Complemento quincenal ($${liq.complementoCuota?.toLocaleString("es-UY")} × 2)`
-                      : `Complemento mensual`,
-                    liq.complementoTotal, false
-                  ] : null,
-                  liq.descuento>0 ? [`Desc. por ${liq.faltas} falta${liq.faltas!==1?"s":""} injust.`, -liq.descuento, true] : null,
-                ].filter(Boolean).map(([label,val,neg])=>(
-                  <div key={label} style={{display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:"1px solid #EDE0F5",fontSize:12}}>
-                    <span style={{color:"#6B6560"}}>{label}</span>
-                    <span style={{fontWeight:600,color:neg?"#C0392B":"#2C2C2C"}}>{neg?"-":"+"}${Math.abs(val).toLocaleString("es-UY")}</span>
-                  </div>
-                ))}
-                <div style={{display:"flex",justifyContent:"space-between",padding:"8px 0 0",fontSize:14,fontWeight:700}}>
-                  <span>Total a cobrar</span>
-                  <span style={{color:"#9B7EBD",fontFamily:"'Cormorant Garamond',serif",fontSize:20}}>${liq.neto.toLocaleString("es-UY")}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      })}
-
-      {/* Total nómina */}
-      {profes.length > 0 && (
-        <div style={{background:"linear-gradient(135deg,#9B7EBD,#7B5EA7)",borderRadius:16,padding:"16px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
-          <div>
-            <div style={{fontSize:12,color:"rgba(255,255,255,.8)"}}>TOTAL NÓMINA</div>
-            <div style={{fontSize:11,color:"rgba(255,255,255,.6)"}}>{profes.length} profesionales · {nomMes}</div>
-          </div>
-          <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:28,fontWeight:700,color:"white"}}>${totalNomina.toLocaleString("es-UY")}</div>
+      {!usandoSb && (
+        <div className="alert alrti" style={{marginBottom:12}}>
+          💡 Modo local — configurá tu cuenta como organización para sincronizar con Supabase.
         </div>
       )}
+      {sbLoading && <div style={{textAlign:"center",padding:30,color:"#9B9590"}}>Cargando…</div>}
+      {sbError && <div className="alert alertd">Error Supabase: {sbError}</div>}
 
-      {/* Botones */}
-      <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:20}}>
-        <button className="btn btno btnsm noprint" onClick={()=>window.print()}>🖨️ Imprimir liquidación</button>
-        <button className="btn btng btnsm" onClick={()=>{
-          const txt = profes.map(u=>{
-            const l=calcLiq(u.id);
-            return `${u.name}: $${l.neto.toLocaleString("es-UY")} (${l.sesiones} ses, ${l.faltas} faltas)`;
-          }).join("\n");
-          navigator.clipboard?.writeText("Liquidación " + nomMes + "\n" + txt + "\nTotal: $" + totalNomina.toLocaleString("es-UY"));
-        }}>📋 Copiar resumen</button>
-      </div>
-
-      {/* Modal config profesional */}
-      {editConfig && (
-        <Modal title={`⚙️ Configurar — ${[...profes,...users].find(u=>u.id===editConfig.uid)?.name||"Terapeuta"}`} onClose={()=>setEditConfig(null)}>
-          <div className="alert alrti" style={{marginBottom:12}}>Configurá la tarifa y complemento de este profesional.</div>
-
-          <div className="fg">
-            <label className="lbl">Tarifa por sesión ($)</label>
-            <input className="inp" type="number" min="0" value={editConfig.tarifaSesion||0}
-              onChange={e=>setEditConfig({...editConfig,tarifaSesion:parseFloat(e.target.value)||0})}/>
+      {!sbLoading && (
+        <>
+          {/* Botón agregar terapeuta */}
+          <div style={{display:"flex",justifyContent:"flex-end",marginBottom:12}}>
+            <button className="btn btnp btnsm" onClick={()=>setShowAddUser(true)}>+ Terapeuta</button>
           </div>
 
-          <div style={{background:"#F5F0FA",borderRadius:12,padding:12,marginBottom:12}}>
-            <div style={{fontWeight:700,fontSize:12,color:"#7B5EA7",marginBottom:4,textTransform:"uppercase"}}>Complemento fijo mensual</div>
-            <div style={{fontSize:11,color:"#9B9590",marginBottom:10}}>Monto adicional que recibe este profesional por mes, más allá de las sesiones.</div>
-            <div className="fg">
-              <label className="lbl">¿Cuánto cobra de complemento por mes? ($)</label>
-              <input className="inp" type="number" min="0" placeholder="Ej: 700"
-                value={editConfig.complementoMonto||0}
-                onChange={e=>setEditConfig({...editConfig,complementoMonto:parseFloat(e.target.value)||0})}/>
-            </div>
-            <div className="fg">
-              <label className="lbl">¿Cómo se le paga ese complemento?</label>
-              <select className="inp" value={editConfig.complementoPeriodo||"mensual"}
-                onChange={e=>setEditConfig({...editConfig,complementoPeriodo:e.target.value})}>
-                <option value="mensual">En un solo pago mensual ($700 de una vez)</option>
-                <option value="quincenal">En dos cuotas quincenales ($350 + $350)</option>
-              </select>
-            </div>
-            {(editConfig.complementoMonto||0)>0 && (
-              <div style={{background:"white",borderRadius:8,padding:"10px 14px",fontSize:12}}>
-                <div style={{fontWeight:700,color:"#7B5EA7",marginBottom:4}}>💰 Resumen del complemento:</div>
-                <div style={{color:"#6B6560"}}>
-                  Total mensual: <strong style={{color:"#9B7EBD"}}>${(editConfig.complementoMonto||0).toLocaleString("es-UY")}</strong>
-                  {editConfig.complementoPeriodo==="quincenal" && (
-                    <span> → se paga en 2 cuotas de <strong>${((editConfig.complementoMonto||0)/2).toLocaleString("es-UY")}</strong></span>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
+          {profes.length === 0 && (
+            <div style={{textAlign:"center",padding:"30px 0",color:"#9B9590"}}>Sin terapeutas en esta organización</div>
+          )}
 
-          <div style={{background:"#FDECEA",borderRadius:12,padding:12,marginBottom:12}}>
-            <div style={{fontWeight:700,fontSize:12,color:"#C0392B",marginBottom:10,textTransform:"uppercase"}}>Descuento por falta injustificada</div>
-            <div className="fg">
-              <label className="lbl">Tipo de descuento</label>
-              <select className="inp" value={editConfig.tipoDescuento||"monto"}
-                onChange={e=>setEditConfig({...editConfig,tipoDescuento:e.target.value})}>
-                <option value="monto">Monto fijo por falta ($)</option>
-                <option value="porcentaje">Porcentaje del bruto por falta (%)</option>
-              </select>
-            </div>
-            <div className="fg">
-              <label className="lbl">{editConfig.tipoDescuento==="porcentaje"?"Porcentaje (%)":"Monto ($)"}</label>
-              <input className="inp" type="number" min="0" value={editConfig.descuentoFalta||0}
-                onChange={e=>setEditConfig({...editConfig,descuentoFalta:parseFloat(e.target.value)||0})}/>
-            </div>
-          </div>
+          {/* ── Card por terapeuta ── */}
+          {profes.map(u => {
+            const liq  = calcLiqTerapeuta(u.id);
+            const open = expanded[u.id];
+            return (
+              <div key={u.id} style={{background:"white",borderRadius:18,overflow:"hidden",boxShadow:"0 2px 12px rgba(0,0,0,.07)",marginBottom:16}}>
 
-          {/* Preview */}
-          {(editConfig.tarifaSesion||0)>0 && (
-            <div style={{background:"#F5F0FA",borderRadius:12,padding:12,marginBottom:12}}>
-              <div style={{fontWeight:700,fontSize:12,marginBottom:4}}>Vista previa — ejemplo con 20 sesiones, 1 falta:</div>
-              <div style={{fontSize:11,color:"#9B9590",marginBottom:8}}>Así quedaría la liquidación del mes</div>
-              {(() => {
-                const t = editConfig.tarifaSesion||0;
-                const c = editConfig.complementoMonto||0;
-                const desc = editConfig.descuentoFalta||0;
-                const bruto = 20 * t;
-                const complemento = c; // siempre mensual total
-                const descuento = editConfig.tipoDescuento==="porcentaje" ? (1 * t * desc/100) : (1 * desc);
-                const neto = bruto + complemento - descuento;
-                return [
-                  [`20 sesiones × $${t.toLocaleString("es-UY")}`, bruto, false],
-                  c>0 ? [`Complemento mensual${editConfig.complementoPeriodo==="quincenal"?" (2 cuotas de $"+(c/2).toLocaleString("es-UY")+")":""}`, c, false] : null,
-                  desc>0 ? [`1 falta injustificada (descuento)`, -descuento, true] : null,
-                  ["= Neto del mes", neto, false, true],
-                ].filter(Boolean).map(([l,v,neg,bold])=>(
-                  <div key={l} style={{display:"flex",justifyContent:"space-between",fontSize:12,padding:"5px 0",borderTop:bold?"1.5px solid #EDE0F5":"none",marginTop:bold?4:0,paddingTop:bold?8:5}}>
-                    <span style={{color:bold?"#2C2C2C":"#6B6560",fontWeight:bold?700:400}}>{l}</span>
-                    <span style={{fontWeight:700,color:neg?"#C0392B":bold?"#9B7EBD":"#2C2C2C",fontSize:bold?14:12}}>
-                      {neg?"-":""}${Math.abs(v).toLocaleString("es-UY")}
-                    </span>
+                {/* Header del terapeuta */}
+                <div style={{padding:"14px 16px",borderBottom:"1px solid #EDE0F5",display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"}}
+                  onClick={()=>setExpanded(prev=>({...prev,[u.id]:!prev[u.id]}))}>
+                  <div style={{display:"flex",alignItems:"center",gap:10}}>
+                    <div style={{width:42,height:42,borderRadius:12,background:u.color||C.terra,display:"flex",alignItems:"center",justifyContent:"center",color:"white",fontWeight:700,fontSize:15}}>
+                      {u.avatar||u.name?.slice(0,2).toUpperCase()}
+                    </div>
+                    <div>
+                      <div style={{fontWeight:700,fontSize:14}}>{u.name}</div>
+                      <div style={{fontSize:11,color:"#9B9590"}}>{u.specialty} · {liq.misPacientes.length} pacientes</div>
+                    </div>
                   </div>
-                ));
-              })()}
+                  <div style={{textAlign:"right"}}>
+                    <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:700,color:"#9B7EBD"}}>${liq.neto.toLocaleString("es-UY")}</div>
+                    <div style={{fontSize:11,color:"#9B9590"}}>{open?"▲ cerrar":"▼ ver detalle"}</div>
+                  </div>
+                </div>
+
+                {/* Resumen rápido (siempre visible) */}
+                <div style={{padding:"10px 16px",background:"#FAFAFA",display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:6}}>
+                  {[
+                    ["Sesiones",  liq.totalSesiones, "#1a7a3c","#E8F8EF"],
+                    ["Faltas",    liq.totalFaltas,   "#C0392B","#FDECEA"],
+                    ["Just.",     liq.totalFaltasJ,  "#E8A020","#FEF3E0"],
+                    ["Reposi.",   liq.totalRecupera, "#5B8DB8","#EBF3FB"],
+                  ].map(([l,v,c,bg])=>(
+                    <div key={l} style={{background:bg,borderRadius:9,padding:"6px 4px",textAlign:"center"}}>
+                      <div style={{fontSize:14,fontWeight:700,color:c}}>{v}</div>
+                      <div style={{fontSize:10,color:c}}>{l}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Detalle expandible */}
+                {open && (
+                  <div style={{padding:"14px 16px"}}>
+
+                    {/* ── Paciente por paciente ── */}
+                    {liq.rows.length === 0 && (
+                      <div style={{color:"#9B9590",fontSize:13,padding:"8px 0"}}>Este terapeuta no tiene pacientes asignados.</div>
+                    )}
+
+                    {liq.rows.map(({pat, res}) => {
+                      const dep = pat.dependencia || "Particular";
+                      const dc  = fmtDep(dep);
+                      return (
+                        <div key={pat.id} style={{marginBottom:14,border:"1px solid #EDE0F5",borderRadius:14,overflow:"hidden"}}>
+                          {/* Header paciente */}
+                          <div style={{padding:"10px 14px",background:"#F9F7FF",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                            <div style={{display:"flex",alignItems:"center",gap:8}}>
+                              <div style={{width:32,height:32,borderRadius:9,background:pat.color||"#9B7EBD",display:"flex",alignItems:"center",justifyContent:"center",color:"white",fontWeight:700,fontSize:12}}>
+                                {pat.avatar||pat.name?.slice(0,2).toUpperCase()}
+                              </div>
+                              <div>
+                                <div style={{fontWeight:600,fontSize:13}}>{pat.name}</div>
+                                <div style={{display:"flex",gap:5,alignItems:"center",flexWrap:"wrap"}}>
+                                  <span style={{fontSize:10,background:dc+"22",color:dc,borderRadius:5,padding:"1px 6px",fontWeight:700}}>{dep}</span>
+                                  <span style={{fontSize:11,color:"#9B9590"}}>${res.tarifa.toLocaleString("es-UY")}/ses{res.comp>0?` + $${res.comp.toLocaleString("es-UY")} compl.`:""}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:4}}>
+                              <div style={{fontWeight:700,color:"#9B7EBD",fontSize:15}}>${res.subtotal.toLocaleString("es-UY")}</div>
+                              <button onClick={()=>{ setEditPat(pat); setTarifaF({ dependencia:dep, tarifaPorSesion:pat.tarifaPorSesion||0, complemento:pat.complemento||0, currency:pat.currency||"UYU" }); }}
+                                style={{background:"#F5F0FA",border:"none",borderRadius:7,padding:"3px 9px",cursor:"pointer",fontSize:10,fontWeight:700,color:"#9B7EBD"}}>
+                                ⚙️ Tarifa
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Grilla de días */}
+                          <div style={{padding:"10px 14px"}}>
+                            <div style={{overflowX:"auto",marginBottom:8}}>
+                              <div style={{display:"flex",gap:3,minWidth:"max-content",paddingBottom:2}}>
+                                {diasHabiles.map(dia => {
+                                  const d = new Date(dia+"T12:00:00");
+                                  const v = (sbAsis[pat.id]||{})[dia];
+                                  const {bg,c,label} = getColor(v);
+                                  return (
+                                    <button key={dia} onClick={()=>toggleAsisPaciente(pat.id,dia)}
+                                      style={{width:28,height:36,borderRadius:6,border:`1px solid ${c}44`,background:bg,cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:1,flexShrink:0}}>
+                                      <div style={{fontSize:8,color:"#9B9590",lineHeight:1}}>{String(d.getDate()).padStart(2,"0")}</div>
+                                      <div style={{fontSize:10,fontWeight:700,color:c,lineHeight:1}}>{label}</div>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                            {/* Stats del paciente */}
+                            <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:5}}>
+                              {[
+                                ["Pres.",  res.presentes, "#1a7a3c","#E8F8EF"],
+                                ["Faltas", res.faltas,    "#C0392B","#FDECEA"],
+                                ["Just.",  res.faltasJ,   "#E8A020","#FEF3E0"],
+                                ["Repo.",  res.recupera,  "#5B8DB8","#EBF3FB"],
+                                ["Total",  `$${res.subtotal.toLocaleString("es-UY")}`, "#9B7EBD","#F5F0FA"],
+                              ].map(([l,v,c,bg])=>(
+                                <div key={l} style={{background:bg,borderRadius:8,padding:"6px 4px",textAlign:"center"}}>
+                                  <div style={{fontSize:11,fontWeight:700,color:c,wordBreak:"break-word"}}>{v}</div>
+                                  <div style={{fontSize:9,color:c}}>{l}</div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {/* ── Desglose por dependencia ── */}
+                    {Object.keys(liq.depMap).length > 0 && (
+                      <div style={{marginTop:12}}>
+                        <div style={{fontWeight:700,fontSize:12,color:"#7B5EA7",marginBottom:8}}>📊 Por dependencia</div>
+                        {Object.entries(liq.depMap).map(([dep, {total, pats}]) => {
+                          const dc = fmtDep(dep);
+                          return (
+                            <div key={dep} style={{background:"white",border:`1.5px solid ${dc}33`,borderRadius:12,padding:"10px 14px",marginBottom:6}}>
+                              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+                                <div style={{display:"flex",alignItems:"center",gap:6}}>
+                                  <div style={{width:8,height:8,borderRadius:"50%",background:dc}}/>
+                                  <span style={{fontWeight:700,fontSize:13,color:dc}}>{dep}</span>
+                                  <span style={{fontSize:11,color:"#9B9590"}}>({pats.length} pac.)</span>
+                                </div>
+                                <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:700,color:dc}}>${total.toLocaleString("es-UY")}</div>
+                              </div>
+                              {pats.map(({pat,res})=>(
+                                <div key={pat.id} style={{display:"flex",justifyContent:"space-between",padding:"4px 0",borderTop:"1px solid #EDE0F5",fontSize:12}}>
+                                  <span style={{fontWeight:600,color:"#2C2C2C"}}>{pat.name}</span>
+                                  <span style={{color:"#9B9590"}}>{res.sesiones} ses × ${res.tarifa.toLocaleString("es-UY")}{res.comp>0?` + $${res.comp.toLocaleString("es-UY")} compl.`:""} = <strong style={{color:dc}}>${res.subtotal.toLocaleString("es-UY")}</strong></span>
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* ── Liquidación final del terapeuta ── */}
+                    <div style={{marginTop:12,background:"linear-gradient(135deg,#F5F0FA,#EDE0F5)",borderRadius:14,padding:"14px 16px"}}>
+                      <div style={{fontWeight:700,fontSize:12,color:"#7B5EA7",marginBottom:10,textTransform:"uppercase"}}>Liquidación del mes</div>
+                      {[
+                        [`Sesiones cobradas (${liq.totalSesiones})`, liq.totalBruto, false],
+                        liq.totalCompl>0 ? [`Complementos (todos los pacientes)`, liq.totalCompl, false] : null,
+                      ].filter(Boolean).map(([label,val,neg])=>(
+                        <div key={label} style={{display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:"1px solid #D4BCE8",fontSize:12}}>
+                          <span style={{color:"#6B6560"}}>{label}</span>
+                          <span style={{fontWeight:600,color:neg?"#C0392B":"#2C2C2C"}}>{neg?"-":""}${Math.abs(val).toLocaleString("es-UY")}</span>
+                        </div>
+                      ))}
+                      <div style={{display:"flex",justifyContent:"space-between",padding:"10px 0 0",fontSize:15,fontWeight:700}}>
+                        <span style={{color:"#7B5EA7"}}>NETO A PAGAR</span>
+                        <span style={{color:"#9B7EBD",fontFamily:"'Cormorant Garamond',serif",fontSize:22}}>${liq.neto.toLocaleString("es-UY")}</span>
+                      </div>
+                    </div>
+
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {/* ── Total nómina ── */}
+          {profes.length > 0 && (
+            <div style={{background:"linear-gradient(135deg,#9B7EBD,#7B5EA7)",borderRadius:16,padding:"16px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
+              <div>
+                <div style={{fontSize:12,color:"rgba(255,255,255,.8)"}}>TOTAL NÓMINA</div>
+                <div style={{fontSize:11,color:"rgba(255,255,255,.6)"}}>{profes.length} profesionale{profes.length!==1?"s":""} · {nomMes}</div>
+              </div>
+              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:28,fontWeight:700,color:"white"}}>${totalNomina.toLocaleString("es-UY")}</div>
             </div>
           )}
 
-          <button className="btn btnp btnfull" onClick={()=>saveConfig(editConfig.uid, editConfig)}>✅ Guardar configuración</button>
-          <button className="btn btng btnfull" onClick={()=>setEditConfig(null)}>Cancelar</button>
+          {/* Acciones */}
+          <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:20}}>
+            <button className="btn btno btnsm noprint" onClick={()=>window.print()}>🖨️ Imprimir</button>
+            <button className="btn btng btnsm" onClick={()=>{
+              const txt = profes.map(u=>{
+                const l=calcLiqTerapeuta(u.id);
+                return `${u.name}: $${l.neto.toLocaleString("es-UY")} (${l.totalSesiones} ses, ${l.totalFaltas} faltas, ${l.misPacientes.length} pacientes)`;
+              }).join("\n");
+              navigator.clipboard?.writeText(`Liquidación ${nomMes}\n${txt}\nTotal nómina: $${totalNomina.toLocaleString("es-UY")}`);
+            }}>📋 Copiar resumen</button>
+          </div>
+        </>
+      )}
+
+      {/* ── Modal editar tarifa de paciente ── */}
+      {editPat && (
+        <Modal title={`⚙️ ${editPat.name}`} onClose={()=>setEditPat(null)}>
+          <div className="alert alrti" style={{marginBottom:12}}>Tarifa, complemento y dependencia de este paciente.</div>
+          <div className="fg">
+            <label className="lbl">Dependencia</label>
+            <select className="inp" value={tarifaF.dependencia} onChange={e=>setTarifaF({...tarifaF,dependencia:e.target.value})}>
+              {["Particular","BPS","FONASA","Mutual","Prepaga","Obra social","Otro"].map(d=><option key={d}>{d}</option>)}
+            </select>
+          </div>
+          <div className="fg">
+            <label className="lbl">Moneda</label>
+            <select className="inp" value={tarifaF.currency||"UYU"} onChange={e=>setTarifaF({...tarifaF,currency:e.target.value})}>
+              <option value="UYU">UYU</option>
+              <option value="USD">USD</option>
+            </select>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+            <div className="fg">
+              <label className="lbl">Tarifa / sesión</label>
+              <input className="inp" type="number" min="0" value={tarifaF.tarifaPorSesion}
+                onChange={e=>setTarifaF({...tarifaF,tarifaPorSesion:parseFloat(e.target.value)||0})}/>
+            </div>
+            <div className="fg">
+              <label className="lbl">Complemento fijo</label>
+              <input className="inp" type="number" min="0" value={tarifaF.complemento}
+                onChange={e=>setTarifaF({...tarifaF,complemento:parseFloat(e.target.value)||0})}/>
+            </div>
+          </div>
+          {/* Vista previa */}
+          <div style={{background:"#F5F0FA",borderRadius:12,padding:12,marginBottom:12}}>
+            <div style={{fontSize:11,fontWeight:700,color:"#9B9590",marginBottom:6,textTransform:"uppercase"}}>Vista previa (ej. 10 sesiones)</div>
+            {[
+              ["Tarifa",       `$${(tarifaF.tarifaPorSesion||0).toLocaleString("es-UY")}/ses`],
+              ["Complemento",  `$${(tarifaF.complemento||0).toLocaleString("es-UY")}`],
+              ["10 sesiones",  `$${((tarifaF.tarifaPorSesion||0)*10+(tarifaF.complemento||0)).toLocaleString("es-UY")}`],
+            ].map(([l,v])=>(
+              <div key={l} style={{display:"flex",justifyContent:"space-between",fontSize:12,padding:"4px 0",borderBottom:"1px solid #EDE0F5"}}>
+                <span style={{color:"#6B6560"}}>{l}</span>
+                <span style={{fontWeight:700,color:"#9B7EBD"}}>{v}</span>
+              </div>
+            ))}
+          </div>
+          <button className="btn btnp btnfull" onClick={guardarTarifaPac}>✅ Guardar</button>
+          <button className="btn btng btnfull" onClick={()=>setEditPat(null)}>Cancelar</button>
         </Modal>
       )}
 
+      {/* ── Modal agregar terapeuta ── */}
       {showAddUser && (
-        <Modal title="➕ Agregar terapeuta" onClose={() => setShowAddUser(false)}>
-          <div className="fg"><label className="lbl">Nombre completo</label>
-            <input className="inp" value={newUser.name} onChange={e=>setNewUser({...newUser,name:e.target.value})} placeholder="Ana García" />
-          </div>
-          <div className="fg"><label className="lbl">Email</label>
-            <input className="inp" type="email" value={newUser.email} onChange={e=>setNewUser({...newUser,email:e.target.value})} placeholder="ana@clinica.com" />
-          </div>
-          <div className="fg"><label className="lbl">Contraseña inicial</label>
-            <input className="inp" type="text" value={newUser.password} onChange={e=>setNewUser({...newUser,password:e.target.value})} placeholder="Mínimo 6 caracteres" />
-          </div>
-          <div className="fg"><label className="lbl">Especialidad</label>
+        <Modal title="➕ Nuevo terapeuta" onClose={()=>setShowAddUser(false)}>
+          {["name","email","password"].map(k=>(
+            <div key={k} className="fg">
+              <label className="lbl">{{name:"Nombre",email:"Email",password:"Contraseña"}[k]}</label>
+              <input className="inp" type={k==="password"?"password":k==="email"?"email":"text"}
+                value={newUser[k]} onChange={e=>setNewUser({...newUser,[k]:e.target.value})}/>
+            </div>
+          ))}
+          <div className="fg">
+            <label className="lbl">Especialidad</label>
             <select className="inp" value={newUser.specialty} onChange={e=>setNewUser({...newUser,specialty:e.target.value})}>
-              {["Fonoaudiologa","Psicopedagoga","Psicóloga","T.O.","Fisioterapeuta","Otro"].map(s=><option key={s}>{s}</option>)}
+              {["Fonoaudiologa","Psicóloga","Psicopedagoga","T.O.","Kinesióloga","Otro"].map(s=><option key={s}>{s}</option>)}
             </select>
           </div>
-          <div className="alert alrti" style={{fontSize:11,marginBottom:8}}>
-            La terapeuta podrá iniciar sesión con este email y contraseña. Podés cambiar la contraseña más adelante.
-          </div>
-          <button className="btn btnp btnfull" onClick={addUserSb}>Crear terapeuta</button>
+          <button className="btn btnp btnfull" onClick={addUser}>Crear terapeuta</button>
           <button className="btn btng btnfull" onClick={()=>setShowAddUser(false)}>Cancelar</button>
         </Modal>
       )}
-      </> /* fin vista sueldos */}
     </div>
   );
 }
@@ -6518,7 +6336,7 @@ export default function HadrionApp() {
     plan:       <PlanColaborativo patients={patients} users={users} plan={plan} setPlan={setPlan} />,
     resources:  <Resources plantillas={plantillas} setPlantillas={setPlantillas} documentos={documentos} setDocumentos={setDocumentos}/>,
     tea:        <TEAAutismo />,
-    asistencias:<Asistencias patients={patients} setPatients={setPatients} currentUser={user} />,
+    asistencias:<Asistencias patients={patients} setPatients={setPatients} />,
     organizaciones: (user?.role === "admin" || isClinica(user))
       ? <Organizaciones users={users} setUsers={setUsers} precios={precios} />
       : <div className="fu">
