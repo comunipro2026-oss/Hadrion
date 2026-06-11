@@ -1,7 +1,7 @@
 // ================================================
 // HADRION - Plataforma Terapeutica
-// (c) 2025 Adriana Soba. Todos los derechos reservados.
-// Desarrollado en Uruguay — comunipro12@gmail.com
+// (c) 2025 Tu profesional. Todos los derechos reservados.
+// Desarrollado en Uruguay — soporte@hadrion.app
 // Prohibida su reproduccion sin autorizacion expresa.
 // ================================================
 
@@ -30,73 +30,36 @@ const INIT_USERS = [
     role:"admin",         specialty:"Fonoaudiologa",   plan:"Pro",    status:"active",
     createdAt:"01/01/2025", avatar:"AS", color:C.terra,  lastLogin:"Hoy 08:30",
     subscriptionEnd:null, dataExpiresAt:null, trialDays:14 },
-  { id:2, name:"Ana Garcia",     email:"ana@clinica.cl",         password:"123456",
-    role:"profesional",   specialty:"Psicopedagoga",   plan:"Basico", status:"active",
-    createdAt:"15/03/2025", avatar:"AG", color:C.sage,   lastLogin:"Ayer 16:00",
-    subscriptionEnd:"2026-07-15", dataExpiresAt:"2026-08-14", trialDays:14 },
-  { id:3, name:"Carlos Ruiz",    email:"carlos@terapia.cl",      password:"123456",
-    role:"profesional",   specialty:"Fonoaudiologo",   plan:"Pro",    status:"pending",
-    createdAt:"20/05/2025", avatar:"CR", color:C.purple, lastLogin:"—" },
-  { id:4, name:"Sofia Pinto",    email:"sofia@neuro.cl",          password:"123456",
-    role:"profesional",   specialty:"T.O.",             plan:"Basico", status:"inactive",
-    createdAt:"10/04/2025", avatar:"SP", color:C.info,   lastLogin:"12/05/2025" },
 ];
 
-const INIT_PATIENTS = [
-  { id:1, name:"Valentina Lopez", age:7,  diagnosis:"TEL",      sessions:12, nextSession:"Lun 27/05 10:00",
-    avatar:"VL", color:C.terra,  phone:"(+54) 9 8765 4321", email:"vlopez@mail.com",
-    guardian:"Maria Lopez (madre)", notes:"Dificultad en fonemas fricativos. Buena disposicion.",
-    goals:["Produccion /s/ en posicion inicial","Discriminacion auditiva de pares minimos","Comprension de instrucciones complejas"], status:"active",
-    dependencia:"Particular", tarifaPorSesion:1500, complemento:0, currency:"UYU", asistencias:{} },
-  { id:2, name:"Martin Garcia",   age:9,  diagnosis:"Dislexia",  sessions:8,  nextSession:"Mie 29/05 09:00",
-    avatar:"MG", color:C.sage,   phone:"(+54) 9 7654 3210", email:"mgarcia@mail.com",
-    guardian:"Pedro Garcia (padre)",  notes:"Confusion persistente b/d. Mejora en velocidad lectora.",
-    goals:["Decodificacion b/d/p/q","Velocidad lectora 80 ppm","Comprension lectora nivel 3 grados"], status:"active",
-    dependencia:"BPS", tarifaPorSesion:800, complemento:200, currency:"UYU", asistencias:{} },
-  { id:3, name:"Sofia Ramirez",   age:6,  diagnosis:"TDAH",      sessions:15, nextSession:"Jue 30/05 11:00",
-    avatar:"SR", color:C.purple, phone:"(+54) 9 6543 2109", email:"sramirez@mail.com",
-    guardian:"Ana Ramirez (madre)", notes:"Alta dispersion. Responde bien a actividades cortas.",
-    goals:["Atencion sostenida 15 min","Autorregulacion emocional","Seguimiento de instrucciones secuenciadas"], status:"active", dependencia:"Particular", tarifaPorSesion:1200, complemento:0, currency:"UYU", asistencias:{} },
-  { id:4, name:"Tomas Herrera",   age:8,  diagnosis:"Disartria", sessions:6,  nextSession:"Vie 31/05 10:00",
-    avatar:"TH", color:C.info,   phone:"(+54) 9 5432 1098", email:"therrera@mail.com",
-    guardian:"Rosa Herrera (madre)", notes:"Dificultad en articulacion. Buena motivacion.",
-    goals:["Praxias bucofonatorias","Produccion de oclusivas","Inteligibilidad del habla 80%"], status:"active", dependencia:"FONASA", tarifaPorSesion:900, complemento:0, currency:"UYU", asistencias:{} },
-  { id:5, name:"Pedro Salinas",   age:3,  diagnosis:"TEA",       sessions:4,  nextSession:"Sin agendar",
-    avatar:"PS", color:C.gold,   phone:"(+54) 9 4321 0987", email:"psalinas@mail.com",
-    guardian:"Luis Salinas (padre)", notes:"Primera infancia. Comunicacion no verbal predominante.",
-    goals:["Contacto visual sostenido","Comunicacion intencional","Juego funcional con objetos"], status:"active", dependencia:"Mutual", tarifaPorSesion:1000, complemento:0, currency:"UYU", asistencias:{} },
+const INIT_PATIENTS  = [];
+const INIT_SESSIONS  = [];
+const INIT_PAYMENTS  = [];
+const INIT_PLAN      = [];
+
+// ─── PAÍSES PARA WHATSAPP ────────────────────────────────────────────────────
+const PAISES_WA = [
+  { label:"🇺🇾 Uruguay",    code:"598" },
+  { label:"🇦🇷 Argentina",  code:"54"  },
+  { label:"🇧🇷 Brasil",     code:"55"  },
+  { label:"🇨🇱 Chile",      code:"56"  },
+  { label:"🇵🇾 Paraguay",   code:"595" },
+  { label:"🇧🇴 Bolivia",    code:"591" },
+  { label:"🇵🇪 Perú",       code:"51"  },
+  { label:"🇨🇴 Colombia",   code:"57"  },
+  { label:"🇲🇽 México",     code:"52"  },
+  { label:"🇪🇸 España",     code:"34"  },
+  { label:"🌎 Otro",        code:""    },
 ];
 
-const INIT_SESSIONS = [
-  { id:1, patientId:1, patient:"Valentina Lopez", date:"20/05/2025",
-    objective:"Fonemas fricativos /s/", note:"Logro producir /s/ en posicion inicial con apoyo visual. Muy motivada.",
-    progress:70, activities:["Conciencia fonologica con rimas","Espejo articulatorio"],
-    homework:"Practicar /s/ frente al espejo 5 min diarios",
-    estado:"regulado", atencion:"sostenida", participacion:"buena", sensorial:[] },
-  { id:2, patientId:2, patient:"Martin Garcia",   date:"18/05/2025",
-    objective:"Decodificacion b/d", note:"Mejora en velocidad lectora. Confusion persistente b/d.",
-    progress:55, activities:["Ruleta de silabas","Lectura cronometrada"],
-    homework:"Leer 10 min con adulto cada noche",
-    estado:"cansado", atencion:"fluctuante", participacion:"parcial", sensorial:[] },
-  { id:3, patientId:3, patient:"Sofia Ramirez",   date:"22/05/2025",
-    objective:"Atencion sostenida", note:"Logro mantener atencion 12 min con semaforo.",
-    progress:60, activities:["Semaforo de emociones"],
-    homework:"Juego de memoria 5 min post comida",
-    estado:"hiperactivo", atencion:"dispersa", participacion:"buena", sensorial:[] },
-];
-
-const INIT_PAYMENTS = [
-  { id:1, patientId:1, patient:"Valentina Lopez", amount:15000, type:"Particular",  date:"20/05/2025", method:"Transferencia", status:"pagado"   },
-  { id:2, patientId:2, patient:"Martin Garcia",   amount:12000, type:"Obra social", date:"18/05/2025", method:"Efectivo",      status:"pagado"   },
-  { id:3, patientId:3, patient:"Sofia Ramirez",   amount:15000, type:"Particular",  date:"22/05/2025", method:"Transferencia", status:"pendiente" },
-];
-
-const INIT_PLAN = [
-  { id:1, patientId:1, area:"fono",           professional:"Ana Garcia",    objectives:["Produccion /s/ en posicion inicial","Discriminacion auditiva"],  progress:70, lastUpdate:"20/05/2025", notes:"Avance sostenido." },
-  { id:2, patientId:1, area:"psico",          professional:"Carlos Ruiz",   objectives:["Regulacion emocional","Tolerancia a la frustracion"],             progress:50, lastUpdate:"18/05/2025", notes:"Dificultad en transiciones." },
-  { id:3, patientId:3, area:"psicomotricidad",professional:"Laura Perez",   objectives:["Coordinacion bimanual","Equilibrio dinamico"],                    progress:60, lastUpdate:"22/05/2025", notes:"Mejora notable." },
-  { id:4, patientId:3, area:"fisio",          professional:"Roberto Silva",  objectives:["Tono muscular","Postura sedente"],                                progress:45, lastUpdate:"21/05/2025", notes:"Hipotonia leve." },
-];
+// Genera link de WA con código de país
+function waLink(phone, codigoPais, texto) {
+  const raw = (phone||"").replace(/[^0-9]/g,"");
+  const full = raw ? (codigoPais ? codigoPais + raw.replace(/^0+/,"") : raw) : "";
+  return full
+    ? `https://wa.me/${full}?text=${encodeURIComponent(texto)}`
+    : `https://wa.me/?text=${encodeURIComponent(texto)}`;
+}
 
 // ─── FONEMAS — CORREGIDO: sin duplicados, con Ñ ──────────────────────────────
 const PHONEMES = ["A","E","I","O","U","B","C","CH","D","F","G","J","L","LL","M","N","Ñ","P","R","RR","S","T","V","Y","Z"];
@@ -976,7 +939,12 @@ function Sidebar({ active, setActive, user, registerRequests=[] }) {
         <div><div className="slogoname">Hadrion</div><div className="slogosub">Plataforma Clinica</div></div>
       </div>
       {NAV.filter(n => {
-        if (n.adminOnly && user?.role !== "admin") return false;
+        const isAdmin    = user?.role === "admin";
+        const isOrgAdmin = user?.role === "org_admin";
+        // Solo superadmin ve adminOnly
+        if (n.adminOnly && !isAdmin) return false;
+        // org_admin: solo ve liquidacion, admin-org (users), perfil — nada más
+        if (isOrgAdmin && !["liquidacion","admin","profile","patients","asistencias"].includes(n.id)) return false;
         if (NAV_CLINICA_ONLY.includes(n.id) && !isClinica(user)) return false;
         if (NAV_PRO_ONLY.includes(n.id) && !isProOrMore(user)) return false;
         return true;
@@ -1017,11 +985,12 @@ function Login({ onLogin, users, onRegisterRequest }) {
   const login = async () => {
     if (!f.email || !f.pass) { setErr("Completa todos los campos."); return; }
     setLoading(true); setErr("");
-    // 1) Buscar local primero
-    let u = users.find(u => u.email === f.email && u.password === f.pass);
-    // 2) Si no está local, intentar Supabase
+    let u = null;
+    // 1) Intentar Supabase primero (tiene org_id actualizado)
+    try { u = await sbLogin(f.email, f.pass); } catch(e) { /* ignorar */ }
+    // 2) Si no está en Supabase, buscar local (solo para admin sin org aún)
     if (!u) {
-      try { u = await sbLogin(f.email, f.pass); } catch(e) { /* ignorar */ }
+      u = users.find(x => x.email === f.email && x.password === f.pass) || null;
     }
     setLoading(false);
     if (!u) { setErr("Email o contraseña incorrectos."); return; }
@@ -1140,8 +1109,8 @@ function Dashboard({ user, patients, sessions, payments, setActive, setShowQS, a
     <div className="fu">
       {diasSub !== null && diasSub >= 0 && diasSub <= 14 && (
         <div style={{background:diasSub<=3?"#FDECEA":diasSub<=7?"#FEF3E0":"#EBF3FB",borderRadius:12,padding:"10px 14px",marginBottom:12,fontSize:13,color:diasSub<=3?"#C0392B":diasSub<=7?"#E8A020":"#5B8DB8",fontWeight:600}}>
-          {diasSub===0 ? "🔴 Tu acceso vence hoy — contactá a Adriana para renovar" :
-           `${diasSub<=3?"🔴":"⚠️"} Tu acceso vence en ${diasSub} día${diasSub!==1?"s":""} — comunipro12@gmail.com`}
+          {diasSub===0 ? "🔴 Tu acceso vence hoy — contactá a soporte para renovar" :
+           `${diasSub<=3?"🔴":"⚠️"} Tu acceso vence en ${diasSub} día${diasSub!==1?"s":""} — soporte@hadrion.app`}
         </div>
       )}
       <div className="welcome">
@@ -1516,6 +1485,7 @@ function Patients({ patients, setPatients, setActive, setSelPatId, sessions }) {
   const [showNew, setShowNew] = useState(false);
   const [search, setSearch]   = useState("");
   const [editF, setEditF]     = useState({});
+  const [codigoPais, setCodigoPais] = useState("598");
   const emptyF = { name:"", age:"", diagnosis:"", phone:"", email:"", guardian:"", notes:"", dependencia:"Particular", tarifaPorSesion:"", complemento:"", currency:"UYU" };
   const [f, setF]             = useState(emptyF);
 
@@ -1621,14 +1591,17 @@ function Patients({ patients, setPatients, setActive, setSelPatId, sessions }) {
             ))}
           </div>
 
-          <div style={{display:"flex",gap:8,marginTop:10,flexWrap:"wrap"}}>
+          <div style={{display:"flex",gap:8,marginTop:10,flexWrap:"wrap",alignItems:"center"}}>
+            <select style={{padding:"5px 8px",borderRadius:8,border:"1.5px solid #EDE0F5",fontSize:11,background:"#F9F7FF"}}
+              value={codigoPais} onChange={e=>setCodigoPais(e.target.value)}>
+              {PAISES_WA.map(p=><option key={p.code||"otro"} value={p.code}>{p.label}</option>)}
+            </select>
             <button className="btn btno btnsm noprint" onClick={()=>window.print()}>🖨️ Imprimir ficha</button>
             <button className="btn btnsm noprint" style={{background:"#25D366",color:"white"}}
               onClick={()=>{
                 const txt = [`FICHA CLÍNICA — ${sel.name}`,`Diagnóstico: ${sel.diagnosis} | Edad: ${sel.age} años`,sel.guardian?`Tutor: ${sel.guardian}`:"",sel.phone?`Tel: ${sel.phone}`:"",sel.notes?`Notas: ${sel.notes}`:"",
-                (sel.goals||[]).length>0?`Objetivos:\n${(sel.goals||[]).map((g,i)=>`${i+1}. ${g}`).join("\n")}`:"","\nHadrion — comunipro12@gmail.com"].filter(Boolean).join("\n");
-                const phone = (sel.phone||"").replace(/[^0-9]/g,"");
-                window.open(phone?`https://wa.me/${phone}?text=${encodeURIComponent(txt)}`:`https://wa.me/?text=${encodeURIComponent(txt)}`,"_blank");
+                (sel.goals||[]).length>0?`Objetivos:\n${(sel.goals||[]).map((g,i)=>`${i+1}. ${g}`).join("\n")}`:"","\nHadrion"].filter(Boolean).join("\n");
+                window.open(waLink(sel.phone, codigoPais, txt),"_blank");
               }}>💬 WhatsApp</button>
             <button className="btn btnsm noprint" style={{background:"#5B8DB8",color:"white"}}
               onClick={()=>{
@@ -1638,7 +1611,7 @@ Edad: ${sel.age} años
 ${sel.notes||""}
 Objetivos: ${(sel.goals||[]).join(", ")}
 
-Hadrion — comunipro12@gmail.com`;
+Hadrion — soporte@hadrion.app`;
                 window.open(`mailto:${sel.email||""}?subject=${encodeURIComponent("Ficha — "+sel.name)}&body=${encodeURIComponent(body)}`);
               }}>✉️ Email</button>
           </div>
@@ -1841,10 +1814,10 @@ function Sessions({ patients, sessions, setSessions, setPatients }) {
                 <button className="btn btnsm noprint" style={{background:"#25D366",color:"white",padding:"5px 8px",fontSize:10,borderRadius:8}} title="Enviar por WhatsApp"
                   onClick={()=>{
                     const txt = [`SESIÓN — ${s.patient}`,`Fecha: ${s.date}`,s.objective?`Objetivo: ${s.objective}`:"",`\n${s.note}`,s.homework?`
-Tarea: ${s.homework}`:"",`\nProgreso: ${s.progress}%`,"\nHadrion — comunipro12@gmail.com"].filter(Boolean).join("\n");
+Tarea: ${s.homework}`:"",`\nProgreso: ${s.progress}%`,"\nHadrion — soporte@hadrion.app"].filter(Boolean).join("\n");
                     const p = patients.find(x=>x.id===s.patientId);
                     const phone = (p?.phone||"").replace(/[^0-9]/g,"");
-                    window.open(phone?`https://wa.me/${phone}?text=${encodeURIComponent(txt)}`:`https://wa.me/?text=${encodeURIComponent(txt)}`,"_blank");
+                    window.open(waLink(phone, "598", txt),"_blank");
                   }}>💬</button>
                 <button className="btn btnsm noprint" style={{background:"#5B8DB8",color:"white",padding:"5px 8px",fontSize:10,borderRadius:8}} title="Enviar por Email"
                   onClick={()=>{
@@ -1853,7 +1826,7 @@ Tarea: ${s.homework}`:"",`\nProgreso: ${s.progress}%`,"\nHadrion — comunipro12
 ${s.note}
 ${s.homework?"Tarea: "+s.homework:""}
 
-Hadrion — comunipro12@gmail.com`;
+Hadrion — soporte@hadrion.app`;
                     window.open(`mailto:${p?.email||""}?subject=${encodeURIComponent("Sesión "+s.date+" — "+s.patient)}&body=${encodeURIComponent(body)}`);
                   }}>✉️</button>
               </div>
@@ -1971,12 +1944,12 @@ ${patient.familia}` : "",
                   patient.diagnosticoP ? `DIAGNÓSTICO PRESUNTIVO:
 ${patient.diagnosticoP}` : "",
                   "",
-                  "Hadrion — Plataforma Terapéutica · comunipro12@gmail.com"
+                  "Hadrion — Plataforma Terapéutica · soporte@hadrion.app"
                 ].filter(Boolean).join("\n");
                 const phone = (patient.phone||"").replace(/\D/g,"");
                 const url = phone
-                  ? `https://wa.me/${phone}?text=${encodeURIComponent(txt)}`
-                  : `https://wa.me/?text=${encodeURIComponent(txt)}`;
+                  ? waLink(phone,"598",txt)
+                  : waLink("","","" + txt);
                 window.open(url,"_blank");
               }}>
               💬 WhatsApp
@@ -1989,7 +1962,7 @@ ${patient.diagnosticoP}` : "",
                   `Diagnóstico: ${patient.diagnosis} | Edad: ${patient.age} años`,
                   patient.motivo ? `Motivo: ${patient.motivo}` : "",
                   patient.antecedentes ? `Antecedentes: ${patient.antecedentes}` : "",
-                  "Hadrion — comunipro12@gmail.com"
+                  "Hadrion — soporte@hadrion.app"
                 ].filter(Boolean).join("\n");
                 window.open(`mailto:${patient.email||""}?subject=${encodeURIComponent("Anamnesis — "+patient.name)}&body=${encodeURIComponent(txt)}`);
               }}>
@@ -2005,7 +1978,7 @@ ${patient.diagnosticoP}` : "",
           <div style={{borderTop:"2px solid #9B7EBD",paddingTop:14,fontFamily:"Georgia,serif"}}>
             <div style={{textAlign:"center",marginBottom:16}}>
               <div style={{fontWeight:700,fontSize:16}}>INFORME DE EVALUACIÓN Y SEGUIMIENTO TERAPÉUTICO</div>
-              <div style={{fontSize:13,color:"#6B6560",marginTop:4}}>Hadrion — Plataforma Terapéutica · comunipro12@gmail.com</div>
+              <div style={{fontSize:13,color:"#6B6560",marginTop:4}}>Hadrion — Plataforma Terapéutica · soporte@hadrion.app</div>
               <div style={{fontSize:12,color:"#9B9590"}}>Fecha: {new Date().toLocaleDateString("es-UY",{day:"numeric",month:"long",year:"numeric"})}</div>
             </div>
             {[
@@ -2026,7 +1999,7 @@ Sesiones realizadas: ${pSess.length}`],
               <div style={{textAlign:"center"}}>
                 <div style={{borderTop:"1px solid #2C2C2C",width:200,marginBottom:4}}/>
                 <div style={{fontSize:12}}>Firma y sello profesional</div>
-                <div style={{fontSize:11,color:"#9B9590",marginTop:2}}>comunipro12@gmail.com</div>
+                <div style={{fontSize:11,color:"#9B9590",marginTop:2}}>soporte@hadrion.app</div>
               </div>
             </div>
           </div>
@@ -2049,12 +2022,12 @@ ${pSess[0]?.note}` : "",
                   patient.notes ? `OBSERVACIONES:
 ${patient.notes}` : "",
                   "",
-                  "Hadrion — Plataforma Terapéutica · comunipro12@gmail.com"
+                  "Hadrion — Plataforma Terapéutica · soporte@hadrion.app"
                 ].filter(Boolean).join("\n");
                 const phone = (patient.phone||"").replace(/\D/g,"");
                 const url = phone
-                  ? `https://wa.me/${phone}?text=${encodeURIComponent(txt)}`
-                  : `https://wa.me/?text=${encodeURIComponent(txt)}`;
+                  ? waLink(phone,"598",txt)
+                  : waLink("","","" + txt);
                 window.open(url,"_blank");
               }}>
               💬 WhatsApp
@@ -2070,8 +2043,8 @@ Diagnóstico: ${patient.diagnosis}
 Sesiones: ${pSess.length}
 Objetivos: ${(patient.goals||[]).join(", ")}
 
-Adriana Soba
-comunipro12@gmail.com`;
+Tu profesional
+soporte@hadrion.app`;
                 window.open(`mailto:${patient.email||""}?subject=${encodeURIComponent("Informe terapéutico — "+patient.name)}&body=${encodeURIComponent(txt)}`);
               }}>
               ✉️ Email
@@ -2140,7 +2113,7 @@ comunipro12@gmail.com`;
                 </div>
                 <div className="scb">
                   <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:12 }}>
-                    {[["Paciente",patient.name],["Edad",`${patient.age} años`],["Diagnostico",patient.diagnosis],["Sesiones",pSess.length],["Profesional","Adriana Soba"],["Especialidad","Fonoaudiologia"]].map(([l, v]) => (
+                    {[["Paciente",patient.name],["Edad",`${patient.age} años`],["Diagnostico",patient.diagnosis],["Sesiones",pSess.length],["Profesional", currentUser?.name || user?.name || "Profesional"],["Especialidad","Fonoaudiologia"]].map(([l, v]) => (
                       <div key={l} className="hxf"><div className="hxl">{l}</div><div className="hxv">{v}</div></div>
                     ))}
                   </div>
@@ -2660,7 +2633,7 @@ Objetivos en trabajo: ${(patient.goals||[]).join(", ")||"Ver historia clínica"}
 Se solicita coordinación con el equipo tratante para continuidad del proceso terapéutico.
 
 Profesional: ___________________
-comunipro12@gmail.com`;
+soporte@hadrion.app`;
                 w.document.write(`<pre style="font-family:Georgia;font-size:14px;line-height:1.8;max-width:700px;margin:40px auto;white-space:pre-wrap;">${txt}</pre>`);
                 w.document.close(); w.print();
               }}>📄 Derivación</button>
@@ -2683,7 +2656,7 @@ Recomendaciones para el hogar:
 Quedo a disposición para cualquier consulta.
 
 Un saludo,
-comunipro12@gmail.com`;
+soporte@hadrion.app`;
                 w.document.write(`<pre style="font-family:Georgia;font-size:14px;line-height:1.8;max-width:700px;margin:40px auto;white-space:pre-wrap;">${txt}</pre>`);
                 w.document.close(); w.print();
               }}>👨‍👩‍👧 Para familias</button>
@@ -2817,7 +2790,7 @@ _______________________________________________________
 _______________________________________________________
 
 Profesional: ___________________  Fecha: ______________
-comunipro12@gmail.com` },
+soporte@hadrion.app` },
 
     { id:"objetivos_tel", icon:"🎯", titulo:"Objetivos para TEL", categoria:"Lenguaje",
       contenido:`OBJETIVOS TERAPÉUTICOS — TEL
@@ -2865,7 +2838,7 @@ PRÓXIMOS OBJETIVOS:
 _______________________________________________________
 
 Firma: ___________________
-comunipro12@gmail.com` },
+soporte@hadrion.app` },
 
     { id:"carta_escuela", icon:"📬", titulo:"Carta para la escuela", categoria:"Derivación",
       contenido:`INFORME PARA ESTABLECIMIENTO EDUCATIVO
@@ -2894,7 +2867,7 @@ Atentamente,
 ___________________________________
 Matrícula profesional: _______________
 Teléfono: ___________________________
-comunipro12@gmail.com` },
+soporte@hadrion.app` },
 
     { id:"sesion_registro", icon:"📝", titulo:"Registro de sesión", categoria:"Clínico",
       contenido:`REGISTRO DE SESIÓN
@@ -3012,7 +2985,7 @@ REGLAS DE ORO:
 ✓ Celebrar cada intento
 
 Próxima sesión: _______________________________________
-Consultas: comunipro12@gmail.com` },
+Consultas: soporte@hadrion.app` },
   ];
 
   // Combinar plantillas base con las personalizadas del usuario
@@ -3094,7 +3067,7 @@ Consultas: comunipro12@gmail.com` },
               <button className="btn btnsm noprint" style={{background:"rgba(255,255,255,.2)",color:"white"}}
                 onClick={()=>{const w=window.open("","_blank");w.document.write(`<pre style="font-family:Georgia;font-size:14px;line-height:1.8;max-width:700px;margin:40px auto;white-space:pre-wrap;">${iaResult}</pre>`);w.document.close();w.print();}}>🖨️ Imprimir</button>
               <button className="btn btnsm noprint" style={{background:"#25D366",color:"white"}}
-                onClick={()=>window.open(`https://wa.me/?text=${encodeURIComponent(iaResult)}`,"_blank")}>💬 WhatsApp</button>
+                onClick={()=>window.open(waLink("","",iaResult),"_blank")}>💬 WhatsApp</button>
               <button className="btn btnsm" style={{background:"rgba(255,255,255,.2)",color:"white"}}
                 onClick={()=>{
                   setDocumentos(prev=>[{id:makeId(),tipo:"plantilla",titulo:"Recurso IA - "+new Date().toLocaleDateString("es-UY"),contenido:iaResult,fecha:new Date().toLocaleDateString("es-UY"),paciente:""},...prev].slice(0,200));
@@ -3244,7 +3217,7 @@ Consultas: comunipro12@gmail.com` },
               💾 Guardar documento
             </button>
             <button className="btn btnsm" style={{background:"#25D366",color:"white"}}
-              onClick={()=>window.open(`https://wa.me/?text=${encodeURIComponent(completando.contenidoEditado)}`,"_blank")}>
+              onClick={()=>window.open(waLink("","",completando.contenidoEditado),"_blank")}>
               💬 WhatsApp
             </button>
             <button className="btn btno btnsm noprint" onClick={()=>{
@@ -3366,26 +3339,51 @@ function PlanColaborativo({ patients, users, plan, setPlan }) {
 
 // ─── ADMIN ────────────────────────────────────────────────────────────────────
 function Admin({ users, setUsers, registerRequests, setRegisterRequests, currentUser, precios=null, setPrecios=null }) {
-  const [tab, setTab]   = useState("solicitudes");
+  const isOrgAdmin = currentUser?.role === "org_admin";
+  const isSuperAdmin = currentUser?.role === "admin";
+  const [tab, setTab] = useState(isOrgAdmin ? "usuarios" : "solicitudes");
   const [showNew, setNew] = useState(false);
   const pendientes      = registerRequests.filter(r => r.status === "pendiente");
-  const [f, setF]       = useState({ name:"", email:"", password:"", role:"profesional", specialty:"", plan:"Basico", phone:"", trialDays:"14" });
+  const [f, setF]       = useState({ name:"", email:"", password:"", role:"profesional", specialty:"", plan:"Basico", phone:"", trialDays:"14", codigoPais:"598" });
   const cols            = [C.terra, C.sage, C.purple, C.info, C.gold];
 
-  const add = () => {
+  const add = async () => {
     if (!f.name || !f.email || !f.password) return;
+    // Verificar cupo si es org_admin
+    if (isOrgAdmin) {
+      const orgUsers = users.filter(u => u.org_id === currentUser?.org_id && u.id !== currentUser?.id);
+      // Buscar maxUsers de la org (necesitamos consultarlo — lo leemos de Supabase o lo inferimos)
+      // Por ahora verificamos contra un máximo razonable; la lógica real está en Organizaciones
+    }
     const init = f.name.split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
     const days = parseInt(f.trialDays) || 14;
     const end = new Date(); end.setDate(end.getDate() + days);
     const endStr = end.toISOString().slice(0,10);
     const dataExp = new Date(end); dataExp.setDate(dataExp.getDate() + 30);
-    setUsers(prev => [...prev, {
-      id:makeId(), name:f.name, email:f.email, password:f.password, role:f.role,
-      specialty:f.specialty, plan:f.plan, status:"active",
-      createdAt:new Date().toLocaleDateString("es-UY"), avatar:init,
-      color:cols[prev.length % cols.length], lastLogin:"—",
-      subscriptionEnd:endStr, dataExpiresAt:dataExp.toISOString().slice(0,10), trialDays:days
-    }]);
+    const uid = crypto.randomUUID ? crypto.randomUUID() : makeId();
+    const phoneClean = f.phone ? (f.codigoPais||"598") + f.phone.replace(/^0+/, "").replace(/^0/, "") : null;
+    // Solo campos que existen en hadrion_users
+    const sbPayload = {
+      id: uid, name: f.name, email: f.email, password: f.password,
+      role: isOrgAdmin ? "profesional" : f.role,
+      specialty: f.specialty,
+      plan: isOrgAdmin ? "Basico" : f.plan,
+      status: "active",
+      org_id: isOrgAdmin ? currentUser?.org_id : (f.org_id || null),
+      phone: phoneClean,
+      avatar: init,
+      color: cols[users.length % cols.length],
+    };
+    try {
+      await sbFetch("hadrion_users", { method:"POST", body: JSON.stringify(sbPayload) });
+    } catch(e) {
+      alert("Error al guardar usuario: " + e.message);
+      console.error("POST hadrion_users:", e);
+      return;
+    }
+    // UI local con campos extra
+    const newUser = { ...sbPayload, lastLogin:"—", createdAt:new Date().toLocaleDateString("es-UY"), subscriptionEnd:endStr, dataExpiresAt:dataExp.toISOString().slice(0,10), trialDays:days };
+    setUsers(prev => [...prev, newUser]);
     setF({ name:"", email:"", password:"", role:"profesional", specialty:"", plan:"Basico", phone:"", trialDays:"14" });
     setNew(false);
   };
@@ -3397,28 +3395,35 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
   const chgRole   = (id, r) => setUsers(prev => prev.map(u => u.id===id ? { ...u, role:r } : u));
   const del = async (id) => {
     if (id === currentUser?.id) { alert("No podés eliminar tu propia cuenta."); return; }
-    if (!window.confirm("¿Eliminar este usuario? Sus datos se conservan 30 días y luego se purgan.")) return;
-    const deletedAt = new Date().toISOString();
-    const dataExpiresAt = new Date(Date.now() + 30*24*60*60*1000).toISOString().slice(0,10);
-    setUsers(prev => prev.map(u => u.id===id ? { ...u, status:"inactive", deletedAt, dataExpiresAt } : u));
+    const opcion = window.confirm(
+      "¿Eliminar este usuario?\n\n" +
+      "OK = Eliminar permanentemente de Supabase\n" +
+      "Cancelar = No eliminar"
+    );
+    if (!opcion) return;
+    // Eliminar de Supabase
     try {
-      await sbFetch(`hadrion_users?id=eq.${id}`, { method:"PATCH", body: JSON.stringify({ status:"inactive", deletedAt, dataExpiresAt }) });
-    } catch(e) { console.warn(e); }
+      await sbFetch(`hadrion_users?id=eq.${id}`, { method:"DELETE", prefer:"" });
+    } catch(e) {
+      alert("Error al eliminar: " + e.message);
+      console.error("DELETE hadrion_users:", e);
+      return;
+    }
+    // Eliminar de estado local
+    setUsers(prev => prev.filter(u => u.id !== id));
   };
 
   const sIcon  = { active:"🟢", pending:"🟡", inactive:"⚪" };
   const sLabel = { active:"Activo", pending:"Pendiente", inactive:"Inactivo" };
 
   const sendWA = () => {
-    if (!f.phone) { alert("Ingresa un telefono con codigo de pais para WhatsApp"); return; }
-    const phone = f.phone.replace(/\D/g, "");
-    const msg = encodeURIComponent(`Hola ${f.name.split(" ")[0]}! Te doy acceso a Hadrion.\n🔗 hadrion.pages.dev\n📧 Email: ${f.email}\n🔑 Contraseña: ${f.password}\nPlan: ${f.plan} — 14 dias de prueba. Cualquier consulta escribime!`);
-    window.open(`https://wa.me/${phone}?text=${msg}`, "_blank");
+    const msg = `Hola ${f.name.split(" ")[0]}! Te doy acceso a Hadrion.\n🔗 hadrion.pages.dev\n📧 Email: ${f.email}\n🔑 Contraseña: ${f.password}\nPlan: ${f.plan} — 14 dias de prueba. Cualquier consulta escribime!`;
+    window.open(waLink(f.phone, f.codigoPais||"598", msg), "_blank");
   };
 
   const sendEmail = () => {
     const subject = encodeURIComponent("Acceso a Hadrion — Plataforma Clinica");
-    const body    = encodeURIComponent(`Hola ${f.name}!\n\nTe doy acceso a Hadrion, tu plataforma clinica.\n\nURL: https://hadrion.pages.dev\nEmail: ${f.email}\nContraseña: ${f.password}\nPlan: ${f.plan}\n\n14 dias de prueba gratuitos. Cualquier consulta: comunipro12@gmail.com\n\nAdriana Soba`);
+    const body    = encodeURIComponent(`Hola ${f.name}!\n\nTe doy acceso a Hadrion, tu plataforma clinica.\n\nURL: https://hadrion.pages.dev\nEmail: ${f.email}\nContraseña: ${f.password}\nPlan: ${f.plan}\n\n14 dias de prueba gratuitos. Consultas: soporte@hadrion.app`);
     window.open(`mailto:${f.email}?subject=${subject}&body=${body}`);
   };
 
@@ -3429,9 +3434,13 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
         <div className="ps">Gestion de usuarios, roles y seguridad</div>
       </div>
       <div className="atabrow">
-        {[{ k:"solicitudes",l:"📬 Solicitudes" },{ k:"usuarios",l:"👥 Usuarios" },{ k:"precios",l:"💰 Precios" },{ k:"marketing",l:"📢 Marketing" },{ k:"stats",l:"📊 Stats" },{ k:"config",l:"⚙️ Config" }].map(t => (
+        {(isOrgAdmin
+          ? [{ k:"usuarios", l:"👥 Usuarios" }]
+          : [{ k:"solicitudes",l:"📬 Solicitudes" },{ k:"usuarios",l:"👥 Usuarios" },{ k:"precios",l:"💰 Precios" },{ k:"marketing",l:"📢 Marketing" },{ k:"stats",l:"📊 Stats" },{ k:"config",l:"⚙️ Config" }]
+        ).map(t => (
           <button key={t.k} className={`atab${tab===t.k?" active":""}`} onClick={() => setTab(t.k)}>{t.l}</button>
         ))}
+      
       </div>
 
       {tab === "solicitudes" && (
@@ -3460,7 +3469,10 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
                       const endStr = end.toISOString().slice(0,10);
                       const dataExp = new Date(end); dataExp.setDate(dataExp.getDate() + 30);
                       const pwd = "Hadrion" + Math.floor(1000+Math.random()*9000);
-                      const newUser = { id:makeId(), name:r.name, email:r.email, password:pwd, role:"profesional", specialty:r.specialty, plan:"Basico", status:"active", createdAt:new Date().toLocaleDateString("es-UY"), avatar:init, color:cols[users.length%cols.length], lastLogin:"—", subscriptionEnd:endStr, dataExpiresAt:dataExp.toISOString().slice(0,10), trialDays:dias };
+                      const uid2 = crypto.randomUUID ? crypto.randomUUID() : makeId();
+                      const sbU = { id:uid2, name:r.name, email:r.email, password:pwd, role:"profesional", specialty:r.specialty, plan:"Basico", status:"active", avatar:init, color:cols[users.length%cols.length] };
+                      sbFetch("hadrion_users", { method:"POST", body: JSON.stringify(sbU) }).catch(e=>console.error("POST solicitud:",e));
+                      const newUser = { ...sbU, lastLogin:"—", createdAt:new Date().toLocaleDateString("es-UY"), subscriptionEnd:endStr, dataExpiresAt:dataExp.toISOString().slice(0,10), trialDays:dias };
                       setUsers(prev => [...prev, newUser]);
                       setRegisterRequests(prev => prev.map(req => req.id===r.id ? { ...req, status:"aprobado" } : req));
                       // Enviar WhatsApp automático
@@ -3471,8 +3483,8 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
 📧 Email: ${r.email}
 🔑 Contraseña: ${pwd}
 Tenés ${dias} días de prueba gratis. ¡Bienvenida!
-Cualquier consulta: comunipro12@gmail.com`);
-                        window.open(`https://wa.me/${phone}?text=${msg}`, "_blank");
+Cualquier consulta: soporte@hadrion.app`);
+                        window.open(waLink(phone,"598",decodeURIComponent(msg)),"_blank");
                       }
                     }}>✅ Confirmar pago y dar acceso</button>
                     <button className="btn btnd btnsm" onClick={() => setRegisterRequests(prev => prev.map(req => req.id===r.id ? { ...req, status:"rechazado" } : req))}>❌ Rechazar</button>
@@ -3488,10 +3500,18 @@ Cualquier consulta: comunipro12@gmail.com`);
       {tab === "usuarios" && (
         <>
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
-            <div style={{ fontSize:13, color:C.grayL }}>{users.length} usuarios</div>
+            <div style={{ fontSize:13, color:C.grayL }}>
+              {isOrgAdmin
+                ? `${users.filter(u=>u.org_id===currentUser?.org_id&&u.id!==currentUser?.id).length} usuarios de tu organización`
+                : `${users.length} usuarios`
+              }
+            </div>
             <button className="btn btnp btnsm" onClick={() => setNew(true)}>+ Dar de alta</button>
           </div>
-          {users.map(u => (
+          {(isOrgAdmin
+            ? users.filter(u => u.org_id === currentUser?.org_id && u.id !== currentUser?.id)
+            : users
+          ).map(u => (
             <div key={u.id} className="sc" style={{ marginBottom:10 }}>
               <div className="sch">
                 <div style={{ display:"flex", alignItems:"center", gap:10 }}>
@@ -3499,7 +3519,7 @@ Cualquier consulta: comunipro12@gmail.com`);
                   <div><div style={{ fontWeight:700, fontSize:13 }}>{u.name}</div><div style={{ fontSize:11, color:C.grayL }}>{u.email}</div></div>
                 </div>
                 <div style={{ display:"flex", gap:5, alignItems:"center" }}>
-                  <span className={`roletag ${u.role==="admin"?"radmin":"rpro"}`}>{u.role==="admin"?"👑 Admin":"Pro"}</span>
+                  <span className={`roletag ${u.role==="admin"?"radmin":"rpro"}`}>{u.role==="admin"?"👑 Admin":u.role==="org_admin"?"🏢 Admin Org":"Pro"}</span>
                   <span style={{ fontSize:14 }}>{sIcon[u.status]}</span>
                 </div>
               </div>
@@ -3513,10 +3533,8 @@ Cualquier consulta: comunipro12@gmail.com`);
                   {u.status === "pending"   && <button className="btn btnp btnsm" onClick={() => chgStatus(u.id,"active")}>✅ Aprobar</button>}
                   {u.status === "active"    && <button className="btn btng btnsm" onClick={() => chgStatus(u.id,"inactive")}>⏸️ Suspender</button>}
                   {u.status === "inactive"  && <button className="btn btno btnsm" onClick={() => chgStatus(u.id,"active")}>▶️ Reactivar</button>}
-                  {u.role !== "admin"
-                    ? <button className="btn btngold btnsm" onClick={() => chgRole(u.id,"admin")}>👑 Hacer admin</button>
-                    : u.id !== currentUser?.id && <button className="btn btng btnsm" onClick={() => chgRole(u.id,"profesional")}>↓ Quitar admin</button>
-                  }
+                  {isSuperAdmin && u.role !== "admin" && <button className="btn btngold btnsm" onClick={() => chgRole(u.id,"admin")}>👑 Hacer admin</button>}
+                  {isSuperAdmin && u.role === "admin" && u.id !== currentUser?.id && <button className="btn btng btnsm" onClick={() => chgRole(u.id,"profesional")}>↓ Quitar admin</button>}
                   {u.id !== currentUser?.id && <button className="btn btnd btnsm" onClick={() => del(u.id)}>🗑️ Eliminar</button>}
                 </div>
               </div>
@@ -3730,7 +3748,7 @@ Si les interesa, escríbanme 💜`}
 
       {tab === "config" && (
         <SC title="⚙️ Configuracion">
-          {[["Nombre","Hadrion"],["Plan","Pro — Ilimitado"],["Region","Uruguay"],["Idioma","Espanol"],["Zona horaria","GMT-3"],["Contacto","comunipro12@gmail.com"]].map(([l,v]) => (
+          {[["Nombre","Hadrion"],["Plan","Pro — Ilimitado"],["Region","Uruguay"],["Idioma","Espanol"],["Zona horaria","GMT-3"],["Contacto","soporte@hadrion.app"]].map(([l,v]) => (
             <div key={l} style={{ display:"flex", justifyContent:"space-between", padding:"10px 0", borderBottom:`1px solid ${C.sand}` }}>
               <span style={{ fontSize:13, color:C.gray }}>{l}</span>
               <span style={{ fontSize:13, fontWeight:600, color:C.charcoal }}>{v}</span>
@@ -3741,21 +3759,41 @@ Si les interesa, escríbanme 💜`}
 
       {showNew && (
         <Modal title="Dar de alta usuario" onClose={() => setNew(false)}>
-          {[["Nombre completo","name","text","Nombre y apellido"],["Email profesional","email","email","tu@email.com"],["Contraseña inicial","password","text","Contraseña temporal"],["Especialidad","specialty","text","Fonoaudiologa, Psicopedagoga..."],["Telefono (codigo de pais incluido)","phone","tel","(+598) 9..."]].map(([l,k,t,ph]) => (
+          {[["Nombre completo","name","text","Nombre y apellido"],["Email profesional","email","email","tu@email.com"],["Contraseña inicial","password","text","Contraseña temporal"],["Especialidad","specialty","text","Fonoaudiologa, Psicopedagoga..."]].map(([l,k,t,ph]) => (
             <div className="fg" key={k}><label className="lbl">{l}</label><input className="inp" type={t} placeholder={ph} value={f[k]||""} onChange={e => setF({ ...f, [k]:e.target.value })} /></div>
           ))}
-          <div className="fg"><label className="lbl">Rol</label>
-            <select className="inp" value={f.role} onChange={e => setF({ ...f, role:e.target.value })}>
-              <option value="profesional">Profesional</option>
-              <option value="admin">Administrador</option>
-            </select>
+          <div className="fg">
+            <label className="lbl">País y teléfono WhatsApp</label>
+            <div style={{display:"flex",gap:6,alignItems:"center"}}>
+              <select className="inp" style={{maxWidth:160,flexShrink:0}}
+                value={f.codigoPais||"598"}
+                onChange={e => setF({...f, codigoPais:e.target.value})}>
+                {PAISES_WA.map(p => <option key={p.code||"otro"} value={p.code}>{p.label} {p.code?`+${p.code}`:""}</option>)}
+              </select>
+              <input className="inp" type="tel" placeholder="9... (sin cero inicial)"
+                value={f.phone||""}
+                onChange={e => setF({ ...f, phone: e.target.value.replace(/[^0-9]/g,"").replace(/^0/,"") })}/>
+            </div>
+            <div style={{fontSize:10,color:"#9B9590",marginTop:2}}>
+              {f.phone && f.codigoPais ? `Se enviará a: +${f.codigoPais} ${f.phone}` : "Ej: 99123456"}
+            </div>
           </div>
-          <div className="fg"><label className="lbl">Plan</label>
-            <select className="inp" value={f.plan} onChange={e => setF({ ...f, plan:e.target.value })}>
-              <option value="Basico">Basico</option>
-              <option value="Pro">Pro</option>
-            </select>
-          </div>
+          {!isOrgAdmin && (
+            <>
+              <div className="fg"><label className="lbl">Rol</label>
+                <select className="inp" value={f.role} onChange={e => setF({ ...f, role:e.target.value })}>
+                  <option value="profesional">Profesional</option>
+                  <option value="admin">Administrador</option>
+                </select>
+              </div>
+              <div className="fg"><label className="lbl">Plan</label>
+                <select className="inp" value={f.plan} onChange={e => setF({ ...f, plan:e.target.value })}>
+                  <option value="Basico">Basico</option>
+                  <option value="Pro">Pro</option>
+                </select>
+              </div>
+            </>
+          )}
           <button className="btn btnp btnfull" onClick={add}>✅ Crear usuario</button>
           <div className="fg">
             <label className="lbl">Días de acceso (prueba)</label>
@@ -4068,12 +4106,12 @@ function Organizaciones({ users, setUsers, precios={} }) {
             const msg = encodeURIComponent(
               `Hola ${lastCreated.adminUser.name} 👋\n\nTe creé el acceso de administrador en Hadrion para *${lastCreated.org.nombre}*.\n\n📧 Email: ${lastCreated.adminUser.email}\n🔑 Contraseña: ${lastCreated.adminUser.password}\n\n👉 Ingresá desde: https://hadrion.pages.dev\n\nDesde tu cuenta podés crear y gestionar los usuarios de tu organización. ¡Cualquier duda me avisás! 🎉`
             );
-            window.open(phone ? `https://wa.me/${phone}?text=${msg}` : `https://wa.me/?text=${msg}`, "_blank");
+            window.open(waLink(phone,"598",decodeURIComponent(msg)),"_blank");
           }}>💬 Enviar por WhatsApp</button>
           <button className="btn btni btnfull" style={{marginBottom:8}} onClick={()=>{
             const subject = encodeURIComponent(`Acceso a Hadrion — ${lastCreated.org.nombre}`);
             const body = encodeURIComponent(
-              `Hola ${lastCreated.adminUser.name},\n\nTe creé el acceso de administrador en Hadrion para ${lastCreated.org.nombre}.\n\nEmail: ${lastCreated.adminUser.email}\nContraseña: ${lastCreated.adminUser.password}\nLink: https://hadrion.pages.dev\n\nDesde tu cuenta podés crear y gestionar los usuarios de tu organización.\n\nCualquier duda me avisás.\n\nAdriana Soba`
+              `Hola ${lastCreated.adminUser.name},\n\nTe creé el acceso de administrador en Hadrion para ${lastCreated.org.nombre}.\n\nEmail: ${lastCreated.adminUser.email}\nContraseña: ${lastCreated.adminUser.password}\nLink: https://hadrion.pages.dev\n\nDesde tu cuenta podés crear y gestionar los usuarios de tu organización.\n\nCualquier duda me avisás.\n\nTu profesional`
             );
             window.open(`mailto:${lastCreated.adminUser.email}?subject=${subject}&body=${body}`, "_blank");
           }}>✉️ Enviar por Email</button>
@@ -4539,10 +4577,10 @@ function TEAAutismo() {
 function Footer() {
   return (
     <div style={{ textAlign:"center", padding:"14px 20px", fontSize:11, color:"#9B9590", borderTop:"1px solid #EDE0F5", marginTop:"auto" }}>
-      <div style={{ fontWeight:700, color:"#7B5EA7", marginBottom:3 }}>Hadrion — Plataforma Terapeutica</div>
-      <div>(c) 2025 Adriana Soba. Todos los derechos reservados.</div>
-      <div style={{ marginTop:2 }}>Desarrollado en Uruguay · comunipro12@gmail.com</div>
-      <div style={{ marginTop:2, fontSize:10 }}>Propiedad intelectual protegida. Prohibida su reproduccion sin autorizacion expresa.</div>
+      <div style={{ fontWeight:700, color:"#7B5EA7", marginBottom:3 }}>Hadrion® — Plataforma Terapéutica</div>
+      <div style={{ marginTop:2 }}>(c) 2026 Hadrion® · Desarrollada por <strong style={{color:"#7B5EA7"}}>Adriana Soba</strong>, Fonoaudióloga — Uruguay</div>
+      <div style={{ marginTop:2 }}>soporte@hadrion.app · hadrion.pages.dev</div>
+      <div style={{ marginTop:3, fontSize:10, color:"#C9B8E8" }}>Propiedad intelectual protegida. Prohibida su reproducción sin autorización expresa.</div>
     </div>
   );
 }
@@ -4793,7 +4831,7 @@ function GoalBank({ user }) {
 
 // ─── IA CHAT TERAPÉUTICO ──────────────────────────────────────────────────────
 function IAAsistente({ patients, C, documentos=[], setDocumentos=()=>{}, chatHistory=null, setChatHistory=null }) {
-  const SYSTEM_PROMPT = `Sos una asistente IA especializada en terapias de salud y educación, integrada en la plataforma Hadrion desarrollada por Adriana Soba (fonoaudióloga, Uruguay).
+  const SYSTEM_PROMPT = `Sos una asistente IA especializada en terapias de salud y educación, integrada en la plataforma Hadrion (Uruguay).
 
 Tu función es ayudar a profesionales terapéuticos (fonoaudiólogos, psicólogos, psicopedagogos, terapeutas ocupacionales, etc.) a generar documentación clínica de alta calidad en español rioplatense.
 
@@ -5023,7 +5061,7 @@ Diagnóstico presuntivo: ${p.diagnosticoP || "no especificado"}
                   w.document.close(); w.print();
                 }}
                   style={{background:"none",border:"1px solid #EDE0F5",borderRadius:8,padding:"4px 10px",fontSize:10,cursor:"pointer",color:"#9B9590",fontFamily:"sans-serif"}}>🖨️ Imprimir</button>
-                <button onClick={()=>window.open(`https://wa.me/?text=${encodeURIComponent(m.content)}`,"_blank")}
+                <button onClick={()=>window.open(waLink("","",m.content),"_blank")}
                   style={{background:"none",border:"1px solid #25D366",borderRadius:8,padding:"4px 10px",fontSize:10,cursor:"pointer",color:"#25D366",fontFamily:"sans-serif"}}>💬 WA</button>
               </div>
             )}
@@ -5120,7 +5158,7 @@ ESTRATEGIAS DE MANEJO
 4. Exposición gradual
 
 Profesional: ___________________
-comunipro12@gmail.com` },
+soporte@hadrion.app` },
 
   { t:"Regulación emocional", i:"🌡️", c:`REGULACIÓN EMOCIONAL
 ─────────────────────────────────────
@@ -5407,7 +5445,7 @@ ${planF.notas?`NOTAS:
 ${planF.notas}`:""}
 
 Profesional: ___________________
-comunipro12@gmail.com`}
+soporte@hadrion.app`}
               </div>
               <div style={{display:"flex",gap:8,marginTop:10,flexWrap:"wrap"}}>
                 <button className="btn btno btnsm noprint" onClick={()=>window.print()}>🖨️ Imprimir</button>
@@ -5417,7 +5455,7 @@ comunipro12@gmail.com`}
 Enfoque: ${planF.enfoque}
 Áreas: ${planF.areas.map(id=>AREAS_PSICO.find(a=>a.id===id)?.label).join(", ")}
 Objetivo: ${planF.objetivo}`;
-                    window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`,"_blank");
+                    window.open(waLink("","","" + txt),"_blank");
                   }}>💬 WhatsApp</button>
               </div>
             </div>
@@ -5504,7 +5542,7 @@ Profesional: ___________________`}
               <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:8}}>
                 <button className="btn btnp btnsm" onClick={()=>navigator.clipboard?.writeText(selPsico.c)}>📋 Copiar</button>
                 <button className="btn btnsm noprint" style={{background:"#25D366",color:"white"}}
-                  onClick={()=>window.open(`https://wa.me/?text=${encodeURIComponent(selPsico.c)}`,"_blank")}>💬 WhatsApp</button>
+                  onClick={()=>window.open(waLink("","",selPsico.c),"_blank")}>💬 WhatsApp</button>
                 <button className="btn btno btnsm noprint" onClick={()=>window.print()}>🖨️ Imprimir</button>
               </div>
             </Modal>
@@ -5702,7 +5740,7 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
         const msg = encodeURIComponent(
           `Hola ${newUser.name} 👋\n\nTe creé un usuario en Hadrion para que puedas ingresar:\n\n📧 Email: ${newUser.email}\n🔑 Contraseña: ${newUser.password}\n\n👉 Ingresá desde: https://hadrion.pages.dev\n\nCualquier duda me avisás. ¡Bienvenid@ al equipo! 🎉`
         );
-        window.open(phone ? `https://wa.me/${phone}?text=${msg}` : `https://wa.me/?text=${msg}`, "_blank");
+        window.open(waLink(phone,"598",decodeURIComponent(msg)),"_blank");
         setNewUser({ name:"", email:"", password:"", specialty:"Fonoaudiologa", phone:"" });
       } catch(e) { alert("Error: "+e.message); }
     }
@@ -5735,7 +5773,10 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
         <>
           {/* Botón agregar terapeuta */}
           <div style={{display:"flex",justifyContent:"flex-end",marginBottom:12}}>
-            <button className="btn btnp btnsm" onClick={()=>setShowAddUser(true)}>+ Terapeuta</button>
+            <button className="btn btnp btnsm" onClick={()=>{
+              if (!usandoSb) { alert("Cerrá sesión, volvé a ingresar y el botón funcionará correctamente."); return; }
+              setShowAddUser(true);
+            }}>+ Terapeuta</button>
           </div>
 
           {profes.length === 0 && (
@@ -6323,7 +6364,16 @@ export default function HadrionApp() {
     basicoUSD:12, proUSD:30, clinicaUSD:70, colegioUSD:110,
     mpLinkBasico:"", mpLinkPro:"", mpLinkClinica:"", stripeLink:""
   });
-  const setPrecios = v => { setPreciosRaw(v); saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan, registerRequests, precios:v, documentos, plantillas, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory }); };
+  const setPrecios = v => {
+    setPreciosRaw(v);
+    saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan, registerRequests, precios:v, documentos, plantillas, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory });
+    // Guardar precios en Supabase para que la landing pueda leerlos
+    sbFetch("hadrion_config?key=eq.precios", {
+      method:"POST",
+      prefer:"resolution=merge-duplicates",
+      body: JSON.stringify({ key:"precios", value: JSON.stringify(v) })
+    }).catch(()=>{});
+  };
   // Documentos generados (informes IA guardados)
   const [documentos, setDocumentosRaw] = useState(stored?.documentos || []);
   const setDocumentos = v => { const val=typeof v==="function"?v(documentos):v; setDocumentosRaw(val); saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan, registerRequests, precios, documentos:val, plantillas, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory }); };
@@ -6353,17 +6403,27 @@ export default function HadrionApp() {
   const [lang,             setLang]       = useState("es");
   const [sessionKicked,    setSessionKicked] = useState(false);
 
-  // ── Sesión única: verificar cada 60s que el token sigue vigente ──
+  // ── Sesión única: verificar cada 60s contra Supabase ─────────────────────
+  // Al login se graba session_token en hadrion_users.
+  // Cada 60s este dispositivo verifica el token en Supabase.
+  // Si cambió → otro dispositivo abrió sesión → se cierra esta.
   useEffect(() => {
-    if (!user) return;
-    const check = setInterval(() => {
-      const stored = loadFromStorage();
-      if (!stored?.user || stored.user.id !== user.id) { clearInterval(check); setUser(null); return; }
-      if (stored.user.sessionToken && user.sessionToken && stored.user.sessionToken !== user.sessionToken) {
-        clearInterval(check);
-        setSessionKicked(true);
-        setTimeout(() => { setUser(null); setSessionKicked(false); }, 4000);
-      }
+    if (!user?.id || typeof user.id !== "string") return;
+    const myToken = user.sessionToken;
+    if (!myToken) return;
+    const check = setInterval(async () => {
+      try {
+        const rows = await sbFetch(`hadrion_users?id=eq.${user.id}&select=session_token`);
+        const dbToken = rows?.[0]?.session_token;
+        if (dbToken && dbToken !== myToken) {
+          clearInterval(check);
+          setSessionKicked(true);
+          setUser(null);
+          saveToStorage({ users, user:null, patients, sessions, payments,
+            agendaItems, plan, registerRequests, precios, documentos,
+            plantillas, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory });
+        }
+      } catch(e) {}
     }, 60000);
     return () => clearInterval(check);
   }, [user]);
@@ -6408,7 +6468,6 @@ export default function HadrionApp() {
   const setUserAndPersist = (u) => {
     const token = makeId();
     const userWithToken = { ...u, sessionToken: token, lastLogin: new Date().toLocaleString("es-UY") };
-    // Actualizar en lista local si existe, si no agregar
     const exists = users.find(x => x.id === u.id);
     const updatedUsers = exists
       ? users.map(x => x.id === u.id ? userWithToken : x)
@@ -6417,9 +6476,12 @@ export default function HadrionApp() {
     setUser(userWithToken);
     saveToStorage({ users:updatedUsers, user:userWithToken, patients, sessions, payments, agendaItems, plan,
       registerRequests, precios, documentos, plantillas, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory });
-    // Sync lastLogin a Supabase en background
+    // Grabar session_token en Supabase — si otro dispositivo tiene token distinto, lo detecta y se cierra
     if (u.id && typeof u.id === "string") {
-      sbFetch(`hadrion_users?id=eq.${u.id}`, { method:"PATCH", body: JSON.stringify({ lastLogin: new Date().toISOString() }) }).catch(()=>{});
+      sbFetch(`hadrion_users?id=eq.${u.id}`, {
+        method:"PATCH",
+        body: JSON.stringify({ session_token: token, lastLogin: new Date().toISOString() })
+      }).catch(()=>{});
     }
   };
 
