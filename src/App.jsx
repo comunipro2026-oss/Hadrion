@@ -1,7 +1,7 @@
 // ================================================
 // HADRION - Plataforma Terapeutica
 // (c) 2025 Tu profesional. Todos los derechos reservados.
-// Desarrollado en Uruguay — soporte@hadrion.app
+// Desarrollado en Uruguay — 
 // Prohibida su reproduccion sin autorizacion expresa.
 // ================================================
 
@@ -1002,6 +1002,8 @@ function Login({ onLogin, users, onRegisterRequest }) {
   const sendRegister = () => {
     if (!regF.name || !regF.email || !regF.specialty) { setErr("Completa nombre, email y especialidad."); return; }
     onRegisterRequest(regF);
+    const msg = encodeURIComponent(`Hola Adriana! Solicitud de acceso a Hadrion:\n👤 Nombre: ${regF.name}\n📧 Email: ${regF.email}\n🏥 Especialidad: ${regF.specialty}${regF.phone?`\n📱 Tel: ${regF.phone}`:""}${regF.message?`\n💬 Mensaje: ${regF.message}`:""}`);
+    window.open(`https://wa.me/59899926775?text=${msg}`, "_blank");
     setRegSent(true);
   };
 
@@ -1047,10 +1049,13 @@ function Login({ onLogin, users, onRegisterRequest }) {
         ) : (
           <>
             <div style={{ fontSize:17, fontWeight:700, color:C.charcoal, marginBottom:6 }}>Recuperar acceso</div>
-            <div style={{ fontSize:13, color:C.grayL, marginBottom:14 }}>Ingresa tu email y te enviamos un enlace de recuperacion.</div>
+            <div style={{ fontSize:13, color:C.grayL, marginBottom:14 }}>Ingresá tu email y te contactamos para restablecer tu acceso.</div>
             <div className="fg"><input className="inp" type="email" placeholder="tu@email.com" value={f.email} onChange={e => setF({ ...f, email:e.target.value })} /></div>
-            <div className="alert alrts">✉️ En produccion real se enviaria email de recuperacion.</div>
-            <button className="btn btnp btnfull" onClick={() => setForgot(false)}>← Volver</button>
+            <button className="btn btnp btnfull" style={{background:"#25D366",marginBottom:8}} onClick={() => {
+              const msg = encodeURIComponent(`Hola Adriana, necesito recuperar el acceso a Hadrion. Mi email es: ${f.email}`);
+              window.open(`https://wa.me/59899926775?text=${msg}`, "_blank");
+            }}>💬 Solicitar por WhatsApp</button>
+            <button className="btn btng btnfull" onClick={() => setForgot(false)}>← Volver</button>
           </>
         )}
 
@@ -1110,7 +1115,7 @@ function Dashboard({ user, patients, sessions, payments, setActive, setShowQS, a
       {diasSub !== null && diasSub >= 0 && diasSub <= 14 && (
         <div style={{background:diasSub<=3?"#FDECEA":diasSub<=7?"#FEF3E0":"#EBF3FB",borderRadius:12,padding:"10px 14px",marginBottom:12,fontSize:13,color:diasSub<=3?"#C0392B":diasSub<=7?"#E8A020":"#5B8DB8",fontWeight:600}}>
           {diasSub===0 ? "🔴 Tu acceso vence hoy — contactá a soporte para renovar" :
-           `${diasSub<=3?"🔴":"⚠️"} Tu acceso vence en ${diasSub} día${diasSub!==1?"s":""} — soporte@hadrion.app`}
+           `${diasSub<=3?"🔴":"⚠️"} Tu acceso vence en ${diasSub} día${diasSub!==1?"s":""} — ${user?.email || ""}`}
         </div>
       )}
       <div className="welcome">
@@ -1479,7 +1484,7 @@ function Agenda({ patients, items, setItems }) {
 }
 
 // ─── PATIENTS ─────────────────────────────────────────────────────────────────
-function Patients({ patients, setPatients, setActive, setSelPatId, sessions }) {
+function Patients({ patients, setPatients, setActive, setSelPatId, sessions, user={} }) {
   const [sel, setSel]       = useState(null);
   const [editing, setEditing] = useState(false);
   const [showNew, setShowNew] = useState(false);
@@ -1611,7 +1616,7 @@ Edad: ${sel.age} años
 ${sel.notes||""}
 Objetivos: ${(sel.goals||[]).join(", ")}
 
-Hadrion — soporte@hadrion.app`;
+Hadrion — ${user?.email || ""}`;
                 window.open(`mailto:${sel.email||""}?subject=${encodeURIComponent("Ficha — "+sel.name)}&body=${encodeURIComponent(body)}`);
               }}>✉️ Email</button>
           </div>
@@ -1814,7 +1819,7 @@ function Sessions({ patients, sessions, setSessions, setPatients }) {
                 <button className="btn btnsm noprint" style={{background:"#25D366",color:"white",padding:"5px 8px",fontSize:10,borderRadius:8}} title="Enviar por WhatsApp"
                   onClick={()=>{
                     const txt = [`SESIÓN — ${s.patient}`,`Fecha: ${s.date}`,s.objective?`Objetivo: ${s.objective}`:"",`\n${s.note}`,s.homework?`
-Tarea: ${s.homework}`:"",`\nProgreso: ${s.progress}%`,"\nHadrion — soporte@hadrion.app"].filter(Boolean).join("\n");
+Tarea: ${s.homework}`:"",`\nProgreso: ${s.progress}%`,"\nHadrion — "].filter(Boolean).join("\n");
                     const p = patients.find(x=>x.id===s.patientId);
                     const phone = (p?.phone||"").replace(/[^0-9]/g,"");
                     window.open(waLink(phone, "598", txt),"_blank");
@@ -1826,7 +1831,7 @@ Tarea: ${s.homework}`:"",`\nProgreso: ${s.progress}%`,"\nHadrion — soporte@had
 ${s.note}
 ${s.homework?"Tarea: "+s.homework:""}
 
-Hadrion — soporte@hadrion.app`;
+Hadrion — ${user?.email || ""}`;
                     window.open(`mailto:${p?.email||""}?subject=${encodeURIComponent("Sesión "+s.date+" — "+s.patient)}&body=${encodeURIComponent(body)}`);
                   }}>✉️</button>
               </div>
@@ -1877,7 +1882,7 @@ Hadrion — soporte@hadrion.app`;
 }
 
 // ─── HISTORY ──────────────────────────────────────────────────────────────────
-function History({ patients, sessions, selectedPatientId, setPatients }) {
+function History({ patients, sessions, selectedPatientId, setPatients, user={} }) {
   const [pid, setPid] = useState(selectedPatientId || "");
   const [ans, setAns] = useState({});
   const [tab, setTab] = useState("anamnesis");
@@ -1944,7 +1949,7 @@ ${patient.familia}` : "",
                   patient.diagnosticoP ? `DIAGNÓSTICO PRESUNTIVO:
 ${patient.diagnosticoP}` : "",
                   "",
-                  "Hadrion — Plataforma Terapéutica · soporte@hadrion.app"
+                  "Hadrion — Plataforma Terapéutica · "
                 ].filter(Boolean).join("\n");
                 const phone = (patient.phone||"").replace(/\D/g,"");
                 const url = phone
@@ -1962,7 +1967,7 @@ ${patient.diagnosticoP}` : "",
                   `Diagnóstico: ${patient.diagnosis} | Edad: ${patient.age} años`,
                   patient.motivo ? `Motivo: ${patient.motivo}` : "",
                   patient.antecedentes ? `Antecedentes: ${patient.antecedentes}` : "",
-                  "Hadrion — soporte@hadrion.app"
+                  "Hadrion — "
                 ].filter(Boolean).join("\n");
                 window.open(`mailto:${patient.email||""}?subject=${encodeURIComponent("Anamnesis — "+patient.name)}&body=${encodeURIComponent(txt)}`);
               }}>
@@ -1978,7 +1983,7 @@ ${patient.diagnosticoP}` : "",
           <div style={{borderTop:"2px solid #9B7EBD",paddingTop:14,fontFamily:"Georgia,serif"}}>
             <div style={{textAlign:"center",marginBottom:16}}>
               <div style={{fontWeight:700,fontSize:16}}>INFORME DE EVALUACIÓN Y SEGUIMIENTO TERAPÉUTICO</div>
-              <div style={{fontSize:13,color:"#6B6560",marginTop:4}}>Hadrion — Plataforma Terapéutica · soporte@hadrion.app</div>
+              <div style={{fontSize:13,color:"#6B6560",marginTop:4}}>Hadrion — Plataforma Terapéutica · {patient?.email || user?.email || ""}</div>
               <div style={{fontSize:12,color:"#9B9590"}}>Fecha: {new Date().toLocaleDateString("es-UY",{day:"numeric",month:"long",year:"numeric"})}</div>
             </div>
             {[
@@ -1999,7 +2004,7 @@ Sesiones realizadas: ${pSess.length}`],
               <div style={{textAlign:"center"}}>
                 <div style={{borderTop:"1px solid #2C2C2C",width:200,marginBottom:4}}/>
                 <div style={{fontSize:12}}>Firma y sello profesional</div>
-                <div style={{fontSize:11,color:"#9B9590",marginTop:2}}>soporte@hadrion.app</div>
+                <div style={{fontSize:11,color:"#9B9590",marginTop:2}}>{user?.email || ""}</div>
               </div>
             </div>
           </div>
@@ -2022,7 +2027,7 @@ ${pSess[0]?.note}` : "",
                   patient.notes ? `OBSERVACIONES:
 ${patient.notes}` : "",
                   "",
-                  "Hadrion — Plataforma Terapéutica · soporte@hadrion.app"
+                  "Hadrion — Plataforma Terapéutica · "
                 ].filter(Boolean).join("\n");
                 const phone = (patient.phone||"").replace(/\D/g,"");
                 const url = phone
@@ -2044,7 +2049,7 @@ Sesiones: ${pSess.length}
 Objetivos: ${(patient.goals||[]).join(", ")}
 
 Tu profesional
-soporte@hadrion.app`;
+${user?.email || ""}`;
                 window.open(`mailto:${patient.email||""}?subject=${encodeURIComponent("Informe terapéutico — "+patient.name)}&body=${encodeURIComponent(txt)}`);
               }}>
               ✉️ Email
@@ -2633,7 +2638,7 @@ Objetivos en trabajo: ${(patient.goals||[]).join(", ")||"Ver historia clínica"}
 Se solicita coordinación con el equipo tratante para continuidad del proceso terapéutico.
 
 Profesional: ___________________
-soporte@hadrion.app`;
+${user?.email || ""}`;
                 w.document.write(`<pre style="font-family:Georgia;font-size:14px;line-height:1.8;max-width:700px;margin:40px auto;white-space:pre-wrap;">${txt}</pre>`);
                 w.document.close(); w.print();
               }}>📄 Derivación</button>
@@ -2656,7 +2661,7 @@ Recomendaciones para el hogar:
 Quedo a disposición para cualquier consulta.
 
 Un saludo,
-soporte@hadrion.app`;
+${user?.email || ""}`;
                 w.document.write(`<pre style="font-family:Georgia;font-size:14px;line-height:1.8;max-width:700px;margin:40px auto;white-space:pre-wrap;">${txt}</pre>`);
                 w.document.close(); w.print();
               }}>👨‍👩‍👧 Para familias</button>
@@ -2719,7 +2724,7 @@ soporte@hadrion.app`;
 }
 
 // ─── RESOURCES ────────────────────────────────────────────────────────────────
-function Resources({ plantillas=[], setPlantillas=()=>{}, documentos=[], setDocumentos=()=>{} }) {
+function Resources({ plantillas=[], setPlantillas=()=>{}, documentos=[], setDocumentos=()=>{}, user={} }) {
   const [tab, setTab] = useState("plantillas");
   const [selPlantilla, setSelPlantilla] = useState(null);
   const [completando, setCompletando] = useState(null);
@@ -2790,7 +2795,7 @@ _______________________________________________________
 _______________________________________________________
 
 Profesional: ___________________  Fecha: ______________
-soporte@hadrion.app` },
+Email: ________________________________________________` },
 
     { id:"objetivos_tel", icon:"🎯", titulo:"Objetivos para TEL", categoria:"Lenguaje",
       contenido:`OBJETIVOS TERAPÉUTICOS — TEL
@@ -2838,7 +2843,7 @@ PRÓXIMOS OBJETIVOS:
 _______________________________________________________
 
 Firma: ___________________
-soporte@hadrion.app` },
+Email: ___________________` },
 
     { id:"carta_escuela", icon:"📬", titulo:"Carta para la escuela", categoria:"Derivación",
       contenido:`INFORME PARA ESTABLECIMIENTO EDUCATIVO
@@ -2867,7 +2872,7 @@ Atentamente,
 ___________________________________
 Matrícula profesional: _______________
 Teléfono: ___________________________
-soporte@hadrion.app` },
+Email: ______________________________` },
 
     { id:"sesion_registro", icon:"📝", titulo:"Registro de sesión", categoria:"Clínico",
       contenido:`REGISTRO DE SESIÓN
@@ -2985,7 +2990,7 @@ REGLAS DE ORO:
 ✓ Celebrar cada intento
 
 Próxima sesión: _______________________________________
-Consultas: soporte@hadrion.app` },
+Consultas: ____________________________________________` },
   ];
 
   // Combinar plantillas base con las personalizadas del usuario
@@ -3347,6 +3352,21 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
   const [f, setF]       = useState({ name:"", email:"", password:"", role:"profesional", specialty:"", plan:"Basico", phone:"", trialDays:"14", codigoPais:"598" });
   const cols            = [C.terra, C.sage, C.purple, C.info, C.gold];
 
+  // Cargar usuarios de la org desde Supabase cuando es org_admin
+  useEffect(() => {
+    if (!isOrgAdmin || !currentUser?.org_id) return;
+    sbFetch(`hadrion_users?org_id=eq.${currentUser.org_id}&select=*`)
+      .then(data => {
+        if (data && data.length > 0) {
+          setUsers(prev => {
+            const ids = new Set(data.map(u => u.id));
+            const otros = prev.filter(u => !ids.has(u.id));
+            return [...otros, ...data];
+          });
+        }
+      }).catch(console.warn);
+  }, [isOrgAdmin, currentUser?.org_id]);
+
   const add = async () => {
     if (!f.name || !f.email || !f.password) return;
     // Verificar cupo si es org_admin
@@ -3389,12 +3409,21 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
   };
 
   const chgStatus = async (id, s) => {
+    if (isOrgAdmin) {
+      const target = users.find(u => u.id === id);
+      if (!target || target.org_id !== currentUser?.org_id) return;
+    }
     setUsers(prev => prev.map(u => u.id===id ? { ...u, status:s } : u));
     try { await sbFetch(`hadrion_users?id=eq.${id}`, { method:"PATCH", body: JSON.stringify({ status:s }) }); } catch(e) { console.warn(e); }
   };
   const chgRole   = (id, r) => setUsers(prev => prev.map(u => u.id===id ? { ...u, role:r } : u));
   const del = async (id) => {
     if (id === currentUser?.id) { alert("No podés eliminar tu propia cuenta."); return; }
+    // org_admin: solo puede eliminar usuarios de su propia org
+    if (isOrgAdmin) {
+      const target = users.find(u => u.id === id);
+      if (!target || target.org_id !== currentUser?.org_id) { alert("Solo podés eliminar usuarios de tu organización."); return; }
+    }
     const opcion = window.confirm(
       "¿Eliminar este usuario?\n\n" +
       "OK = Eliminar permanentemente de Supabase\n" +
@@ -3423,7 +3452,7 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
 
   const sendEmail = () => {
     const subject = encodeURIComponent("Acceso a Hadrion — Plataforma Clinica");
-    const body    = encodeURIComponent(`Hola ${f.name}!\n\nTe doy acceso a Hadrion, tu plataforma clinica.\n\nURL: https://hadrion.pages.dev\nEmail: ${f.email}\nContraseña: ${f.password}\nPlan: ${f.plan}\n\n14 dias de prueba gratuitos. Consultas: soporte@hadrion.app`);
+    const body    = encodeURIComponent(`Hola ${f.name}!\n\nTe doy acceso a Hadrion, tu plataforma clinica.\n\nURL: https://hadrion.pages.dev\nEmail: ${f.email}\nContraseña: ${f.password}\nPlan: ${f.plan}\n\n14 dias de prueba gratuitos. Consultas: ${user?.email || ""}`);
     window.open(`mailto:${f.email}?subject=${subject}&body=${body}`);
   };
 
@@ -3483,7 +3512,7 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
 📧 Email: ${r.email}
 🔑 Contraseña: ${pwd}
 Tenés ${dias} días de prueba gratis. ¡Bienvenida!
-Cualquier consulta: soporte@hadrion.app`);
+Cualquier consulta: ${user?.email || ""}`);
                         window.open(waLink(phone,"598",decodeURIComponent(msg)),"_blank");
                       }
                     }}>✅ Confirmar pago y dar acceso</button>
@@ -3525,14 +3554,30 @@ Cualquier consulta: soporte@hadrion.app`);
               </div>
               <div className="scb">
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:5, marginBottom:10 }}>
-                  {[["Especialidad",u.specialty||"—"],["Plan",u.plan],["Estado",sLabel[u.status]],["Ultimo acceso",u.lastLogin]].map(([l,v]) => (
+                  {[["Especialidad",u.specialty||"—"],["Plan",u.plan],["Estado",sLabel[u.status]],["Último acceso",u.lastLogin],["Creado",u.createdAt||"—"],["Tel.",u.phone||"—"]].map(([l,v]) => (
                     <div key={l} style={{ fontSize:11 }}><span style={{ color:C.grayL }}>{l}:</span> <strong>{v}</strong></div>
                   ))}
                 </div>
+                {/* Contraseña visible para org_admin y superadmin */}
+                {(isOrgAdmin || isSuperAdmin) && (
+                  <div style={{ background:"#FEF3E0", borderRadius:10, padding:"8px 12px", marginBottom:10, display:"flex", alignItems:"center", gap:8 }}>
+                    <span style={{ fontSize:11, color:C.grayL, fontWeight:700, textTransform:"uppercase", letterSpacing:.5 }}>Contraseña:</span>
+                    <span style={{ fontSize:13, fontWeight:700, fontFamily:"monospace", color:"#E8A020", flex:1 }}>{u.password || "—"}</span>
+                    <button style={{ background:"none", border:"none", cursor:"pointer", fontSize:14, padding:2 }}
+                      onClick={() => navigator.clipboard?.writeText(u.password||"").then(()=>alert("Contraseña copiada"))}>📋</button>
+                  </div>
+                )}
                 <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
                   {u.status === "pending"   && <button className="btn btnp btnsm" onClick={() => chgStatus(u.id,"active")}>✅ Aprobar</button>}
                   {u.status === "active"    && <button className="btn btng btnsm" onClick={() => chgStatus(u.id,"inactive")}>⏸️ Suspender</button>}
                   {u.status === "inactive"  && <button className="btn btno btnsm" onClick={() => chgStatus(u.id,"active")}>▶️ Reactivar</button>}
+                  {/* Enviar credenciales por WA */}
+                  {(isOrgAdmin || isSuperAdmin) && u.phone && (
+                    <button className="btn btnsm" style={{background:"#25D366",color:"white"}} onClick={()=>{
+                      const msg = encodeURIComponent(`Hola ${u.name.split(" ")[0]}! 👋\n\nTus datos de acceso a Hadrion:\n📧 Email: ${u.email}\n🔑 Contraseña: ${u.password}\n👉 https://hadrion.pages.dev`);
+                      window.open(`https://wa.me/${(u.phone||"").replace(/\D/g,"")}?text=${msg}`,"_blank");
+                    }}>💬 Enviar cred.</button>
+                  )}
                   {isSuperAdmin && u.role !== "admin" && <button className="btn btngold btnsm" onClick={() => chgRole(u.id,"admin")}>👑 Hacer admin</button>}
                   {isSuperAdmin && u.role === "admin" && u.id !== currentUser?.id && <button className="btn btng btnsm" onClick={() => chgRole(u.id,"profesional")}>↓ Quitar admin</button>}
                   {u.id !== currentUser?.id && <button className="btn btnd btnsm" onClick={() => del(u.id)}>🗑️ Eliminar</button>}
@@ -3748,7 +3793,7 @@ Si les interesa, escríbanme 💜`}
 
       {tab === "config" && (
         <SC title="⚙️ Configuracion">
-          {[["Nombre","Hadrion"],["Plan","Pro — Ilimitado"],["Region","Uruguay"],["Idioma","Espanol"],["Zona horaria","GMT-3"],["Contacto","soporte@hadrion.app"]].map(([l,v]) => (
+          {[["Nombre","Hadrion"],["Plan","Pro — Ilimitado"],["Region","Uruguay"],["Idioma","Espanol"],["Zona horaria","GMT-3"],["Contacto",""]].map(([l,v]) => (
             <div key={l} style={{ display:"flex", justifyContent:"space-between", padding:"10px 0", borderBottom:`1px solid ${C.sand}` }}>
               <span style={{ fontSize:13, color:C.gray }}>{l}</span>
               <span style={{ fontSize:13, fontWeight:600, color:C.charcoal }}>{v}</span>
@@ -3945,7 +3990,7 @@ function Organizaciones({ users, setUsers, precios={} }) {
     };
     try {
       await saveOrgSb(newOrg);
-      await sbFetch("hadrion_users", { method:"POST", body: JSON.stringify(adminUser) });
+      await sbFetch("hadrion_users", { method:"POST", prefer:"resolution=merge-duplicates,return=representation", body: JSON.stringify(adminUser) });
       const fresh = await sbFetch("hadrion_organizaciones?select=*&order=created_at.desc");
       setOrgs(fresh || []);
       setLastCreated({ org: newOrg, adminUser });
@@ -4579,7 +4624,7 @@ function Footer() {
     <div style={{ textAlign:"center", padding:"14px 20px", fontSize:11, color:"#9B9590", borderTop:"1px solid #EDE0F5", marginTop:"auto" }}>
       <div style={{ fontWeight:700, color:"#7B5EA7", marginBottom:3 }}>Hadrion® — Plataforma Terapéutica</div>
       <div style={{ marginTop:2 }}>(c) 2026 Hadrion® · Desarrollada por <strong style={{color:"#7B5EA7"}}>Adriana Soba</strong>, Fonoaudióloga — Uruguay</div>
-      <div style={{ marginTop:2 }}>soporte@hadrion.app · hadrion.pages.dev</div>
+      <div style={{ marginTop:2 }}> · hadrion.pages.dev</div>
       <div style={{ marginTop:3, fontSize:10, color:"#C9B8E8" }}>Propiedad intelectual protegida. Prohibida su reproducción sin autorización expresa.</div>
     </div>
   );
@@ -5158,7 +5203,7 @@ ESTRATEGIAS DE MANEJO
 4. Exposición gradual
 
 Profesional: ___________________
-soporte@hadrion.app` },
+Email: ___________________________` },
 
   { t:"Regulación emocional", i:"🌡️", c:`REGULACIÓN EMOCIONAL
 ─────────────────────────────────────
@@ -5445,7 +5490,7 @@ ${planF.notas?`NOTAS:
 ${planF.notas}`:""}
 
 Profesional: ___________________
-soporte@hadrion.app`}
+Email: _________________________`}
               </div>
               <div style={{display:"flex",gap:8,marginTop:10,flexWrap:"wrap"}}>
                 <button className="btn btno btnsm noprint" onClick={()=>window.print()}>🖨️ Imprimir</button>
@@ -6490,14 +6535,14 @@ export default function HadrionApp() {
     agenda:     <Agenda     patients={patients} items={agendaItems} setItems={setAgenda} />,
     patients:   <Patients   patients={patients} setPatients={setPatients} setActive={setActive} setSelPatId={setSelPatId} sessions={sessions} />,
     payments:   <Payments   patients={patients} payments={payments} setPayments={setPayments} />,
-    sessions:   <Sessions   patients={patients} sessions={sessions} setSessions={setSessions} setPatients={setPatients} />,
-    history:    <History    patients={patients} sessions={sessions} selectedPatientId={selPatId} setPatients={setPatients} />,
+    sessions:   <Sessions   patients={patients} sessions={sessions} setSessions={setSessions} setPatients={setPatients} user={user} />,
+    history:    <History    patients={patients} sessions={sessions} selectedPatientId={selPatId} setPatients={setPatients} user={user} />,
     objectives: <GoalBank user={user}/>,
     activities: <Activities user={user}/>,
     phonology:  <Phonology />,
-    reports:    <Reports    patients={patients} sessions={sessions} payments={payments} />,
+    reports:    <Reports    patients={patients} sessions={sessions} payments={payments} user={user} />,
     plan:       <PlanColaborativo patients={patients} users={users} plan={plan} setPlan={setPlan} />,
-    resources:  <Resources plantillas={plantillas} setPlantillas={setPlantillas} documentos={documentos} setDocumentos={setDocumentos}/>,
+    resources:  <Resources plantillas={plantillas} setPlantillas={setPlantillas} documentos={documentos} setDocumentos={setDocumentos} user={user}/>,
     tea:        <TEAAutismo />,
     asistencias:<Asistencias patients={patients} setPatients={setPatients} />,
     organizaciones: user?.role === "admin"
