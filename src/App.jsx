@@ -26,9 +26,10 @@ const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+G
 
 // ─── DATOS INICIALES ─────────────────────────────────────────────────────────
 const INIT_USERS = [
-  { id:1, name:"Adriana Soba",   email:"comunipro12@gmail.com", password:"admin123",
-    role:"admin",         specialty:"Fonoaudiologa",   plan:"Pro",    status:"active",
-    createdAt:"01/01/2025", avatar:"AS", color:C.terra,  lastLogin:"Hoy 08:30",
+  // Credenciales no se incluyen en el bundle — el admin siempre autentica contra Supabase
+  { id:1, name:"Adriana Soba", email:"comunipro12@gmail.com", password:"",
+    role:"admin", specialty:"Fonoaudiologa", plan:"Pro", status:"active",
+    createdAt:"01/01/2025", avatar:"AS", color:C.terra, lastLogin:"Hoy 08:30",
     subscriptionEnd:null, dataExpiresAt:null, trialDays:14 },
 ];
 
@@ -811,15 +812,16 @@ const loadFromStorage = () => {
 const SB_URL = "https://lgpqyjevdwstbnerawmp.supabase.co";
 const SB_KEY = "sb_publishable_ezLQMGeIrqgHPMyINUGHKw_mTDTNR61";
 const sbFetch = async (path, opts = {}) => {
+  const { prefer, headers: extraHeaders, ...fetchOpts } = opts;
   const res = await fetch(`${SB_URL}/rest/v1/${path}`, {
     headers: {
       "apikey": SB_KEY,
       "Authorization": `Bearer ${SB_KEY}`,
       "Content-Type": "application/json",
-      "Prefer": opts.prefer || "return=representation",
-      ...opts.headers,
+      "Prefer": prefer || "return=representation",
+      ...extraHeaders,
     },
-    ...opts,
+    ...fetchOpts,
   });
   if (!res.ok) { const e = await res.text(); throw new Error(e); }
   return res.status === 204 ? null : res.json();
@@ -841,7 +843,7 @@ const sbSaveAsistencia = async (userId, orgId, dia, estado, mes) => {
   return sbFetch(`hadrion_asistencias`, {
     method: "POST",
     prefer: "resolution=merge-duplicates,return=representation",
-    body: JSON.stringify({ user_id: userId, org_id: orgId, dia, estado, mes }),
+    body: JSON.stringify({ patient_id: userId, org_id: orgId, dia, estado, mes }),
   });
 };
 
@@ -988,9 +990,10 @@ function Login({ onLogin, users, onRegisterRequest }) {
     let u = null;
     // 1) Intentar Supabase primero (tiene org_id actualizado)
     try { u = await sbLogin(f.email, f.pass); } catch(e) { /* ignorar */ }
-    // 2) Si no está en Supabase, buscar local (solo para admin sin org aún)
+    // 2) Fallback local SOLO para registros con id numérico (admin inicial)
+    //    Los usuarios reales siempre tienen UUID string y deben autenticar en Supabase
     if (!u) {
-      u = users.find(x => x.email === f.email && x.password === f.pass) || null;
+      u = users.find(x => typeof x.id === "number" && x.email === f.email && x.password === f.pass) || null;
     }
     setLoading(false);
     if (!u) { setErr("Email o contraseña incorrectos."); return; }
@@ -2571,7 +2574,7 @@ function Phonology() {
 }
 
 // ─── REPORTS ──────────────────────────────────────────────────────────────────
-function Reports({ patients, sessions, payments }) {
+function Reports({ patients, sessions, payments, user={} }) {
   const [pid, setPid] = useState("");
   const patient = patients.find(p => String(p.id) === String(pid));
   const pSess   = sessions.filter(s => String(s.patientId) === String(pid));
@@ -3348,6 +3351,7 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
   const isSuperAdmin = currentUser?.role === "admin";
   const [tab, setTab] = useState(isOrgAdmin ? "usuarios" : "solicitudes");
   const [showNew, setNew] = useState(false);
+  const [savingUser, setSavingUser] = useState(false);
   const pendientes      = registerRequests.filter(r => r.status === "pendiente");
   const [f, setF]       = useState({ name:"", email:"", password:"", role:"profesional", specialty:"", plan:"Basico", phone:"", trialDays:"14", codigoPais:"598" });
   const cols            = [C.terra, C.sage, C.purple, C.info, C.gold];
@@ -3368,13 +3372,26 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
   }, [isOrgAdmin, currentUser?.org_id]);
 
   const add = async () => {
+    if (savingUser) return;
     if (!f.name || !f.email || !f.password) return;
-    // Verificar cupo si es org_admin
+    // Fix 6: verificar email duplicado
+    try {
+      const existe = await sbFetch(`hadrion_users?email=eq.${encodeURIComponent(f.email)}&select=id`);
+      if (existe && existe.length > 0) { alert("Ya existe un usuario con ese email."); return; }
+    } catch(e) { /* si falla la verificación, continuar */ }
+    // Fix 7: verificar cupo max_users si es org_admin
     if (isOrgAdmin) {
-      const orgUsers = users.filter(u => u.org_id === currentUser?.org_id && u.id !== currentUser?.id);
-      // Buscar maxUsers de la org (necesitamos consultarlo — lo leemos de Supabase o lo inferimos)
-      // Por ahora verificamos contra un máximo razonable; la lógica real está en Organizaciones
+      try {
+        const orgData = await sbFetch(`hadrion_organizaciones?id=eq.${currentUser.org_id}&select=max_users`);
+        const maxUsers = orgData?.[0]?.max_users || 10;
+        const orgUsers = users.filter(u => u.org_id === currentUser?.org_id);
+        if (orgUsers.length >= maxUsers) {
+          alert(`Tu organización tiene un límite de ${maxUsers} usuarios. Contactá a soporte para ampliar el plan.`);
+          return;
+        }
+      } catch(e) { console.warn("No se pudo verificar cupo:", e); }
     }
+    setSavingUser(true);
     const init = f.name.split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
     const days = parseInt(f.trialDays) || 14;
     const end = new Date(); end.setDate(end.getDate() + days);
@@ -3382,7 +3399,6 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
     const dataExp = new Date(end); dataExp.setDate(dataExp.getDate() + 30);
     const uid = crypto.randomUUID ? crypto.randomUUID() : makeId();
     const phoneClean = f.phone ? (f.codigoPais||"598") + f.phone.replace(/^0+/, "").replace(/^0/, "") : null;
-    // Solo campos que existen en hadrion_users
     const sbPayload = {
       id: uid, name: f.name, email: f.email, password: f.password,
       role: isOrgAdmin ? "profesional" : f.role,
@@ -3400,8 +3416,7 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
       alert("Error al guardar usuario: " + e.message);
       console.error("POST hadrion_users:", e);
       return;
-    }
-    // UI local con campos extra
+    } finally { setSavingUser(false); }
     const newUser = { ...sbPayload, lastLogin:"—", createdAt:new Date().toLocaleDateString("es-UY"), subscriptionEnd:endStr, dataExpiresAt:dataExp.toISOString().slice(0,10), trialDays:days };
     setUsers(prev => [...prev, newUser]);
     setF({ name:"", email:"", password:"", role:"profesional", specialty:"", plan:"Basico", phone:"", trialDays:"14" });
@@ -3416,7 +3431,10 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
     setUsers(prev => prev.map(u => u.id===id ? { ...u, status:s } : u));
     try { await sbFetch(`hadrion_users?id=eq.${id}`, { method:"PATCH", body: JSON.stringify({ status:s }) }); } catch(e) { console.warn(e); }
   };
-  const chgRole   = (id, r) => setUsers(prev => prev.map(u => u.id===id ? { ...u, role:r } : u));
+  const chgRole   = async (id, r) => {
+    setUsers(prev => prev.map(u => u.id===id ? { ...u, role:r } : u));
+    try { await sbFetch(`hadrion_users?id=eq.${id}`, { method:"PATCH", body: JSON.stringify({ role:r }) }); } catch(e) { console.warn("chgRole Supabase:", e); }
+  };
   const del = async (id) => {
     if (id === currentUser?.id) { alert("No podés eliminar tu propia cuenta."); return; }
     // org_admin: solo puede eliminar usuarios de su propia org
@@ -3452,7 +3470,7 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
 
   const sendEmail = () => {
     const subject = encodeURIComponent("Acceso a Hadrion — Plataforma Clinica");
-    const body    = encodeURIComponent(`Hola ${f.name}!\n\nTe doy acceso a Hadrion, tu plataforma clinica.\n\nURL: https://hadrion.pages.dev\nEmail: ${f.email}\nContraseña: ${f.password}\nPlan: ${f.plan}\n\n14 dias de prueba gratuitos. Consultas: ${user?.email || ""}`);
+    const body    = encodeURIComponent(`Hola ${f.name}!\n\nTe doy acceso a Hadrion, tu plataforma clinica.\n\nURL: https://hadrion.pages.dev\nEmail: ${f.email}\nContraseña: ${f.password}\nPlan: ${f.plan}\n\n14 dias de prueba gratuitos. Consultas: ${currentUser?.email || ""}`);
     window.open(`mailto:${f.email}?subject=${subject}&body=${body}`);
   };
 
@@ -3513,7 +3531,7 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
 🔑 Contraseña: ${pwd}
 Tenés ${dias} días de prueba gratis. ¡Bienvenida!
 Cualquier consulta: ${user?.email || ""}`);
-                        window.open(waLink(phone,"598",decodeURIComponent(msg)),"_blank");
+                        window.open(waLink(phone,"598",msg),"_blank");
                       }
                     }}>✅ Confirmar pago y dar acceso</button>
                     <button className="btn btnd btnsm" onClick={() => setRegisterRequests(prev => prev.map(req => req.id===r.id ? { ...req, status:"rechazado" } : req))}>❌ Rechazar</button>
@@ -3839,7 +3857,7 @@ Si les interesa, escríbanme 💜`}
               </div>
             </>
           )}
-          <button className="btn btnp btnfull" onClick={add}>✅ Crear usuario</button>
+          <button className="btn btnp btnfull" onClick={add} disabled={savingUser}>{savingUser ? "Guardando..." : "✅ Crear usuario"}</button>
           <div className="fg">
             <label className="lbl">Días de acceso (prueba)</label>
             <input className="inp" type="number" min="1" max="365" value={f.trialDays||"14"}
@@ -3877,13 +3895,22 @@ function Profile({ user, onLogout, setUser }) {
   const [pwErr, setPwErr] = useState("");
   const [pwOk, setPwOk]   = useState(false);
 
-  const changePw = () => {
+  const changePw = async () => {
     setPwErr(""); setPwOk(false);
     if (!pwF.current || !pwF.newPw || !pwF.confirm) { setPwErr("Completa todos los campos."); return; }
     if (pwF.current !== user.password) { setPwErr("La contraseña actual es incorrecta."); return; }
     if (pwF.newPw !== pwF.confirm)     { setPwErr("Las contraseñas nuevas no coinciden."); return; }
-    if (pwF.newPw.length < 6)          { setPwErr("La nueva contraseña debe tener al menos 6 caracteres."); return; }
+    if (pwF.newPw.length < 6)          { setPwErr("Mínimo 6 caracteres."); return; }
     setUser(prev => ({ ...prev, password:pwF.newPw }));
+    // Persistir nueva contraseña en Supabase
+    if (user.id && typeof user.id === "string") {
+      try {
+        await sbFetch(`hadrion_users?id=eq.${user.id}`, {
+          method: "PATCH",
+          body: JSON.stringify({ password: pwF.newPw }),
+        });
+      } catch(e) { setPwErr("Error al guardar en servidor: " + e.message); return; }
+    }
     setPwF({ current:"", newPw:"", confirm:"" });
     setPwOk(true);
   };
@@ -3911,7 +3938,17 @@ function Profile({ user, onLogout, setUser }) {
                 <input className="inp" type={t} defaultValue={user[k]} onChange={e => setUser(prev => ({ ...prev, [k]:e.target.value }))} />
               </div>
             ))}
-            <button className="btn btnp btnfull" onClick={() => setEd(false)}>Guardar cambios</button>
+            <button className="btn btnp btnfull" onClick={async () => {
+              if (user.id && typeof user.id === "string") {
+                try {
+                  await sbFetch(`hadrion_users?id=eq.${user.id}`, {
+                    method: "PATCH",
+                    body: JSON.stringify({ name: user.name, specialty: user.specialty, email: user.email }),
+                  });
+                } catch(e) { alert("Error al guardar en servidor: " + e.message); return; }
+              }
+              setEd(false);
+            }}>Guardar cambios</button>
           </>
         }
       </SC>
@@ -3949,6 +3986,7 @@ function Organizaciones({ users, setUsers, precios={} }) {
   const [selOrg, setSelOrg]   = useState(null);
   const [showSendModal, setShowSendModal] = useState(false);
   const [lastCreated, setLastCreated] = useState(null); // { org, adminUser }
+  const [savingOrg, setSavingOrg] = useState(false);
   const tiposOrg = ["Clinica","Escuela","Colegio","Centro terapeutico","Hospital","Otro"];
 
   // Cargar orgs de Supabase al montar
@@ -3968,29 +4006,36 @@ function Organizaciones({ users, setUsers, precios={} }) {
   };
 
   const addOrg = async () => {
+    if (savingOrg) return; // evita doble click
     if (!f.nombre || !f.adminEmail || !f.adminPassword || !f.adminName) {
       return alert("Completá nombre de org, nombre del admin, email y contraseña.");
     }
-    const orgId = crypto.randomUUID ? crypto.randomUUID() : makeId();
-    const now = new Date().toLocaleDateString("es-UY");
-    const plan = PLANES_ORG.find(p => p.id === f.plan);
-    const newOrg = {
-      id: orgId, nombre: f.nombre, tipo: f.tipo, plan: f.plan,
-      max_users: parseInt(f.maxUsers) || (plan?.maxUsers || 10),
-      contacto: f.contacto, telefono: f.telefono,
-      activa: true, created_at: new Date().toISOString(),
-    };
-    const init = f.adminName.split(" ").map(w=>w[0]).join("").toUpperCase().slice(0,2);
-    const cols = [C.terra,C.sage,C.info,C.purple,C.gold];
-    const adminUser = {
-      name: f.adminName, email: f.adminEmail, password: f.adminPassword,
-      role: "org_admin", org_id: orgId, plan: f.plan, status: "active",
-      specialty: "Administrador", phone: f.telefono,
-      avatar: init, color: cols[orgs.length % cols.length],
-    };
+    setSavingOrg(true);
     try {
+      // Verificar que el email del admin no exista ya
+      const existing = await sbFetch(`hadrion_users?email=eq.${encodeURIComponent(f.adminEmail)}&select=id`);
+      if (existing && existing.length > 0) {
+        alert("Ya existe un usuario con ese email. Usá otro email para el administrador.");
+        return;
+      }
+      const orgId = crypto.randomUUID ? crypto.randomUUID() : makeId();
+      const plan = PLANES_ORG.find(p => p.id === f.plan);
+      const newOrg = {
+        id: orgId, nombre: f.nombre, tipo: f.tipo, plan: f.plan,
+        max_users: parseInt(f.maxUsers) || (plan?.maxUsers || 10),
+        contacto: f.contacto, telefono: f.telefono,
+        activa: true, created_at: new Date().toISOString(),
+      };
+      const init = f.adminName.split(" ").map(w=>w[0]).join("").toUpperCase().slice(0,2);
+      const cols = [C.terra,C.sage,C.info,C.purple,C.gold];
+      const adminUser = {
+        name: f.adminName, email: f.adminEmail, password: f.adminPassword,
+        role: "org_admin", org_id: orgId, plan: f.plan, status: "active",
+        specialty: "Administrador", phone: f.telefono,
+        avatar: init, color: cols[orgs.length % cols.length],
+      };
       await saveOrgSb(newOrg);
-      await sbFetch("hadrion_users", { method:"POST", prefer:"resolution=merge-duplicates,return=representation", body: JSON.stringify(adminUser) });
+      await sbFetch("hadrion_users", { method:"POST", prefer:"return=representation", body: JSON.stringify(adminUser) });
       const fresh = await sbFetch("hadrion_organizaciones?select=*&order=created_at.desc");
       setOrgs(fresh || []);
       setLastCreated({ org: newOrg, adminUser });
@@ -3998,6 +4043,7 @@ function Organizaciones({ users, setUsers, precios={} }) {
       setShowSendModal(true);
       setF({ nombre:"", tipo:"Clinica", plan:"clinica", contacto:"", telefono:"", maxUsers:"10", adminEmail:"", adminPassword:"", adminName:"" });
     } catch(e) { alert("Error al guardar: " + e.message); }
+    finally { setSavingOrg(false); }
   };
 
   const updateOrgSb = async (org) => {
@@ -4130,7 +4176,7 @@ function Organizaciones({ users, setUsers, precios={} }) {
           <div className="fg"><label className="lbl">Contraseña *</label>
             <input className="inp" placeholder="Contraseña inicial" value={f.adminPassword} onChange={e=>setF({...f,adminPassword:e.target.value})}/>
           </div>
-          <button className="btn btnp btnfull" onClick={addOrg}>Crear organización →</button>
+          <button className="btn btnp btnfull" onClick={addOrg} disabled={savingOrg}>{savingOrg ? "Creando..." : "Crear organización →"}</button>
         </Modal>
       )}
 
@@ -4151,7 +4197,7 @@ function Organizaciones({ users, setUsers, precios={} }) {
             const msg = encodeURIComponent(
               `Hola ${lastCreated.adminUser.name} 👋\n\nTe creé el acceso de administrador en Hadrion para *${lastCreated.org.nombre}*.\n\n📧 Email: ${lastCreated.adminUser.email}\n🔑 Contraseña: ${lastCreated.adminUser.password}\n\n👉 Ingresá desde: https://hadrion.pages.dev\n\nDesde tu cuenta podés crear y gestionar los usuarios de tu organización. ¡Cualquier duda me avisás! 🎉`
             );
-            window.open(waLink(phone,"598",decodeURIComponent(msg)),"_blank");
+            window.open(waLink(phone,"598",msg),"_blank");
           }}>💬 Enviar por WhatsApp</button>
           <button className="btn btni btnfull" style={{marginBottom:8}} onClick={()=>{
             const subject = encodeURIComponent(`Acceso a Hadrion — ${lastCreated.org.nombre}`);
@@ -5772,20 +5818,24 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
   const addUser = async () => {
     if (!newUser.name||!newUser.email||!newUser.password) return alert("Completá todos los campos");
     if (usandoSb) {
+      // Fix 6: verificar email duplicado
       try {
+        const existe = await sbFetch(`hadrion_users?email=eq.${encodeURIComponent(newUser.email)}&select=id`);
+        if (existe && existe.length > 0) { alert("Ya existe un usuario con ese email."); return; }
+      } catch(e) { /* continuar */ }
+      try {
+        const uid = crypto.randomUUID ? crypto.randomUUID() : makeId();
+        const init = newUser.name.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
         await sbFetch("hadrion_users", {
           method:"POST",
-          body: JSON.stringify({ ...newUser, org_id:orgId, role:"profesional", plan:"Pro", status:"active", color:C.terra }),
+          body: JSON.stringify({ id:uid, ...newUser, avatar:init, org_id:orgId, role:"profesional", plan:"Pro", status:"active", color:C.terra }),
         });
         const us = await sbGetUsers(orgId);
         setSbUsers(us||[]);
         setShowAddUser(false);
-        // Abrir WhatsApp con credenciales pre-armadas
         const phone = (newUser.phone||"").replace(/\D/g,"");
-        const msg = encodeURIComponent(
-          `Hola ${newUser.name} 👋\n\nTe creé un usuario en Hadrion para que puedas ingresar:\n\n📧 Email: ${newUser.email}\n🔑 Contraseña: ${newUser.password}\n\n👉 Ingresá desde: https://hadrion.pages.dev\n\nCualquier duda me avisás. ¡Bienvenid@ al equipo! 🎉`
-        );
-        window.open(waLink(phone,"598",decodeURIComponent(msg)),"_blank");
+        const plainMsg = `Hola ${newUser.name} 👋\n\nTe creé un usuario en Hadrion para que puedas ingresar:\n\n📧 Email: ${newUser.email}\n🔑 Contraseña: ${newUser.password}\n\n👉 Ingresá desde: https://hadrion.pages.dev\n\nCualquier duda me avisás. ¡Bienvenid@ al equipo! 🎉`;
+        window.open(waLink(phone,"598",plainMsg),"_blank");
         setNewUser({ name:"", email:"", password:"", specialty:"Fonoaudiologa", phone:"" });
       } catch(e) { alert("Error: "+e.message); }
     }
@@ -6573,7 +6623,7 @@ export default function HadrionApp() {
             </a>
           </div>
         </div>,
-    profile:    <Profile user={user} onLogout={logout} setUser={u => { setUser(u); saveToStorage({ users, user:u, patients, sessions, payments, agendaItems, plan, registerRequests }); }} />,
+    profile:    <Profile user={user} onLogout={logout} setUser={u => { setUser(u); saveToStorage({ users, user:u, patients, sessions, payments, agendaItems, plan, registerRequests, precios, documentos, plantillas, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory }); }} />,
   };
 
   const bnItems = [
