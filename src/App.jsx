@@ -843,6 +843,50 @@ const loadFromStorage = () => {
   } catch(e) { return null; }
 };
 
+// ─── MEMBRETE / IMPRESIÓN CON LOGO ─────────────────────────────────────────────
+const escapeHtml = (s="") => String(s)
+  .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+// Construye el HTML de impresión envolviendo el contenido con el membrete
+// (logo, datos de la clínica/profesional y pie de página) si está configurado.
+const buildPrintHTML = (contenido, membrete, titulo="") => {
+  const m = membrete || {};
+  const hayMembrete = m.logo || m.nombre || m.direccion || m.telefono || m.email || m.matricula || m.pie;
+  const header = hayMembrete ? `
+    <div style="display:flex;align-items:center;gap:16px;border-bottom:2px solid #9B7EBD;padding-bottom:14px;margin-bottom:20px;">
+      ${m.logo ? `<img src="${m.logo}" style="max-height:70px;max-width:140px;object-fit:contain;" />` : ""}
+      <div style="flex:1;">
+        ${m.nombre ? `<div style="font-size:18px;font-weight:700;color:#2C2C2C;">${escapeHtml(m.nombre)}</div>` : ""}
+        ${m.subtitulo ? `<div style="font-size:12px;color:#7B5EA7;font-weight:600;">${escapeHtml(m.subtitulo)}</div>` : ""}
+        <div style="font-size:11px;color:#6B6560;margin-top:2px;line-height:1.5;">
+          ${m.direccion ? escapeHtml(m.direccion) : ""}
+          ${m.telefono ? ` · Tel: ${escapeHtml(m.telefono)}` : ""}
+          ${m.email ? ` · ${escapeHtml(m.email)}` : ""}
+          ${m.matricula ? `<br/>${escapeHtml(m.matricula)}` : ""}
+        </div>
+      </div>
+    </div>` : "";
+  const footer = m.pie ? `
+    <div style="border-top:1px solid #EDE0F5;margin-top:30px;padding-top:10px;font-size:10px;color:#9B9590;text-align:center;">
+      ${escapeHtml(m.pie)}
+    </div>` : "";
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${escapeHtml(titulo||"Documento")}</title></head>
+    <body style="font-family:Georgia,serif;max-width:760px;margin:30px auto;color:#2C2C2C;">
+      ${header}
+      <pre style="font-family:Georgia,serif;font-size:14px;line-height:1.8;white-space:pre-wrap;margin:0;">${escapeHtml(contenido)}</pre>
+      ${footer}
+    </body></html>`;
+};
+
+// Abre una ventana nueva e imprime el contenido con el membrete aplicado.
+const printConMembrete = (contenido, membrete, titulo="") => {
+  const w = window.open("", "_blank");
+  if (!w) { alert("Habilitá las ventanas emergentes para imprimir."); return; }
+  w.document.write(buildPrintHTML(contenido, membrete, titulo));
+  w.document.close();
+  setTimeout(()=>w.print(), 300);
+};
+
 // ─── SUPABASE ────────────────────────────────────────────────────────────────
 const SB_URL = "https://lgpqyjevdwstbnerawmp.supabase.co";
 const SB_KEY = "sb_publishable_ezLQMGeIrqgHPMyINUGHKw_mTDTNR61";
@@ -906,6 +950,66 @@ const sbCreateUser = async (userData) => {
     method: "POST",
     body: JSON.stringify(userData),
   });
+};
+
+// ── PACIENTES COMPARTIDOS (org_id + owner/shared_with) ─────────────────────────
+// Trae los pacientes que el usuario puede ver: los suyos + los compartidos con él.
+// Para org_admin (sin filtro de owner) trae TODOS los de la org (solo lectura en la UI).
+const sbGetPacientes = async (orgId, userId, soloMios=false) => {
+  if (!orgId) return [];
+  const rows = await sbFetch(`hadrion_pacientes?org_id=eq.${orgId}&status=neq.archived&select=*`);
+  if (soloMios === "org") return rows || []; // org_admin ve todos
+  return (rows||[]).filter(p => p.owner_user_id === userId || (p.shared_with||[]).includes(userId));
+};
+
+const sbCreatePaciente = async (paciente) => {
+  const res = await sbFetch(`hadrion_pacientes`, { method:"POST", body: JSON.stringify(paciente) });
+  return Array.isArray(res) ? res[0] : res;
+};
+
+const sbUpdatePaciente = async (id, patch) => {
+  return sbFetch(`hadrion_pacientes?id=eq.${id}`, { method:"PATCH", body: JSON.stringify(patch) });
+};
+
+const sbDeletePaciente = async (id) => {
+  return sbFetch(`hadrion_pacientes?id=eq.${id}`, { method:"DELETE", prefer:"return=minimal" });
+};
+
+// ── SESIONES ────────────────────────────────────────────────────────────────
+const sbGetSesiones = async (pacienteId) => {
+  return sbFetch(`hadrion_sesiones?paciente_id=eq.${pacienteId}&select=*&order=created_at.desc`);
+};
+const sbCreateSesion = async (sesion) => {
+  const res = await sbFetch(`hadrion_sesiones`, { method:"POST", body: JSON.stringify(sesion) });
+  return Array.isArray(res) ? res[0] : res;
+};
+
+// ── INFORMES (cartas, anamnesis, informes, planes) ─────────────────────────────
+const sbGetInformes = async (pacienteId) => {
+  return sbFetch(`hadrion_informes?paciente_id=eq.${pacienteId}&select=*&order=created_at.desc`);
+};
+const sbGetInformesOrg = async (orgId) => {
+  return sbFetch(`hadrion_informes?org_id=eq.${orgId}&status=eq.finalizado&select=*&order=created_at.desc`);
+};
+const sbCreateInforme = async (informe) => {
+  const res = await sbFetch(`hadrion_informes`, { method:"POST", body: JSON.stringify(informe) });
+  return Array.isArray(res) ? res[0] : res;
+};
+const sbUpdateInforme = async (id, patch) => {
+  return sbFetch(`hadrion_informes?id=eq.${id}`, { method:"PATCH", body: JSON.stringify({ ...patch, updated_at:new Date().toISOString() }) });
+};
+
+// ── LOG DE ACCESOS (ver / editar / compartir / enviar) ──────────────────────────
+const sbLogAcceso = async ({ pacienteId, orgId, userId, userNombre, accion, detalle="", destino=null, informeId=null }) => {
+  try {
+    return sbFetch(`hadrion_log_accesos`, {
+      method:"POST", prefer:"return=minimal",
+      body: JSON.stringify({ paciente_id:pacienteId, org_id:orgId, user_id:userId, user_nombre:userNombre, accion, detalle, destino, informe_id:informeId }),
+    });
+  } catch(e) { console.warn("log acceso:", e); }
+};
+const sbGetLogAccesos = async (pacienteId) => {
+  return sbFetch(`hadrion_log_accesos?paciente_id=eq.${pacienteId}&select=*&order=created_at.desc&limit=100`);
 };
 
 // ─── COMPONENTES BASE ─────────────────────────────────────────────────────────
@@ -1509,44 +1613,190 @@ function Agenda({ patients, items, setItems }) {
 }
 
 // ─── PATIENTS ─────────────────────────────────────────────────────────────────
-function Patients({ patients, setPatients, setActive, setSelPatId, sessions }) {
+function Patients({ patients, setPatients, setActive, setSelPatId, sessions, currentUser={}, orgTeam=[] }) {
   const [sel, setSel]       = useState(null);
   const [editing, setEditing] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [search, setSearch]   = useState("");
   const [editF, setEditF]     = useState({});
-  const emptyF = { name:"", age:"", diagnosis:"", phone:"", email:"", guardian:"", notes:"", dependencia:"Particular", tarifaPorSesion:"", complemento:"", currency:"UYU" };
+  const [showShare, setShowShare] = useState(false);
+  const [showLog, setShowLog] = useState(false);
+  const [logRows, setLogRows] = useState([]);
+  const emptyF = { name:"", age:"", diagnosis:"", phone:"", email:"", guardian:"", notes:"", dependencia:"Particular", tarifaPorSesion:"", complemento:"", currency:"UYU", consentimiento_firmado:false };
   const [f, setF]             = useState(emptyF);
 
   const dC = { TEL:C.terra, Dislexia:C.sage, TDAH:C.purple, Disartria:C.info, TEA:C.gold, Otro:C.gray };
   const cols = [C.terra, C.sage, C.purple, C.info, C.gold];
 
-  const filtered = patients.filter(p =>
+  const orgId  = currentUser?.org_id || null;
+  const userId = currentUser?.id || null;
+  const esOrgAdmin = currentUser?.role === "admin_org";
+  const usandoSb = !!orgId;
+
+  // ── Pacientes de Supabase (org) ─────────────────────────────────────────────
+  const [orgPats, setOrgPats] = useState([]);
+  const [sbLoading, setSbLoading] = useState(false);
+
+  const loadOrgPats = async () => {
+    if (!usandoSb) return;
+    setSbLoading(true);
+    try {
+      const rows = await sbGetPacientes(orgId, userId, esOrgAdmin ? "org" : false);
+      // Normalizar campos para el render (id, avatar, color, goals, asistencias)
+      const norm = (rows||[]).map(p => ({
+        ...p,
+        id: p.id,
+        name: p.name,
+        age: p.age || 0,
+        diagnosis: p.diagnosis || "Otro",
+        avatar: p.avatar || (p.name||"P").split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase(),
+        color: p.color || cols[0],
+        goals: p.goals || [],
+        nextSession: p.next_session || "Sin agendar",
+        asistencias: {},
+      }));
+      setOrgPats(norm);
+    } catch(e) { console.warn("Error cargando pacientes org:", e); }
+    setSbLoading(false);
+  };
+
+  useEffect(() => { loadOrgPats(); }, [orgId, userId]);
+
+  // Lista efectiva según el modo (local vs org)
+  const list = usandoSb ? orgPats : patients;
+
+  const filtered = list.filter(p =>
     p.status !== "archived" &&
-    (p.name.toLowerCase().includes(search.toLowerCase()) || p.diagnosis.toLowerCase().includes(search.toLowerCase()))
+    (p.name.toLowerCase().includes(search.toLowerCase()) || (p.diagnosis||"").toLowerCase().includes(search.toLowerCase()))
   );
 
-  const add = () => {
+  const add = async () => {
     if (!f.name || !f.diagnosis) return;
     const init = f.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
-    setPatients(prev => [...prev, {
-      id: makeId(), name:f.name, age:parseInt(f.age)||0, diagnosis:f.diagnosis,
-      sessions:0, nextSession:"Sin agendar", avatar:init,
-      color: cols[prev.length % cols.length],
-      phone:f.phone, email:f.email, guardian:f.guardian, notes:f.notes, goals:[], status:"active",
-      dependencia:f.dependencia||"Particular", tarifaPorSesion:parseFloat(f.tarifaPorSesion)||0,
-      complemento:parseFloat(f.complemento)||0, currency:f.currency||"UYU", asistencias:{}
-    }]);
+    if (usandoSb) {
+      try {
+        const nuevo = await sbCreatePaciente({
+          org_id: orgId, owner_user_id: userId, shared_with: [],
+          name:f.name, age:parseInt(f.age)||0, diagnosis:f.diagnosis,
+          avatar:init, color: cols[list.length % cols.length],
+          phone:f.phone, email:f.email, guardian:f.guardian, notes:f.notes, goals:[], status:"active",
+          dependencia:f.dependencia||"Particular", tarifaPorSesion:parseFloat(f.tarifaPorSesion)||0,
+          complemento:parseFloat(f.complemento)||0, currency:f.currency||"UYU",
+          consentimiento_firmado: !!f.consentimiento_firmado,
+          consentimiento_fecha: f.consentimiento_firmado ? new Date().toISOString().slice(0,10) : null,
+          next_session: "Sin agendar",
+        });
+        await loadOrgPats();
+        if (nuevo?.id) sbLogAcceso({ pacienteId:nuevo.id, orgId, userId, userNombre:currentUser?.name, accion:"editar", detalle:"Creó la ficha del paciente" });
+      } catch(e) { alert("Error al guardar: "+e.message); }
+    } else {
+      setPatients(prev => [...prev, {
+        id: makeId(), name:f.name, age:parseInt(f.age)||0, diagnosis:f.diagnosis,
+        sessions:0, nextSession:"Sin agendar", avatar:init,
+        color: cols[prev.length % cols.length],
+        phone:f.phone, email:f.email, guardian:f.guardian, notes:f.notes, goals:[], status:"active",
+        dependencia:f.dependencia||"Particular", tarifaPorSesion:parseFloat(f.tarifaPorSesion)||0,
+        complemento:parseFloat(f.complemento)||0, currency:f.currency||"UYU", asistencias:{},
+        consentimiento_firmado: !!f.consentimiento_firmado,
+        consentimiento_fecha: f.consentimiento_firmado ? new Date().toISOString().slice(0,10) : null,
+      }]);
+    }
     setF(emptyF); setShowNew(false);
   };
 
-  const saveEdit = () => {
-    setPatients(prev => prev.map(p => p.id === sel.id ? { ...p, ...editF } : p));
+  const saveEdit = async () => {
+    if (usandoSb) {
+      try {
+        await sbUpdatePaciente(sel.id, {
+          name:editF.name, age:parseInt(editF.age)||0, diagnosis:editF.diagnosis,
+          phone:editF.phone, email:editF.email, guardian:editF.guardian, notes:editF.notes,
+        });
+        setOrgPats(prev => prev.map(p => p.id === sel.id ? { ...p, ...editF } : p));
+        sbLogAcceso({ pacienteId:sel.id, orgId, userId, userNombre:currentUser?.name, accion:"editar", detalle:"Editó datos de la ficha" });
+      } catch(e) { alert("Error: "+e.message); }
+    } else {
+      setPatients(prev => prev.map(p => p.id === sel.id ? { ...p, ...editF } : p));
+    }
     setSel(prev => ({ ...prev, ...editF }));
     setEditing(false);
   };
 
+  // ── Compartir paciente con compañeros de la org ─────────────────────────────
+  const toggleCompartido = async (otroUserId) => {
+    if (!sel) return;
+    const actual = sel.shared_with || [];
+    const yaCompartido = actual.includes(otroUserId);
+    const nuevo = yaCompartido ? actual.filter(id=>id!==otroUserId) : [...actual, otroUserId];
+    try {
+      await sbUpdatePaciente(sel.id, { shared_with: nuevo });
+      setOrgPats(prev => prev.map(p => p.id === sel.id ? { ...p, shared_with: nuevo } : p));
+      setSel(prev => ({ ...prev, shared_with: nuevo }));
+      const otro = orgTeam.find(u=>u.id===otroUserId);
+      sbLogAcceso({ pacienteId:sel.id, orgId, userId, userNombre:currentUser?.name, accion:"compartir",
+        detalle: yaCompartido ? `Quitó acceso a ${otro?.name||otroUserId}` : `Compartió acceso con ${otro?.name||otroUserId}` });
+    } catch(e) { alert("Error: "+e.message); }
+  };
+
+  // ── Marcar consentimiento ────────────────────────────────────────────────────
+  const toggleConsentimiento = async () => {
+    if (!sel) return;
+    const nuevo = !sel.consentimiento_firmado;
+    const fecha = nuevo ? new Date().toISOString().slice(0,10) : null;
+    if (usandoSb) {
+      try {
+        await sbUpdatePaciente(sel.id, { consentimiento_firmado: nuevo, consentimiento_fecha: fecha });
+        setOrgPats(prev => prev.map(p => p.id === sel.id ? { ...p, consentimiento_firmado:nuevo, consentimiento_fecha:fecha } : p));
+      } catch(e) { alert("Error: "+e.message); return; }
+    } else {
+      setPatients(prev => prev.map(p => p.id === sel.id ? { ...p, consentimiento_firmado:nuevo, consentimiento_fecha:fecha } : p));
+    }
+    setSel(prev => ({ ...prev, consentimiento_firmado:nuevo, consentimiento_fecha:fecha }));
+  };
+
+  // ── Eliminar paciente ────────────────────────────────────────────────────────
+  const eliminarPaciente = async () => {
+    if (!window.confirm(`¿Eliminar a ${sel.name}? Esta acción no se puede deshacer.`)) return;
+    if (usandoSb) {
+      try {
+        await sbDeletePaciente(sel.id);
+        setOrgPats(prev => prev.filter(p => p.id !== sel.id));
+      } catch(e) { alert("Error: "+e.message); return; }
+    } else {
+      setPatients(prev => prev.filter(p => p.id !== sel.id));
+    }
+    setSel(null);
+  };
+
+  const archivarPaciente = async () => {
+    if (usandoSb) {
+      try {
+        await sbUpdatePaciente(sel.id, { status:"archived" });
+        setOrgPats(prev => prev.filter(p => p.id !== sel.id));
+      } catch(e) { alert("Error: "+e.message); return; }
+    } else {
+      setPatients(prev => prev.map(p => p.id === sel.id ? { ...p, status:"archived" } : p));
+    }
+    setSel(null);
+  };
+
+  // ── Ver historial de accesos ────────────────────────────────────────────────
+  const abrirLog = async () => {
+    if (!sel || !usandoSb) return;
+    try {
+      const rows = await sbGetLogAccesos(sel.id);
+      setLogRows(rows||[]);
+      setShowLog(true);
+    } catch(e) { alert("Error: "+e.message); }
+  };
+
+  // ── Registrar "ver" al abrir la ficha ───────────────────────────────────────
+  const abrirFicha = (p) => {
+    setSel(p); setEditing(false);
+    if (usandoSb) sbLogAcceso({ pacienteId:p.id, orgId, userId, userNombre:currentUser?.name, accion:"ver" });
+  };
+
   const pSessions = sel ? sessions.filter(s => s.patientId === sel.id) : [];
+
 
   return (
     <div className="fu">
@@ -1556,11 +1806,15 @@ function Patients({ patients, setPatients, setActive, setSelPatId, sessions }) {
       </div>
       <input className="inp" placeholder="🔍 Buscar por nombre o diagnóstico..." value={search} onChange={e => setSearch(e.target.value)} style={{ marginBottom:12 }} />
       {filtered.map(p => (
-        <div key={p.id} className="card" style={{ marginBottom:10, cursor:"pointer" }} onClick={() => { setSel(p); setEditing(false); }}>
+        <div key={p.id} className="card" style={{ marginBottom:10, cursor:"pointer" }} onClick={() => abrirFicha(p)}>
           <div style={{ display:"flex", alignItems:"center", gap:12 }}>
             <div className="av" style={{ width:48, height:48, background:p.color, fontSize:15 }}>{p.avatar}</div>
             <div style={{ flex:1 }}>
-              <div style={{ fontWeight:700, fontSize:14, color:C.charcoal }}>{p.name}</div>
+              <div style={{ fontWeight:700, fontSize:14, color:C.charcoal, display:"flex", alignItems:"center", gap:6 }}>
+                {p.name}
+                {usandoSb && p.owner_user_id !== userId && <span title="Compartido con vos" style={{fontSize:11}}>🤝</span>}
+                {usandoSb && !p.consentimiento_firmado && <span title="Falta consentimiento informado" style={{fontSize:11}}>⚠️</span>}
+              </div>
               <div style={{ fontSize:12, color:C.grayL, marginTop:1 }}>{p.age} años — <span className="badge" style={{ background:(dC[p.diagnosis]||C.gray)+"22", color:dC[p.diagnosis]||C.gray, fontSize:10 }}>{p.diagnosis}</span></div>
               {(p.dependencia||p.tarifaPorSesion>0) && (
                 <div style={{display:"flex",gap:5,marginTop:3,flexWrap:"wrap"}}>
@@ -1589,10 +1843,32 @@ function Patients({ patients, setPatients, setActive, setSelPatId, sessions }) {
           </div>
           <div style={{ display:"flex", gap:7, flexWrap:"wrap", marginBottom:12 }}>
             <button className="btn btng btnsm" onClick={() => { setEditF({ name:sel.name, age:sel.age, diagnosis:sel.diagnosis, phone:sel.phone, email:sel.email, guardian:sel.guardian, notes:sel.notes }); setEditing(true); }}>✏️ Editar</button>
-            <button className="btn btng btnsm" onClick={() => { setPatients(prev => prev.map(p => p.id === sel.id ? { ...p, status:"archived" } : p)); setSel(null); }}>📦 Archivar</button>
-            <button className="btn btnd btnsm" onClick={() => { if(window.confirm(`¿Eliminar a ${sel.name}? Esta acción no se puede deshacer.`)) { setPatients(prev => prev.filter(p => p.id !== sel.id)); setSel(null); } }}>🗑️ Eliminar</button>
+            <button className="btn btng btnsm" onClick={archivarPaciente}>📦 Archivar</button>
+            <button className="btn btnd btnsm" onClick={eliminarPaciente}>🗑️ Eliminar</button>
             <button className="btn btno btnsm" onClick={() => { setSelPatId(sel.id); setActive("history"); setSel(null); }}>📋 Historia</button>
+            {usandoSb && <button className="btn btnsm" style={{background:"#F5F0FA",color:"#9B7EBD"}} onClick={()=>setShowShare(true)}>🤝 Compartir</button>}
+            {usandoSb && <button className="btn btnsm" style={{background:"#F5F0FA",color:"#9B7EBD"}} onClick={abrirLog}>🕓 Accesos</button>}
           </div>
+
+          {/* Consentimiento informado */}
+          {usandoSb && (
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:sel.consentimiento_firmado?"#E8F8EF":"#FEF3E0",borderRadius:10,padding:"8px 12px",marginBottom:10}}>
+              <div style={{fontSize:12,color:sel.consentimiento_firmado?"#1a7a3c":"#E8A020",fontWeight:600}}>
+                {sel.consentimiento_firmado ? `✅ Consentimiento firmado (${sel.consentimiento_fecha||""})` : "⚠️ Falta consentimiento informado"}
+              </div>
+              <button onClick={toggleConsentimiento} style={{background:"none",border:"none",fontSize:11,fontWeight:700,color:sel.consentimiento_firmado?"#1a7a3c":"#E8A020",cursor:"pointer",fontFamily:"sans-serif"}}>
+                {sel.consentimiento_firmado ? "Quitar" : "Marcar firmado"}
+              </button>
+            </div>
+          )}
+
+          {/* Compartido con */}
+          {usandoSb && (sel.shared_with||[]).length>0 && (
+            <div style={{fontSize:11,color:"#9B7EBD",marginBottom:8}}>
+              🤝 Compartido con: {(sel.shared_with||[]).map(uid=>orgTeam.find(u=>u.id===uid)?.name||uid).join(", ")}
+            </div>
+          )}
+
           <div className="sep" />
           {[["📞", sel.phone||"—"],["✉️", sel.email||"—"],["👨‍👩‍👧", sel.guardian||"—"]].map(([ic, v]) => (
             <div key={ic} className="hxf"><div className="hxv">{ic} {v}</div></div>
@@ -1604,9 +1880,16 @@ function Patients({ patients, setPatients, setActive, setSelPatId, sessions }) {
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
               <div className="hxl">Objetivos terapéuticos</div>
               <button style={{background:"none",border:"none",fontSize:11,color:"#9B7EBD",cursor:"pointer",fontWeight:700,fontFamily:"sans-serif"}}
-                onClick={()=>{
+                onClick={async ()=>{
                   const nuevo = window.prompt("Nuevo objetivo:");
-                  if (nuevo?.trim()) setPatients(prev=>prev.map(p=>p.id===sel.id?{...p,goals:[...(p.goals||[]),nuevo.trim()]}:p));
+                  if (!nuevo?.trim()) return;
+                  const goals = [...(sel.goals||[]), nuevo.trim()];
+                  if (usandoSb) {
+                    try { await sbUpdatePaciente(sel.id, { goals }); setOrgPats(prev=>prev.map(p=>p.id===sel.id?{...p,goals}:p)); } catch(e){ alert("Error: "+e.message); return; }
+                  } else {
+                    setPatients(prev=>prev.map(p=>p.id===sel.id?{...p,goals}:p));
+                  }
+                  setSel(prev=>({...prev,goals}));
                 }}>+ Agregar</button>
             </div>
             {(sel.goals||[]).length===0 && <div style={{fontSize:12,color:"#9B9590"}}>Sin objetivos registrados</div>}
@@ -1615,7 +1898,15 @@ function Patients({ patients, setPatients, setActive, setSelPatId, sessions }) {
                 <div style={{width:18,height:18,borderRadius:"50%",background:"#F5F0FA",display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:700,color:"#9B7EBD",flexShrink:0}}>{i+1}</div>
                 <div style={{flex:1,fontSize:12,color:"#2C2C2C",lineHeight:1.4}}>{g}</div>
                 <button style={{background:"none",border:"none",fontSize:16,cursor:"pointer",color:"#C0392B",padding:"0 4px",lineHeight:1}}
-                  onClick={()=>setPatients(prev=>prev.map(p=>p.id===sel.id?{...p,goals:(p.goals||[]).filter((_,j)=>j!==i)}:p))}>×</button>
+                  onClick={async ()=>{
+                    const goals = (sel.goals||[]).filter((_,j)=>j!==i);
+                    if (usandoSb) {
+                      try { await sbUpdatePaciente(sel.id, { goals }); setOrgPats(prev=>prev.map(p=>p.id===sel.id?{...p,goals}:p)); } catch(e){ alert("Error: "+e.message); return; }
+                    } else {
+                      setPatients(prev=>prev.map(p=>p.id===sel.id?{...p,goals}:p));
+                    }
+                    setSel(prev=>({...prev,goals}));
+                  }}>×</button>
               </div>
             ))}
           </div>
@@ -1702,7 +1993,56 @@ Hadrion — comunipro12@gmail.com`;
               </div>
             </div>
           </div>
+          {usandoSb && (
+            <label style={{display:"flex",alignItems:"center",gap:8,fontSize:12,color:"#6B6560",marginBottom:10,cursor:"pointer"}}>
+              <input type="checkbox" checked={!!f.consentimiento_firmado} onChange={e=>setF({...f,consentimiento_firmado:e.target.checked})} style={{width:16,height:16,accentColor:"#9B7EBD"}}/>
+              El paciente/tutor firmó el consentimiento informado de uso de datos
+            </label>
+          )}
           <button className="btn btnp btnfull" onClick={add}>Agregar paciente</button>
+        </Modal>
+      )}
+
+      {/* ── Modal compartir paciente con compañeros de la org ── */}
+      {showShare && sel && (
+        <Modal title={`🤝 Compartir — ${sel.name}`} onClose={()=>setShowShare(false)}>
+          <div className="alert alrti" style={{marginBottom:10}}>
+            Los compañeros que selecciones podrán ver y editar la información clínica de este paciente (anamnesis, sesiones, informes).
+          </div>
+          {orgTeam.filter(u=>u.id!==userId).length===0 && (
+            <div style={{fontSize:13,color:"#9B9590",textAlign:"center",padding:"12px 0"}}>No hay otros compañeros en tu organización.</div>
+          )}
+          {orgTeam.filter(u=>u.id!==userId).map(u=>{
+            const checked = (sel.shared_with||[]).includes(u.id);
+            return (
+              <label key={u.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:"1px solid #EDE0F5",cursor:"pointer"}}>
+                <input type="checkbox" checked={checked} onChange={()=>toggleCompartido(u.id)} style={{width:18,height:18,accentColor:"#9B7EBD"}}/>
+                <div style={{width:30,height:30,borderRadius:9,background:"#9B7EBD",display:"flex",alignItems:"center",justifyContent:"center",color:"white",fontWeight:700,fontSize:12}}>
+                  {(u.name||"?")[0].toUpperCase()}
+                </div>
+                <div style={{fontSize:13,fontWeight:600}}>{u.name}</div>
+              </label>
+            );
+          })}
+          <button className="btn btng btnfull" onClick={()=>setShowShare(false)} style={{marginTop:10}}>Cerrar</button>
+        </Modal>
+      )}
+
+      {/* ── Modal historial de accesos ── */}
+      {showLog && sel && (
+        <Modal title={`🕓 Accesos — ${sel.name}`} onClose={()=>setShowLog(false)}>
+          {logRows.length===0 && <div style={{fontSize:13,color:"#9B9590",textAlign:"center",padding:"12px 0"}}>Sin registros todavía.</div>}
+          {logRows.map(r=>(
+            <div key={r.id} style={{padding:"7px 0",borderBottom:"1px solid #EDE0F5"}}>
+              <div style={{fontSize:12,fontWeight:600}}>
+                {{ver:"👀 Vio",editar:"✏️ Editó",compartir:"🤝 Compartió",enviar:"📤 Envió"}[r.accion]||r.accion} — {r.user_nombre||r.user_id}
+              </div>
+              {r.detalle && <div style={{fontSize:11,color:"#9B9590"}}>{r.detalle}</div>}
+              {r.destino && <div style={{fontSize:11,color:"#9B9590"}}>Destino: {r.destino}</div>}
+              <div style={{fontSize:10,color:"#C0C0C0"}}>{new Date(r.created_at).toLocaleString("es-UY")}</div>
+            </div>
+          ))}
+          <button className="btn btng btnfull" onClick={()=>setShowLog(false)} style={{marginTop:10}}>Cerrar</button>
         </Modal>
       )}
     </div>
@@ -2592,7 +2932,7 @@ function Phonology() {
 }
 
 // ─── REPORTS ──────────────────────────────────────────────────────────────────
-function Reports({ patients, sessions, payments }) {
+function Reports({ patients, sessions, payments, membrete={} }) {
   const [pid, setPid] = useState("");
   const patient = patients.find(p => String(p.id) === String(pid));
   const pSess   = sessions.filter(s => String(s.patientId) === String(pid));
@@ -2641,7 +2981,6 @@ function Reports({ patients, sessions, payments }) {
             <div style={{ display:"flex", gap:7, flexWrap:"wrap" }}>
               <button className="btn btnp btnsm" onClick={() => window.print()}>🖨️ Evolutivo</button>
               <button className="btn btno btnsm" onClick={() => {
-                const w = window.open("","_blank");
                 const txt = `INFORME DE DERIVACIÓN
 ─────────────────────
 Paciente: ${patient.name} | Edad: ${patient.age} años
@@ -2658,19 +2997,16 @@ Objetivos en trabajo: ${(patient.goals||[]).join(", ")||"Ver historia clínica"}
 
 Se solicita coordinación con el equipo tratante para continuidad del proceso terapéutico.
 
-Profesional: ___________________
-comunipro12@gmail.com`;
-                w.document.write(`<pre style="font-family:Georgia;font-size:14px;line-height:1.8;max-width:700px;margin:40px auto;white-space:pre-wrap;">${txt}</pre>`);
-                w.document.close(); w.print();
+Profesional: ___________________`;
+                printConMembrete(txt, membrete, "Informe de derivación — "+patient.name);
               }}>📄 Derivación</button>
               <button className="btn btng btnsm" onClick={() => {
-                const w = window.open("","_blank");
                 const txt = `Estimada familia de ${patient.name}:
 
 Les escribo para informarles sobre el progreso terapéutico de ${patient.name.split(" ")[0]}.
 
 Durante las ${pSess.length} sesiones realizadas, hemos trabajado en:
-${(patient.goals||[]).map(g=>`• ${g}`).join("")||"• Ver historia clínica"}
+${(patient.goals||[]).map(g=>`• ${g}`).join("\n")||"• Ver historia clínica"}
 
 ${pSess.length>0?`En la última sesión (${pSess[0]?.date}): ${pSess[0]?.note}`:""}
 
@@ -2681,10 +3017,8 @@ Recomendaciones para el hogar:
 
 Quedo a disposición para cualquier consulta.
 
-Un saludo,
-comunipro12@gmail.com`;
-                w.document.write(`<pre style="font-family:Georgia;font-size:14px;line-height:1.8;max-width:700px;margin:40px auto;white-space:pre-wrap;">${txt}</pre>`);
-                w.document.close(); w.print();
+Un saludo`;
+                printConMembrete(txt, membrete, "Carta a la familia — "+patient.name);
               }}>👨‍👩‍👧 Para familias</button>
             </div>
           </>
@@ -2745,7 +3079,7 @@ comunipro12@gmail.com`;
 }
 
 // ─── RESOURCES ────────────────────────────────────────────────────────────────
-function Resources({ plantillas=[], setPlantillas=()=>{}, documentos=[], setDocumentos=()=>{} }) {
+function Resources({ plantillas=[], setPlantillas=()=>{}, documentos=[], setDocumentos=()=>{}, membrete={}, setMembrete=()=>{} }) {
   const [tab, setTab] = useState("plantillas");
   const [selPlantilla, setSelPlantilla] = useState(null);
   const [completando, setCompletando] = useState(null);
@@ -2755,6 +3089,20 @@ function Resources({ plantillas=[], setPlantillas=()=>{}, documentos=[], setDocu
   const [iaQuery, setIaQuery] = useState("");
   const [iaResult, setIaResult] = useState("");
   const [iaLoading, setIaLoading] = useState(false);
+
+  // ── Membrete institucional ───────────────────────────────────────────────
+  const [mF, setMF] = useState(membrete || {});
+  useEffect(()=>{ setMF(membrete||{}); }, [membrete]);
+  const guardarMembrete = () => { setMembrete(mF); alert("✅ Membrete guardado. Se aplicará a los documentos que imprimas o envíes."); };
+
+  const handleLogoFile = (file) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { alert("Subí una imagen (JPG, PNG) o escaneá el logo como foto."); return; }
+    if (file.size > 1.5*1024*1024) { alert("La imagen es muy pesada. Probá con una más liviana (menos de 1.5MB)."); return; }
+    const reader = new FileReader();
+    reader.onload = () => setMF(prev => ({ ...prev, logo: reader.result }));
+    reader.readAsDataURL(file);
+  };
 
   const askIA = async () => {
     if (!iaQuery.trim()) return;
@@ -3059,7 +3407,7 @@ Consultas: comunipro12@gmail.com` },
       </div>
 
       <div className="atabrow">
-        {[["plantillas","📋 Plantillas"],["mis_modelos","⭐ Mis modelos"],["guardados","💾 Guardados"]].map(([id,l])=>(
+        {[["plantillas","📋 Plantillas"],["mis_modelos","⭐ Mis modelos"],["guardados","💾 Guardados"],["membrete","🏷️ Membrete"]].map(([id,l])=>(
           <button key={id} className={`atab${tab===id?" active":""}`} onClick={()=>setTab(id)}>{l}</button>
         ))}
       </div>
@@ -3091,7 +3439,7 @@ Consultas: comunipro12@gmail.com` },
               <button className="btn btnsm" style={{background:"rgba(255,255,255,.2)",color:"white"}}
                 onClick={()=>navigator.clipboard?.writeText(iaResult)}>📋 Copiar</button>
               <button className="btn btnsm noprint" style={{background:"rgba(255,255,255,.2)",color:"white"}}
-                onClick={()=>{const w=window.open("","_blank");w.document.write(`<pre style="font-family:Georgia;font-size:14px;line-height:1.8;max-width:700px;margin:40px auto;white-space:pre-wrap;">${iaResult}</pre>`);w.document.close();w.print();}}>🖨️ Imprimir</button>
+                onClick={()=>printConMembrete(iaResult, membrete, "Recurso IA")}>🖨️ Imprimir</button>
               <button className="btn btnsm noprint" style={{background:"#25D366",color:"white"}}
                 onClick={()=>window.open(`https://wa.me/?text=${encodeURIComponent(iaResult)}`,"_blank")}>💬 WhatsApp</button>
               <button className="btn btnsm" style={{background:"rgba(255,255,255,.2)",color:"white"}}
@@ -3202,7 +3550,94 @@ Consultas: comunipro12@gmail.com` },
         </div>
       )}
 
-      {/* MODAL COMPLETAR/EDITAR PLANTILLA */}
+      {/* MEMBRETE INSTITUCIONAL */}
+      {tab==="membrete" && (
+        <div>
+          <div className="alert alrti" style={{marginBottom:14}}>
+            🏷️ Configurá el <strong>encabezado y pie de página</strong> de tus informes, cartas y documentos. Se aplica automáticamente cada vez que imprimís o enviás un documento desde "Guardados", informes o reportes.
+          </div>
+
+          <div style={{background:"white",borderRadius:16,padding:16,marginBottom:14,border:"1px solid #EDE0F5"}}>
+            <div style={{fontWeight:700,fontSize:13,color:"#7B5EA7",marginBottom:10}}>📷 Logo</div>
+            <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:10}}>
+              {mF.logo ? (
+                <img src={mF.logo} alt="Logo" style={{maxHeight:70,maxWidth:140,objectFit:"contain",borderRadius:8,border:"1px solid #EDE0F5",background:"#fafafa",padding:6}}/>
+              ) : (
+                <div style={{width:90,height:70,borderRadius:8,background:"#F5F0FA",display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,color:"#C0C0C0"}}>🏥</div>
+              )}
+              <div style={{flex:1}}>
+                <label className="btn btnsm" style={{display:"inline-block",cursor:"pointer",background:"#9B7EBD",color:"white"}}>
+                  📁 Subir imagen
+                  <input type="file" accept="image/*" style={{display:"none"}} onChange={e=>handleLogoFile(e.target.files?.[0])}/>
+                </label>
+                <label className="btn btnsm" style={{display:"inline-block",cursor:"pointer",marginLeft:6,background:"#5B8DB8",color:"white"}}>
+                  📷 Escanear / Foto
+                  <input type="file" accept="image/*" capture="environment" style={{display:"none"}} onChange={e=>handleLogoFile(e.target.files?.[0])}/>
+                </label>
+                {mF.logo && <button className="btn btnsm" style={{marginLeft:6,background:"#FDECEA",color:"#C0392B"}} onClick={()=>setMF(prev=>({...prev,logo:""}))}>🗑️ Quitar</button>}
+                <div style={{fontSize:11,color:"#9B9590",marginTop:6}}>JPG o PNG, máx. 1.5MB. Usá un logo con fondo transparente o blanco para mejor resultado.</div>
+              </div>
+            </div>
+          </div>
+
+          <div style={{background:"white",borderRadius:16,padding:16,marginBottom:14,border:"1px solid #EDE0F5"}}>
+            <div style={{fontWeight:700,fontSize:13,color:"#7B5EA7",marginBottom:10}}>📋 Datos de la clínica / profesional</div>
+            <div className="fg"><label className="lbl">Nombre de la clínica o profesional</label>
+              <input className="inp" placeholder="Ej: Clínica Canard — Fonoaudiología" value={mF.nombre||""} onChange={e=>setMF({...mF,nombre:e.target.value})}/>
+            </div>
+            <div className="fg"><label className="lbl">Subtítulo / especialidad</label>
+              <input className="inp" placeholder="Ej: Adriana Soba — Fonoaudióloga" value={mF.subtitulo||""} onChange={e=>setMF({...mF,subtitulo:e.target.value})}/>
+            </div>
+            <div className="fg"><label className="lbl">Dirección</label>
+              <input className="inp" placeholder="Ej: Av. Roosevelt 1234, Maldonado" value={mF.direccion||""} onChange={e=>setMF({...mF,direccion:e.target.value})}/>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+              <div className="fg"><label className="lbl">Teléfono</label>
+                <input className="inp" placeholder="(+598) 99 926 775" value={mF.telefono||""} onChange={e=>setMF({...mF,telefono:e.target.value})}/>
+              </div>
+              <div className="fg"><label className="lbl">Email</label>
+                <input className="inp" placeholder="contacto@clinica.com" value={mF.email||""} onChange={e=>setMF({...mF,email:e.target.value})}/>
+              </div>
+            </div>
+            <div className="fg"><label className="lbl">Matrícula / RUT / N° de registro</label>
+              <input className="inp" placeholder="Ej: Matrícula MSP N° 12345 — RUT 21.234.567.0012" value={mF.matricula||""} onChange={e=>setMF({...mF,matricula:e.target.value})}/>
+            </div>
+            <div className="fg"><label className="lbl">Pie de página (opcional)</label>
+              <textarea className="inp" placeholder="Ej: Documento de uso confidencial — Ley 18.331 de Protección de Datos Personales" value={mF.pie||""} onChange={e=>setMF({...mF,pie:e.target.value})}/>
+            </div>
+          </div>
+
+          {/* Vista previa */}
+          <div style={{background:"#F5F0FA",borderRadius:16,padding:16,marginBottom:14}}>
+            <div style={{fontWeight:700,fontSize:13,color:"#7B5EA7",marginBottom:10}}>👁️ Vista previa</div>
+            <div style={{background:"white",borderRadius:10,padding:14,fontFamily:"Georgia,serif"}}>
+              {(mF.logo||mF.nombre||mF.direccion||mF.telefono||mF.email||mF.matricula) ? (
+                <div style={{display:"flex",alignItems:"center",gap:14,borderBottom:"2px solid #9B7EBD",paddingBottom:10,marginBottom:10}}>
+                  {mF.logo && <img src={mF.logo} style={{maxHeight:50,maxWidth:100,objectFit:"contain"}}/>}
+                  <div>
+                    {mF.nombre && <div style={{fontSize:15,fontWeight:700,color:"#2C2C2C"}}>{mF.nombre}</div>}
+                    {mF.subtitulo && <div style={{fontSize:11,color:"#7B5EA7",fontWeight:600}}>{mF.subtitulo}</div>}
+                    <div style={{fontSize:10,color:"#6B6560",marginTop:2}}>
+                      {mF.direccion}{mF.telefono?` · Tel: ${mF.telefono}`:""}{mF.email?` · ${mF.email}`:""}
+                      {mF.matricula && <div>{mF.matricula}</div>}
+                    </div>
+                  </div>
+                </div>
+              ) : <div style={{fontSize:12,color:"#9B9590"}}>Completá los datos para ver cómo quedará el encabezado.</div>}
+              <div style={{fontSize:11,color:"#C0C0C0",fontStyle:"italic"}}>(Acá aparecerá el contenido del informe o carta...)</div>
+              {mF.pie && <div style={{borderTop:"1px solid #EDE0F5",marginTop:10,paddingTop:8,fontSize:10,color:"#9B9590",textAlign:"center"}}>{mF.pie}</div>}
+            </div>
+          </div>
+
+          <button className="btn btnp btnfull" onClick={guardarMembrete}>💾 Guardar membrete</button>
+          <button className="btn btng btnfull noprint" style={{marginTop:6}}
+            onClick={()=>printConMembrete("Este es un documento de ejemplo para verificar cómo se ve tu membrete al imprimir.\n\nPodés usar este formato en informes, cartas a familias, anamnesis y derivaciones.", mF, "Vista previa de membrete")}>
+            🖨️ Probar impresión
+          </button>
+        </div>
+      )}
+
+
       {completando && (
         <Modal title={`${completando.icon} ${completando.tituloEditado}`} onClose={()=>setCompletando(null)}>
           <div style={{marginBottom:10}}>
@@ -3246,11 +3681,7 @@ Consultas: comunipro12@gmail.com` },
               onClick={()=>window.open(`https://wa.me/?text=${encodeURIComponent(completando.contenidoEditado)}`,"_blank")}>
               💬 WhatsApp
             </button>
-            <button className="btn btno btnsm noprint" onClick={()=>{
-              const w=window.open("","_blank");
-              w.document.write(`<!DOCTYPE html><html><body><pre style="font-family:Georgia,serif;font-size:14px;line-height:1.8;max-width:700px;margin:40px auto;white-space:pre-wrap;">${completando.contenidoEditado}</pre></body></html>`);
-              w.document.close(); w.print();
-            }}>🖨️ Imprimir</button>
+            <button className="btn btno btnsm noprint" onClick={()=>printConMembrete(completando.contenidoEditado, membrete, completando.tituloEditado)}>🖨️ Imprimir</button>
             <button className="btn btnsm" style={{background:C.info,color:"white"}}
               onClick={()=>navigator.clipboard?.writeText(completando.contenidoEditado)}>
               📋 Copiar
@@ -3399,13 +3830,13 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
   const sendWA = () => {
     if (!f.phone) { alert("Ingresa un telefono con codigo de pais para WhatsApp"); return; }
     const phone = f.phone.replace(/\D/g, "");
-    const msg = encodeURIComponent(`Hola ${f.name.split(" ")[0]}! Te doy acceso a Hadrion.\n🔗 hadrion.pages.dev\n📧 Email: ${f.email}\n🔑 Contraseña: ${f.password}\nPlan: ${f.plan} — 14 dias de prueba. Cualquier consulta escribime!`);
+    const msg = encodeURIComponent(`Hola ${f.name.split(" ")[0]}! Te doy acceso a Hadrion.\n🔗 supervisor.hadrion.app\n📧 Email: ${f.email}\n🔑 Contraseña: ${f.password}\nPlan: ${f.plan} — 14 dias de prueba. Cualquier consulta escribime!`);
     window.open(`https://wa.me/${phone}?text=${msg}`, "_blank");
   };
 
   const sendEmail = () => {
     const subject = encodeURIComponent("Acceso a Hadrion — Plataforma Clinica");
-    const body    = encodeURIComponent(`Hola ${f.name}!\n\nTe doy acceso a Hadrion, tu plataforma clinica.\n\nURL: https://hadrion.pages.dev\nEmail: ${f.email}\nContraseña: ${f.password}\nPlan: ${f.plan}\n\n14 dias de prueba gratuitos. Cualquier consulta: comunipro12@gmail.com\n\nAdriana Soba`);
+    const body    = encodeURIComponent(`Hola ${f.name}!\n\nTe doy acceso a Hadrion, tu plataforma clinica.\n\nURL: https://supervisor.hadrion.app\nEmail: ${f.email}\nContraseña: ${f.password}\nPlan: ${f.plan}\n\n14 dias de prueba gratuitos. Cualquier consulta: comunipro12@gmail.com\n\nAdriana Soba`);
     window.open(`mailto:${f.email}?subject=${subject}&body=${body}`);
   };
 
@@ -3454,7 +3885,7 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
                       const phone = (r.phone||"").replace(/\D/g,"");
                       if (phone) {
                         const msg = encodeURIComponent(`Hola ${r.name.split(" ")[0]}! 🎉 Tu acceso a Hadrion está listo.
-🔗 hadrion.pages.dev
+🔗 supervisor.hadrion.app
 📧 Email: ${r.email}
 🔑 Contraseña: ${pwd}
 Tenés ${dias} días de prueba gratis. ¡Bienvenida!
@@ -3865,7 +4296,7 @@ function Organizaciones({ users, setUsers, precios={}, currentUser }) {
   const loadOrgs = async () => {
     setLoading(true);
     try {
-      const data = await sbFetch("organizaciones?select=*&order=created_at.desc");
+      const data = await sbFetch("hadrion_organizaciones?select=*&order=created_at.desc");
       setOrgs(data || []);
       // Cargar usuarios de Supabase
       const allUsers = await sbFetch("hadrion_users?select=*");
@@ -3876,7 +4307,7 @@ function Organizaciones({ users, setUsers, precios={}, currentUser }) {
     setLoading(false);
   };
 
-  const LINK_APP = "https://hadrion.pages.dev";
+  const LINK_APP = "https://supervisor.hadrion.app";
 
   const enviarWhatsApp = (telefono, mensaje) => {
     const num = telefono.replace(/\D/g,"");
@@ -3892,7 +4323,7 @@ function Organizaciones({ users, setUsers, precios={}, currentUser }) {
     try {
       const planObj = PLANES_ORG.find(p => p.id === f.plan);
       // 1. Crear org en Supabase
-      const res = await fetch(`${SB_URL}/rest/v1/organizaciones`, {
+      const res = await fetch(`${SB_URL}/rest/v1/hadrion_organizaciones`, {
         method: "POST",
         headers: {
           "apikey": SB_KEY,
@@ -3906,6 +4337,7 @@ function Organizaciones({ users, setUsers, precios={}, currentUser }) {
           app: "hadrion",
           hadrion_plan: f.plan,
           limite_usuarios: planObj?.maxUsers || 10,
+          contacto: f.contacto || null,
           admin_telefono: f.telefono || null,
           admin_email: f.admin_email,
           admin_password: f.admin_password,
@@ -3953,7 +4385,7 @@ function Organizaciones({ users, setUsers, precios={}, currentUser }) {
 
       // 4. Limpiar y cerrar modal
       setShowNew(false);
-      setF({ nombre:"", tipo:"Clinica", plan:"clinica", telefono:"", admin_email:"", admin_password:"" });
+      setF({ nombre:"", tipo:"Clinica", plan:"clinica", contacto:"", telefono:"", admin_email:"", admin_password:"" });
 
       // 5. Recargar orgs
       await loadOrgs();
@@ -4010,6 +4442,7 @@ Adriana Soba - Hadrion`)}`, "_blank");
           org_id: org.id,
           role: "terapeuta",
           nombre: nu.nombre,
+          telefono: nu.telefono || null,
           status: "active",
         }),
       });
@@ -4030,6 +4463,47 @@ Adriana Soba - Hadrion`)}`, "_blank");
       alert("Error: " + e.message);
     }
   };
+
+  const [selUser, setSelUser] = useState(null); // usuario seleccionado para editar/eliminar/enviar
+  const [suF, setSuF] = useState({ nombre:"", email:"", password:"", telefono:"" });
+
+  // Guardar cambios de un usuario (nombre, email, contraseña, teléfono)
+  const guardarUsuario = async () => {
+    if (!selUser) return;
+    if (!suF.email || !suF.password || !suF.nombre) { alert("Completá nombre, email y contraseña."); return; }
+    try {
+      await sbFetch(`hadrion_users?id=eq.${selUser.id}`, {
+        method:"PATCH",
+        body: JSON.stringify({ nombre: suF.nombre, email: suF.email, password: suF.password, telefono: suF.telefono || null }),
+      });
+      await loadOrgs();
+      setSelUser(null);
+      alert("✅ Usuario actualizado.");
+    } catch(e) { alert("Error: "+e.message); }
+  };
+
+  // Eliminar usuario de la org
+  const eliminarUsuario = async () => {
+    if (!selUser) return;
+    if (!window.confirm(`¿Eliminar a ${selUser.nombre||selUser.email}? Esta acción no se puede deshacer.`)) return;
+    try {
+      await sbFetch(`hadrion_users?id=eq.${selUser.id}`, { method:"DELETE", prefer:"return=minimal" });
+      await loadOrgs();
+      setSelUser(null);
+    } catch(e) { alert("Error: "+e.message); }
+  };
+
+  // Reenviar credenciales por WhatsApp / email
+  const reenviarWA = () => {
+    const msg = `Hola ${suF.nombre}! 👋\n\nTus datos de acceso a Hadrion:\n📧 Email: ${suF.email}\n🔑 Contraseña: ${suF.password}\n👉 Accedé acá: ${LINK_APP}`;
+    if (!suF.telefono) { alert("Este usuario no tiene teléfono cargado. Agregalo y guardá primero."); return; }
+    enviarWhatsApp(suF.telefono, msg);
+  };
+  const reenviarMail = () => {
+    const body = `Hola ${suF.nombre}!\n\nTus datos de acceso a Hadrion:\n\nEmail: ${suF.email}\nContraseña: ${suF.password}\nLink: ${LINK_APP}\n\nSaludos,\nAdriana Soba - Hadrion`;
+    window.open(`mailto:${suF.email}?subject=${encodeURIComponent("Tus credenciales de acceso a Hadrion")}&body=${encodeURIComponent(body)}`, "_blank");
+  };
+
 
   const orgUsers = org => sbUsers.filter(u => u.org_id === org.id);
   const canAddUser = org => orgUsers(org).length < (org.limite_usuarios || 10);
@@ -4082,12 +4556,14 @@ Adriana Soba - Hadrion`)}`, "_blank");
             </div>
             <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
               {miembros.map(u => (
-                <div key={u.id} style={{display:"flex",alignItems:"center",gap:5,background:"#F5F0FA",borderRadius:20,padding:"4px 10px"}}>
+                <button key={u.id} onClick={()=>{ setSelUser(u); setSuF({ nombre:u.nombre||"", email:u.email||"", password:u.password||"", telefono:u.telefono||u.phone||"" }); }}
+                  style={{display:"flex",alignItems:"center",gap:5,background:"#F5F0FA",border:"none",borderRadius:20,padding:"4px 10px",cursor:"pointer"}}>
                   <div style={{width:20,height:20,borderRadius:"50%",background:"#9B7EBD",display:"flex",alignItems:"center",justifyContent:"center",color:"white",fontSize:9,fontWeight:700}}>
                     {(u.nombre||u.email||"?")[0].toUpperCase()}
                   </div>
-                  <span style={{fontSize:11,fontWeight:500}}>{u.nombre || u.email}</span>
-                </div>
+                  <span style={{fontSize:11,fontWeight:500,color:"#2C2C2C"}}>{u.nombre || u.email}</span>
+                  <span style={{fontSize:10,color:"#9B7EBD"}}>⚙️</span>
+                </button>
               ))}
               {canAddUser(org) && (
                 <button style={{background:"#EDE0F5",border:"none",borderRadius:20,padding:"4px 10px",fontSize:11,cursor:"pointer",color:"#9B7EBD",fontFamily:"sans-serif"}}
@@ -4100,6 +4576,7 @@ Adriana Soba - Hadrion`)}`, "_blank");
               <div style={{fontSize:11,color:"#E8A020",marginTop:6}}>⚠️ Límite de usuarios alcanzado.</div>
             )}
           </div>
+
         );
       })}
 
@@ -4183,20 +4660,67 @@ Adriana Soba - Hadrion`)}`, "_blank");
               <option value="inactiva">Inactiva</option>
             </select>
           </div>
+          <div className="fg"><label className="lbl">Email de contacto</label>
+            <input className="inp" type="email" value={selOrg.contacto||""} onChange={e=>setSelOrg({...selOrg,contacto:e.target.value})}/>
+          </div>
+          <div className="fg"><label className="lbl">Teléfono WhatsApp</label>
+            <input className="inp" type="tel" placeholder="(+598) 9..." value={selOrg.admin_telefono||""} onChange={e=>setSelOrg({...selOrg,admin_telefono:e.target.value})}/>
+          </div>
+
+          {/* Credenciales del administrador de la org */}
+          <div style={{background:"#FFF8E1",borderRadius:10,padding:10,marginBottom:8}}>
+            <div style={{fontSize:11,fontWeight:700,color:"#E8A020",marginBottom:6}}>👤 Acceso del administrador de esta org</div>
+            <div className="fg"><label className="lbl">Email del admin</label>
+              <input className="inp" type="email" value={selOrg.admin_email||""} onChange={e=>setSelOrg({...selOrg,admin_email:e.target.value})}/>
+            </div>
+            <div className="fg"><label className="lbl">Contraseña</label>
+              <input className="inp" type="text" value={selOrg.admin_password||""} onChange={e=>setSelOrg({...selOrg,admin_password:e.target.value})}/>
+            </div>
+            <div style={{display:"flex",gap:6}}>
+              <button className="btn btnsm" style={{background:"#25D366",color:"white",flex:1}} onClick={()=>{
+                if (!selOrg.admin_telefono) { alert("Cargá un teléfono y guardá primero."); return; }
+                enviarWhatsApp(selOrg.admin_telefono, `Hola! Tus datos de acceso a Hadrion 🎉\nOrganización: ${selOrg.nombre}\nEmail: ${selOrg.admin_email}\nContraseña: ${selOrg.admin_password}\nAccedé acá: ${LINK_APP}`);
+              }}>💬 WhatsApp</button>
+              <button className="btn btnsm" style={{background:"#5B8DB8",color:"white",flex:1}} onClick={()=>{
+                if (!selOrg.admin_email) { alert("Cargá un email primero."); return; }
+                window.open(`mailto:${selOrg.admin_email}?subject=${encodeURIComponent("Acceso a Hadrion - "+selOrg.nombre)}&body=${encodeURIComponent(`Hola!\n\nTe damos acceso a Hadrion.\n\nOrganización: ${selOrg.nombre}\nEmail: ${selOrg.admin_email}\nContraseña: ${selOrg.admin_password}\nLink: ${LINK_APP}\n\nSaludos,\nAdriana Soba - Hadrion`)}`, "_blank");
+              }}>📧 Email</button>
+            </div>
+          </div>
+
           <button className="btn btnp btnfull" onClick={async()=>{
             try {
-              await sbFetch(`organizaciones?id=eq.${selOrg.id}`, {
+              await sbFetch(`hadrion_organizaciones?id=eq.${selOrg.id}`, {
                 method:"PATCH",
-                body:JSON.stringify({ nombre:selOrg.nombre, hadrion_plan:selOrg.hadrion_plan||selOrg.plan, limite_usuarios:selOrg.limite_usuarios||selOrg.max_users, activa:selOrg.activa }),
+                body:JSON.stringify({
+                  nombre:selOrg.nombre,
+                  hadrion_plan:selOrg.hadrion_plan||selOrg.plan,
+                  limite_usuarios:selOrg.limite_usuarios||selOrg.max_users,
+                  activa:selOrg.activa,
+                  contacto:selOrg.contacto||null,
+                  admin_telefono:selOrg.admin_telefono||null,
+                  admin_email:selOrg.admin_email||null,
+                  admin_password:selOrg.admin_password||null,
+                }),
               });
+              // Mantener sincronizado el usuario admin_org en hadrion_users (email/password)
+              if (selOrg.admin_email && selOrg.admin_password) {
+                await sbFetch(`hadrion_users?org_id=eq.${selOrg.id}&role=eq.admin_org`, {
+                  method:"PATCH",
+                  body:JSON.stringify({ email:selOrg.admin_email, password:selOrg.admin_password }),
+                }).catch(()=>{});
+              }
               await loadOrgs();
               setSelOrg(null);
+              alert("✅ Organización actualizada.");
             } catch(e){ alert("Error: "+e.message); }
           }}>Guardar cambios</button>
           <button className="btn btnd btnfull" onClick={async()=>{
             if(window.confirm("¿Eliminar esta organización? Se eliminarán todos sus usuarios.")) {
               try {
-                await sbFetch(`organizaciones?id=eq.${selOrg.id}`,{method:"DELETE",prefer:"return=minimal"});
+                // Eliminar usuarios de la org primero (evita huérfanos / FK)
+                await sbFetch(`hadrion_users?org_id=eq.${selOrg.id}`, { method:"DELETE", prefer:"return=minimal" }).catch(()=>{});
+                await sbFetch(`hadrion_organizaciones?id=eq.${selOrg.id}`,{method:"DELETE",prefer:"return=minimal"});
                 await loadOrgs();
                 setSelOrg(null);
               } catch(e){ alert("Error: "+e.message); }
@@ -4205,9 +4729,37 @@ Adriana Soba - Hadrion`)}`, "_blank");
           <button className="btn btng btnfull" onClick={()=>setSelOrg(null)}>Cancelar</button>
         </Modal>
       )}
+
+      {/* ── Modal gestionar usuario (editar / reenviar / eliminar) ── */}
+      {selUser && (
+        <Modal title={`👤 ${selUser.nombre || selUser.email}`} onClose={()=>setSelUser(null)}>
+          <div className="fg"><label className="lbl">Nombre completo</label>
+            <input className="inp" value={suF.nombre} onChange={e=>setSuF({...suF,nombre:e.target.value})}/>
+          </div>
+          <div className="fg"><label className="lbl">Email</label>
+            <input className="inp" type="email" value={suF.email} onChange={e=>setSuF({...suF,email:e.target.value})}/>
+          </div>
+          <div className="fg"><label className="lbl">Contraseña</label>
+            <input className="inp" type="text" value={suF.password} onChange={e=>setSuF({...suF,password:e.target.value})}/>
+          </div>
+          <div className="fg"><label className="lbl">Teléfono WhatsApp</label>
+            <input className="inp" type="tel" placeholder="(+598) 9..." value={suF.telefono} onChange={e=>setSuF({...suF,telefono:e.target.value})}/>
+          </div>
+
+          <div style={{display:"flex",gap:6,marginBottom:8}}>
+            <button className="btn btnsm" style={{background:"#25D366",color:"white",flex:1}} onClick={reenviarWA}>💬 WhatsApp</button>
+            <button className="btn btnsm" style={{background:"#5B8DB8",color:"white",flex:1}} onClick={reenviarMail}>📧 Email</button>
+          </div>
+
+          <button className="btn btnp btnfull" onClick={guardarUsuario}>💾 Guardar cambios</button>
+          <button className="btn btnd btnfull" onClick={eliminarUsuario}>🗑️ Eliminar usuario</button>
+          <button className="btn btng btnfull" onClick={()=>setSelUser(null)}>Cancelar</button>
+        </Modal>
+      )}
     </div>
   );
 }
+
 
 // ─── ASISTENCIAS ─────────────────────────────────────────────────────────────
 function Asistencias({ patients, setPatients }) {
@@ -4879,7 +5431,7 @@ function GoalBank({ user }) {
 
 
 // ─── IA CHAT TERAPÉUTICO ──────────────────────────────────────────────────────
-function IAAsistente({ patients, C, documentos=[], setDocumentos=()=>{}, chatHistory=null, setChatHistory=null }) {
+function IAAsistente({ patients, C, documentos=[], setDocumentos=()=>{}, chatHistory=null, setChatHistory=null, membrete={} }) {
   const SYSTEM_PROMPT = `Sos una asistente IA especializada en terapias de salud y educación, integrada en la plataforma Hadrion desarrollada por Adriana Soba (fonoaudióloga, Uruguay).
 
 Tu función es ayudar a profesionales terapéuticos (fonoaudiólogos, psicólogos, psicopedagogos, terapeutas ocupacionales, etc.) a generar documentación clínica de alta calidad en español rioplatense.
@@ -5104,11 +5656,7 @@ Diagnóstico presuntivo: ${p.diagnosticoP || "no especificado"}
                   style={{background:"none",border:"1px solid #EDE0F5",borderRadius:8,padding:"4px 10px",fontSize:10,cursor:"pointer",color:"#9B9590",fontFamily:"sans-serif"}}>✏️ Editar</button>
                 <button onClick={()=>navigator.clipboard?.writeText(m.content)}
                   style={{background:"none",border:"1px solid #EDE0F5",borderRadius:8,padding:"4px 10px",fontSize:10,cursor:"pointer",color:"#9B9590",fontFamily:"sans-serif"}}>📋 Copiar</button>
-                <button onClick={()=>{
-                  const w=window.open("","_blank");
-                  w.document.write(`<pre style="font-family:Georgia;font-size:14px;line-height:1.8;max-width:700px;margin:40px auto;white-space:pre-wrap;">${m.content}</pre>`);
-                  w.document.close(); w.print();
-                }}
+                <button onClick={()=>printConMembrete(m.content, membrete, "Documento clínico")}
                   style={{background:"none",border:"1px solid #EDE0F5",borderRadius:8,padding:"4px 10px",fontSize:10,cursor:"pointer",color:"#9B9590",fontFamily:"sans-serif"}}>🖨️ Imprimir</button>
                 <button onClick={()=>window.open(`https://wa.me/?text=${encodeURIComponent(m.content)}`,"_blank")}
                   style={{background:"none",border:"1px solid #25D366",borderRadius:8,padding:"4px 10px",fontSize:10,cursor:"pointer",color:"#25D366",fontFamily:"sans-serif"}}>💬 WA</button>
@@ -5762,7 +6310,7 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
   };
 
   const profes = usandoSb
-    ? sbUsers.filter(u => u.role !== "admin")
+    ? sbUsers.filter(u => u.role !== "admin" && u.role !== "admin_org")
     : users.filter(u => u.role === "profesional");
 
   const totalNomina = profes.reduce((s,u) => s + calcLiqTerapeuta(u.id).neto, 0);
@@ -6418,13 +6966,16 @@ export default function HadrionApp() {
     basicoUSD:12, proUSD:30, clinicaUSD:70, colegioUSD:110,
     mpLinkBasico:"", mpLinkPro:"", mpLinkClinica:"", stripeLink:""
   });
-  const setPrecios = v => { setPreciosRaw(v); saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan, registerRequests, precios:v, documentos, plantillas, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory }); };
+  const setPrecios = v => { setPreciosRaw(v); saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan, registerRequests, precios:v, documentos, plantillas, membrete, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory }); };
   // Documentos generados (informes IA guardados)
   const [documentos, setDocumentosRaw] = useState(stored?.documentos || []);
-  const setDocumentos = v => { const val=typeof v==="function"?v(documentos):v; setDocumentosRaw(val); saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan, registerRequests, precios, documentos:val, plantillas, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory }); };
+  const setDocumentos = v => { const val=typeof v==="function"?v(documentos):v; setDocumentosRaw(val); saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan, registerRequests, precios, documentos:val, plantillas, membrete, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory }); };
   // Plantillas personalizadas del usuario
   const [plantillas, setPlantillasRaw] = useState(stored?.plantillas || []);
-  const setPlantillas = v => { const val=typeof v==="function"?v(plantillas):v; setPlantillasRaw(val); saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan, registerRequests, precios, documentos, plantillas:val, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory }); };
+  const setPlantillas = v => { const val=typeof v==="function"?v(plantillas):v; setPlantillasRaw(val); saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan, registerRequests, precios, documentos, plantillas:val, membrete, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory }); };
+  // Membrete institucional (logo + datos de la clínica/profesional para impresión/envío)
+  const [membrete, setMembreteRaw] = useState(stored?.membrete || { logo:"", nombre:"", subtitulo:"", direccion:"", telefono:"", email:"", matricula:"", pie:"" });
+  const setMembrete = v => { const val=typeof v==="function"?v(membrete):v; setMembreteRaw(val); saveToStorage({ users, user, patients, sessions, payments, agendaItems, plan, registerRequests, precios, documentos, plantillas, membrete:val, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory }); };
   // Psicología — registros persistidos
   const [psicoDatos, setPsicoDatosRaw] = useState(stored?.psicoDatos || { registros:[], experimentos:[], jerarquia:[], humor:{} });
   const setPsicoDatos = v => { const val=typeof v==="function"?v(psicoDatos):v; setPsicoDatosRaw(val); persist("psicoDatos",null,val); };
@@ -6448,6 +6999,16 @@ export default function HadrionApp() {
   const [lang,             setLang]       = useState("es");
   const [sessionKicked,    setSessionKicked] = useState(false);
 
+  // ── Equipo de la organización (para compartir pacientes) ──────────────────
+  const [orgTeam, setOrgTeam] = useState([]);
+  useEffect(() => {
+    if (!user?.org_id) { setOrgTeam([]); return; }
+    sbGetUsers(user.org_id).then(rows => {
+      setOrgTeam((rows||[]).map(u => ({ id:u.id, name:u.nombre||u.name||u.email, role:u.role })));
+    }).catch(()=>setOrgTeam([]));
+  }, [user?.org_id]);
+
+
   // ── Sesión única: verificar cada 60s que el token sigue vigente ──
   useEffect(() => {
     if (!user) return;
@@ -6467,7 +7028,7 @@ export default function HadrionApp() {
   const persist = (key, v, val) => {
     try {
       const data = { users, user, patients, sessions, payments, agendaItems, plan,
-        registerRequests, precios, documentos, plantillas,
+        registerRequests, precios, documentos, plantillas, membrete,
         psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory };
       if (key) data[key] = val;
       saveToStorage(data);
@@ -6487,7 +7048,7 @@ export default function HadrionApp() {
 
   const logout = () => {
     saveToStorage({ users, user:null, patients, sessions, payments, agendaItems, plan, registerRequests,
-      precios, documentos, plantillas, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory });
+      precios, documentos, plantillas, membrete, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory });
     setUser(null); setActive("dashboard");
   };
 
@@ -6512,22 +7073,22 @@ export default function HadrionApp() {
     setUsersRaw(updatedUsers);
     setUser(merged);
     saveToStorage({ users:updatedUsers, user:merged, patients, sessions, payments, agendaItems, plan,
-      registerRequests, precios, documentos, plantillas, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory });
+      registerRequests, precios, documentos, plantillas, membrete, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory });
   };
 
   const pages = {
     dashboard:  <Dashboard  user={user} patients={patients} sessions={sessions} payments={payments} setActive={setActive} setShowQS={setShowQS} agendaItems={agendaItems} />,
     agenda:     <Agenda     patients={patients} items={agendaItems} setItems={setAgenda} />,
-    patients:   <Patients   patients={patients} setPatients={setPatients} setActive={setActive} setSelPatId={setSelPatId} sessions={sessions} />,
+    patients:   <Patients   patients={patients} setPatients={setPatients} setActive={setActive} setSelPatId={setSelPatId} sessions={sessions} currentUser={user} orgTeam={orgTeam} />,
     payments:   <Payments   patients={patients} payments={payments} setPayments={setPayments} />,
     sessions:   <Sessions   patients={patients} sessions={sessions} setSessions={setSessions} setPatients={setPatients} />,
     history:    <History    patients={patients} sessions={sessions} selectedPatientId={selPatId} setPatients={setPatients} />,
     objectives: <GoalBank user={user}/>,
     activities: <Activities user={user}/>,
     phonology:  <Phonology />,
-    reports:    <Reports    patients={patients} sessions={sessions} payments={payments} />,
+    reports:    <Reports    patients={patients} sessions={sessions} payments={payments} membrete={membrete} />,
     plan:       <PlanColaborativo patients={patients} users={users} plan={plan} setPlan={setPlan} />,
-    resources:  <Resources plantillas={plantillas} setPlantillas={setPlantillas} documentos={documentos} setDocumentos={setDocumentos}/>,
+    resources:  <Resources plantillas={plantillas} setPlantillas={setPlantillas} documentos={documentos} setDocumentos={setDocumentos} membrete={membrete} setMembrete={setMembrete}/>,
     tea:        <TEAAutismo />,
     asistencias:<Asistencias patients={patients} setPatients={setPatients} />,
     organizaciones: (user?.role === "admin" || isClinica(user))
@@ -6546,7 +7107,7 @@ export default function HadrionApp() {
     admin:      user?.role === "admin"
       ? <Admin users={users} setUsers={setUsers} registerRequests={registerRequests} setRegisterRequests={setReg} currentUser={user} precios={precios} setPrecios={setPrecios} />
       : <div className="fu"><div className="alert alrtd">🔐 Solo administradores.</div></div>,
-    ia:         <IAAsistente patients={patients} C={C} documentos={documentos} setDocumentos={setDocumentos} chatHistory={chatHistory} setChatHistory={setChatHistory}/>,
+    ia:         <IAAsistente patients={patients} C={C} documentos={documentos} setDocumentos={setDocumentos} chatHistory={chatHistory} setChatHistory={setChatHistory} membrete={membrete}/>,
     psicologia: <Psicologia patients={patients} sessions={sessions} documentos={documentos} setDocumentos={setDocumentos} datos={psicoDatos} setDatos={setPsicoDatos}/>,
     tcc:        <TCC patients={patients} documentos={documentos} setDocumentos={setDocumentos} datos={tccDatos} setDatos={setTccDatos}/>,
     liquidacion: (user?.role === "admin" || isClinica(user))
@@ -6562,7 +7123,7 @@ export default function HadrionApp() {
             </a>
           </div>
         </div>,
-    profile:    <Profile user={user} onLogout={logout} setUser={u => { setUser(u); saveToStorage({ users, user:u, patients, sessions, payments, agendaItems, plan, registerRequests }); }} />,
+    profile:    <Profile user={user} onLogout={logout} setUser={u => { setUser(u); saveToStorage({ users, user:u, patients, sessions, payments, agendaItems, plan, registerRequests, precios, documentos, plantillas, membrete, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory }); }} />,
   };
 
   const bnItems = [
