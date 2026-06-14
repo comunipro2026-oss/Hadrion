@@ -3844,33 +3844,111 @@ const PLANES_ORG_BASE = [
     features:["Todo el plan Clínica","Hasta 30 usuarios","Estadísticas del equipo","Soporte prioritario"] },
 ];
 
-function Organizaciones({ users, setUsers, precios={} }) {
+function Organizaciones({ users, setUsers, precios={}, currentUser }) {
   const PLANES_ORG = PLANES_ORG_BASE.map(p => ({ ...p, precio: precios[p.id] || 0 }));
-  const [orgs, setOrgs]     = useState([
-    { id:1, nombre:"Clínica Demo", tipo:"Clinica", plan:"clinica", maxUsers:10,
-      contacto:"demo@clinica.com", usuarios:[1,2], activa:true, createdAt:"01/01/2025" }
-  ]);
+  const [orgs, setOrgs]       = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
-  const [f, setF]             = useState({ nombre:"", tipo:"Clinica", plan:"pro", contacto:"", telefono:"" });
+  const [saving, setSaving]   = useState(false);
+  const [err, setErr]         = useState("");
+  const [f, setF]             = useState({ nombre:"", tipo:"Clinica", plan:"clinica", contacto:"", telefono:"", admin_email:"", admin_password:"" });
   const [selOrg, setSelOrg]   = useState(null);
+  const [sbUsers, setSbUsers] = useState([]);
 
   const tiposOrg = ["Clinica","Escuela","Colegio","Centro terapeutico","Hospital","Otro"];
 
-  const addOrg = () => {
-    if (!f.nombre) return;
-    const plan = PLANES_ORG.find(p => p.id === f.plan);
-    setOrgs(prev => [...prev, {
-      id: makeId(), nombre:f.nombre, tipo:f.tipo, plan:f.plan,
-      maxUsers: plan?.maxUsers || 3, contacto:f.contacto,
-      telefono:f.telefono, usuarios:[], activa:true,
-      createdAt:new Date().toLocaleDateString("es-UY")
-    }]);
-    setF({ nombre:"", tipo:"Clinica", plan:"pro", contacto:"", telefono:"" });
-    setShowNew(false);
+  // Cargar orgs desde Supabase al montar
+  useEffect(() => {
+    loadOrgs();
+  }, []);
+
+  const loadOrgs = async () => {
+    setLoading(true);
+    try {
+      const data = await sbFetch("organizaciones?select=*&order=created_at.desc");
+      setOrgs(data || []);
+      // Cargar usuarios de Supabase
+      const allUsers = await sbFetch("hadrion_users?select=*");
+      setSbUsers(allUsers || []);
+    } catch(e) {
+      console.error("Error cargando orgs:", e);
+    }
+    setLoading(false);
   };
 
-  const orgUsers = org => users.filter(u => (org.usuarios||[]).includes(u.id));
-  const canAddUser = org => orgUsers(org).length < org.maxUsers;
+  const addOrg = async () => {
+    if (!f.nombre) { setErr("El nombre es obligatorio."); return; }
+    if (!f.admin_email) { setErr("El email del administrador es obligatorio."); return; }
+    if (!f.admin_password) { setErr("La contraseña del administrador es obligatoria."); return; }
+    setSaving(true); setErr("");
+    try {
+      const plan = PLANES_ORG.find(p => p.id === f.plan);
+      const newOrg = await sbFetch("organizaciones", {
+        method: "POST",
+        body: JSON.stringify({
+          nombre: f.nombre,
+          tipo: f.tipo,
+          plan: f.plan,
+          max_users: plan?.maxUsers || 10,
+          contacto: f.contacto,
+          telefono: f.telefono,
+          admin_email: f.admin_email,
+          admin_password: f.admin_password,
+          activa: true,
+        }),
+      });
+      const org = Array.isArray(newOrg) ? newOrg[0] : newOrg;
+      // Crear el usuario admin de la org en hadrion_users
+      await sbFetch("hadrion_users", {
+        method: "POST",
+        body: JSON.stringify({
+          email: f.admin_email,
+          password: f.admin_password,
+          org_id: org.id,
+          role: "admin_org",
+          nombre: f.nombre,
+          status: "active",
+        }),
+      });
+      setOrgs(prev => [org, ...prev]);
+      setF({ nombre:"", tipo:"Clinica", plan:"clinica", contacto:"", telefono:"", admin_email:"", admin_password:"" });
+      setShowNew(false);
+      await loadOrgs();
+    } catch(e) {
+      setErr("Error al crear: " + e.message);
+    }
+    setSaving(false);
+  };
+
+  const addUserToOrg = async (org) => {
+    const email = prompt("Email del terapeuta a agregar:");
+    if (!email) return;
+    const password = prompt("Contraseña para ese terapeuta:");
+    if (!password) return;
+    const nombre = prompt("Nombre completo del terapeuta:");
+    if (!nombre) return;
+    try {
+      // Verificar que no exista ya
+      const existing = sbUsers.find(u => u.email === email);
+      if (existing) { alert("Ya existe un usuario con ese email."); return; }
+      await sbFetch("hadrion_users", {
+        method: "POST",
+        body: JSON.stringify({
+          email, password, org_id: org.id,
+          role: "terapeuta", nombre, status: "active",
+        }),
+      });
+      alert(`Terapeuta ${nombre} creado correctamente.`);
+      await loadOrgs();
+    } catch(e) {
+      alert("Error: " + e.message);
+    }
+  };
+
+  const orgUsers = org => sbUsers.filter(u => u.org_id === org.id);
+  const canAddUser = org => orgUsers(org).length < (org.max_users || 10);
+
+  if (loading) return <div style={{padding:40,textAlign:"center",color:"#9B9590"}}>Cargando organizaciones...</div>;
 
   return (
     <div className="fu">
@@ -3882,100 +3960,67 @@ function Organizaciones({ users, setUsers, precios={} }) {
         <button className="btn btnp btnsm" onClick={()=>setShowNew(true)}>+ Nueva org.</button>
       </div>
 
-      {/* Planes disponibles */}
-      <div style={{marginBottom:4,fontSize:11,fontWeight:700,color:C.grayL,textTransform:"uppercase",letterSpacing:1}}>Planes individuales</div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:12}}>
-        {PLANES_ORG.filter(p=>p.tipo==="individual").map(p => (
-          <div key={p.id} style={{background:"white",borderRadius:12,padding:"12px 14px",border:`2px solid ${p.color}33`}}>
-            <div style={{fontWeight:700,fontSize:13,color:p.color}}>{p.label}</div>
-            <div style={{fontSize:10,color:"#9B9590",marginTop:2}}>1 usuario — acceso individual</div>
-            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:700,color:"#2C2C2C",marginTop:4}}>${p.precio.toLocaleString("es-UY")} UYU/mes</div>
-            {p.features && <div style={{marginTop:6}}>{p.features.slice(0,3).map(f=><div key={f} style={{fontSize:9,color:"#9B9590"}}>✓ {f}</div>)}</div>}
-          </div>
-        ))}
-      </div>
-      <div style={{marginBottom:4,fontSize:11,fontWeight:700,color:C.grayL,textTransform:"uppercase",letterSpacing:1}}>Planes para clínicas y centros</div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:16}}>
-        {PLANES_ORG.filter(p=>p.tipo==="clinica").map(p => (
-          <div key={p.id} style={{background:"white",borderRadius:12,padding:"12px 14px",border:`2px solid ${p.color}33`}}>
-            <div style={{fontWeight:700,fontSize:13,color:p.color}}>{p.label}</div>
-            <div style={{fontSize:10,color:"#9B9590",marginTop:2}}>Hasta {p.maxUsers} usuarios — multiusuario</div>
-            <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontWeight:700,color:"#2C2C2C",marginTop:4}}>${p.precio.toLocaleString("es-UY")} UYU/mes</div>
-            {p.features && <div style={{marginTop:6}}>{p.features.slice(0,3).map(f=><div key={f} style={{fontSize:9,color:"#9B9590"}}>✓ {f}</div>)}</div>}
-          </div>
-        ))}
-      </div>
-
       {orgs.length === 0 && (
         <div style={{textAlign:"center",padding:"30px 0",color:"#9B9590"}}>
           <div style={{fontSize:36}}>🏫</div>
           <div style={{fontWeight:600}}>Sin organizaciones registradas</div>
+          <div style={{fontSize:13,marginTop:4}}>Creá la primera organización con el botón de arriba</div>
         </div>
       )}
 
       {orgs.map(org => {
         const plan = PLANES_ORG.find(p => p.id === org.plan);
         const miembros = orgUsers(org);
-        const pct = miembros.length / org.maxUsers * 100;
+        const pct = miembros.length / (org.max_users || 10) * 100;
         return (
-          <div key={org.id} style={{background:"white",borderRadius:18,overflow:"hidden",boxShadow:"0 2px 12px rgba(0,0,0,.07)",marginBottom:14}}>
-            <div style={{padding:"14px 16px",borderBottom:"1px solid #EDE0F5",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <div key={org.id} style={{background:"white",borderRadius:16,padding:16,marginBottom:12,boxShadow:"0 2px 8px rgba(0,0,0,.06)",border:`1.5px solid ${plan?.color||"#9B7EBD"}22`}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
               <div>
-                <div style={{fontWeight:700,fontSize:14}}>{org.nombre}</div>
-                <div style={{fontSize:11,color:"#9B9590",marginTop:2}}>{org.tipo} · Plan {plan?.label} · {org.createdAt}</div>
+                <div style={{fontWeight:700,fontSize:15}}>{org.nombre}</div>
+                <div style={{fontSize:11,color:"#9B9590"}}>{org.tipo} · Plan {plan?.label || org.plan}</div>
+                {org.contacto && <div style={{fontSize:11,color:"#9B9590"}}>{org.contacto}</div>}
               </div>
               <div style={{display:"flex",gap:6,alignItems:"center"}}>
-                <span style={{fontSize:10,background:org.activa?"#E8F8EF":"#FDECEA",color:org.activa?"#1a7a3c":"#C0392B",borderRadius:20,padding:"2px 8px",fontWeight:700}}>
-                  {org.activa?"Activa":"Inactiva"}
+                <span style={{background:org.activa?"#D4EDDA":"#F8D7DA",color:org.activa?"#155724":"#721c24",borderRadius:20,padding:"2px 10px",fontSize:10,fontWeight:700}}>
+                  {org.activa ? "Activa" : "Inactiva"}
                 </span>
-                <button onClick={()=>setSelOrg(selOrg?.id===org.id?null:org)}
-                  style={{background:"#F5F0FA",border:"none",borderRadius:8,padding:"6px 10px",cursor:"pointer",fontSize:11,fontWeight:700,color:"#9B7EBD"}}>
-                  ⚙️
-                </button>
+                <button style={{background:"none",border:"none",cursor:"pointer",fontSize:16}} onClick={()=>setSelOrg(org)}>⚙️</button>
               </div>
             </div>
-            <div style={{padding:"14px 16px"}}>
-              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
-                <div style={{flex:1,background:"#EDE0F5",borderRadius:8,height:7,overflow:"hidden"}}>
-                  <div style={{height:"100%",borderRadius:8,background:plan?.color||"#9B7EBD",width:`${Math.min(pct,100)}%`,transition:"width .3s"}}/>
-                </div>
-                <span style={{fontSize:12,fontWeight:700,color:plan?.color||"#9B7EBD"}}>{miembros.length}/{org.maxUsers}</span>
-                <span style={{fontSize:11,color:"#9B9590"}}>usuarios</span>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+              <div style={{flex:1,height:6,background:"#F0EBF8",borderRadius:4,overflow:"hidden"}}>
+                <div style={{height:"100%",borderRadius:4,background:plan?.color||"#9B7EBD",width:`${Math.min(pct,100)}%`,transition:"width .3s"}}/>
               </div>
-              <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-                {miembros.map(u => (
-                  <div key={u.id} style={{display:"flex",alignItems:"center",gap:5,background:"#F5F0FA",borderRadius:20,padding:"4px 10px"}}>
-                    <div style={{width:20,height:20,borderRadius:"50%",background:u.color,display:"flex",alignItems:"center",justifyContent:"center",color:"white",fontSize:9,fontWeight:700}}>{u.avatar}</div>
-                    <span style={{fontSize:11,fontWeight:500}}>{u.name.split(" ")[0]}</span>
+              <span style={{fontSize:12,fontWeight:700,color:plan?.color||"#9B7EBD"}}>{miembros.length}/{org.max_users||10}</span>
+              <span style={{fontSize:11,color:"#9B9590"}}>usuarios</span>
+            </div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+              {miembros.map(u => (
+                <div key={u.id} style={{display:"flex",alignItems:"center",gap:5,background:"#F5F0FA",borderRadius:20,padding:"4px 10px"}}>
+                  <div style={{width:20,height:20,borderRadius:"50%",background:"#9B7EBD",display:"flex",alignItems:"center",justifyContent:"center",color:"white",fontSize:9,fontWeight:700}}>
+                    {(u.nombre||u.email||"?")[0].toUpperCase()}
                   </div>
-                ))}
-                {canAddUser(org) && (
-                  <button style={{background:"#EDE0F5",border:"none",borderRadius:20,padding:"4px 10px",fontSize:11,cursor:"pointer",color:"#9B7EBD",fontFamily:"sans-serif"}}
-                    onClick={()=>{
-                      const available = users.filter(u => !orgs.some(o => (o.usuarios||[]).includes(u.id)));
-                      if (available.length === 0) { alert("No hay usuarios disponibles para agregar."); return; }
-                      const name = prompt("Email del usuario a agregar:");
-                      const u = users.find(x => x.email === name);
-                      if (!u) { alert("Usuario no encontrado."); return; }
-                      setOrgs(prev => prev.map(o => o.id===org.id ? {...o, usuarios:[...(o.usuarios||[]),u.id]} : o));
-                    }}>
-                    + Agregar usuario
-                  </button>
-                )}
-              </div>
-              {!canAddUser(org) && (
-                <div style={{fontSize:11,color:"#E8A020",marginTop:6}}>
-                  ⚠️ Límite de usuarios alcanzado. Actualizá el plan para agregar más.
+                  <span style={{fontSize:11,fontWeight:500}}>{u.nombre || u.email}</span>
                 </div>
+              ))}
+              {canAddUser(org) && (
+                <button style={{background:"#EDE0F5",border:"none",borderRadius:20,padding:"4px 10px",fontSize:11,cursor:"pointer",color:"#9B7EBD",fontFamily:"sans-serif"}}
+                  onClick={()=>addUserToOrg(org)}>
+                  + Agregar terapeuta
+                </button>
               )}
             </div>
+            {!canAddUser(org) && (
+              <div style={{fontSize:11,color:"#E8A020",marginTop:6}}>⚠️ Límite de usuarios alcanzado.</div>
+            )}
           </div>
         );
       })}
 
       {showNew && (
         <Modal title="Nueva Organización" onClose={()=>setShowNew(false)}>
-          <div className="fg"><label className="lbl">Nombre</label>
+          {err && <div className="alert alrte" style={{marginBottom:8}}>{err}</div>}
+          <div className="fg"><label className="lbl">Nombre de la organización</label>
             <input className="inp" placeholder="Ej: Clínica Los Pinos" value={f.nombre} onChange={e=>setF({...f,nombre:e.target.value})}/>
           </div>
           <div className="fg"><label className="lbl">Tipo</label>
@@ -3986,7 +4031,7 @@ function Organizaciones({ users, setUsers, precios={} }) {
           <div className="fg"><label className="lbl">Plan</label>
             <select className="inp" value={f.plan} onChange={e=>setF({...f,plan:e.target.value})}>
               {PLANES_ORG.map(p=>(
-                <option key={p.id} value={p.id}>{p.label} — hasta {p.maxUsers} usuarios — ${p.precio.toLocaleString("es-UY")} UYU/mes</option>
+                <option key={p.id} value={p.id}>{p.label} — hasta {p.maxUsers} usuarios</option>
               ))}
             </select>
           </div>
@@ -3996,35 +4041,32 @@ function Organizaciones({ users, setUsers, precios={} }) {
           <div className="fg"><label className="lbl">Teléfono (WhatsApp)</label>
             <input className="inp" type="tel" placeholder="(+598) 9..." value={f.telefono} onChange={e=>setF({...f,telefono:e.target.value})}/>
           </div>
-          <div style={{background:"#F5F0FA",borderRadius:12,padding:12,marginBottom:12}}>
-            <div style={{fontSize:11,fontWeight:700,color:"#9B9590",marginBottom:4,textTransform:"uppercase"}}>Resumen del plan seleccionado</div>
-            {(() => { const p = PLANES_ORG.find(pl=>pl.id===f.plan);
-              return p ? (
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                  <div><div style={{fontWeight:700,color:p.color}}>{p.label}</div><div style={{fontSize:12,color:"#9B9590"}}>Hasta {p.maxUsers} usuarios</div></div>
-                  <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:22,fontWeight:700,color:p.color}}>${p.precio.toLocaleString("es-UY")}/mes</div>
-                </div>
-              ) : null;
-            })()}
+          <div style={{background:"#FFF8E1",borderRadius:10,padding:10,marginBottom:8}}>
+            <div style={{fontSize:11,fontWeight:700,color:"#E8A020",marginBottom:6}}>👤 Acceso del administrador de esta org</div>
+            <div className="fg"><label className="lbl">Email del admin</label>
+              <input className="inp" type="email" value={f.admin_email} onChange={e=>setF({...f,admin_email:e.target.value})}/>
+            </div>
+            <div className="fg"><label className="lbl">Contraseña</label>
+              <input className="inp" type="password" value={f.admin_password} onChange={e=>setF({...f,admin_password:e.target.value})}/>
+            </div>
           </div>
-          <button className="btn btnp btnfull" onClick={addOrg}>Crear organización</button>
+          <button className="btn btnp btnfull" onClick={addOrg} disabled={saving}>
+            {saving ? "Guardando..." : "Crear organización"}
+          </button>
         </Modal>
       )}
 
       {selOrg && (
         <Modal title={`⚙️ ${selOrg.nombre}`} onClose={()=>setSelOrg(null)}>
-          <div className="alert alrti" style={{marginBottom:12}}>Configuración de la organización</div>
           <div className="fg"><label className="lbl">Nombre</label>
-            <input className="inp" value={selOrg.nombre}
-              onChange={e=>setSelOrg({...selOrg,nombre:e.target.value})}/>
+            <input className="inp" value={selOrg.nombre} onChange={e=>setSelOrg({...selOrg,nombre:e.target.value})}/>
           </div>
           <div className="fg"><label className="lbl">Plan</label>
-            <select className="inp" value={selOrg.plan}
-              onChange={e=>{
-                const p=PLANES_ORG.find(pl=>pl.id===e.target.value);
-                setSelOrg({...selOrg,plan:e.target.value,maxUsers:p?.maxUsers||3});
-              }}>
-              {PLANES_ORG.map(p=><option key={p.id} value={p.id}>{p.label} — {p.maxUsers} usuarios — ${p.precio.toLocaleString("es-UY")} UYU/mes</option>)}
+            <select className="inp" value={selOrg.plan} onChange={e=>{
+              const p=PLANES_ORG.find(pl=>pl.id===e.target.value);
+              setSelOrg({...selOrg,plan:e.target.value,max_users:p?.maxUsers||10});
+            }}>
+              {PLANES_ORG.map(p=><option key={p.id} value={p.id}>{p.label} — {p.maxUsers} usuarios</option>)}
             </select>
           </div>
           <div className="fg"><label className="lbl">Estado</label>
@@ -4034,18 +4076,23 @@ function Organizaciones({ users, setUsers, precios={} }) {
               <option value="inactiva">Inactiva</option>
             </select>
           </div>
-          <div className="fg"><label className="lbl">Email de contacto</label>
-            <input className="inp" value={selOrg.contacto||""}
-              onChange={e=>setSelOrg({...selOrg,contacto:e.target.value})}/>
-          </div>
-          <button className="btn btnp btnfull" onClick={()=>{
-            setOrgs(prev=>prev.map(o=>o.id===selOrg.id?selOrg:o));
-            setSelOrg(null);
-          }}>Guardar cambios</button>
-          <button className="btn btnd btnfull" onClick={()=>{
-            if(window.confirm("¿Eliminar esta organización?")) {
-              setOrgs(prev=>prev.filter(o=>o.id!==selOrg.id));
+          <button className="btn btnp btnfull" onClick={async()=>{
+            try {
+              await sbFetch(`organizaciones?id=eq.${selOrg.id}`, {
+                method:"PATCH",
+                body:JSON.stringify({ nombre:selOrg.nombre, plan:selOrg.plan, max_users:selOrg.max_users, activa:selOrg.activa }),
+              });
+              await loadOrgs();
               setSelOrg(null);
+            } catch(e){ alert("Error: "+e.message); }
+          }}>Guardar cambios</button>
+          <button className="btn btnd btnfull" onClick={async()=>{
+            if(window.confirm("¿Eliminar esta organización? Se eliminarán todos sus usuarios.")) {
+              try {
+                await sbFetch(`organizaciones?id=eq.${selOrg.id}`,{method:"DELETE",prefer:"return=minimal"});
+                await loadOrgs();
+                setSelOrg(null);
+              } catch(e){ alert("Error: "+e.message); }
             }
           }}>🗑️ Eliminar organización</button>
           <button className="btn btng btnfull" onClick={()=>setSelOrg(null)}>Cancelar</button>
