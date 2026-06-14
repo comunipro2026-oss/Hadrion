@@ -3896,10 +3896,10 @@ function Organizaciones({ users, setUsers, precios={}, currentUser }) {
         body: JSON.stringify({
           nombre: f.nombre,
           tipo: f.tipo,
-          plan: f.plan,
-          max_users: plan?.maxUsers || 10,
-          contacto: f.contacto,
-          telefono: f.telefono,
+          app: "hadrion",
+          hadrion_plan: f.plan,
+          limite_usuarios: plan?.maxUsers || 10,
+          admin_telefono: f.telefono,
           admin_email: f.admin_email,
           admin_password: f.admin_password,
           activa: true,
@@ -3984,7 +3984,7 @@ function Organizaciones({ users, setUsers, precios={}, currentUser }) {
   };
 
   const orgUsers = org => sbUsers.filter(u => u.org_id === org.id);
-  const canAddUser = org => orgUsers(org).length < (org.max_users || 10);
+  const canAddUser = org => orgUsers(org).length < (org.limite_usuarios || 10);
 
   if (loading) return <div style={{padding:40,textAlign:"center",color:"#9B9590"}}>Cargando organizaciones...</div>;
 
@@ -4015,7 +4015,7 @@ function Organizaciones({ users, setUsers, precios={}, currentUser }) {
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
               <div>
                 <div style={{fontWeight:700,fontSize:15}}>{org.nombre}</div>
-                <div style={{fontSize:11,color:"#9B9590"}}>{org.tipo} · Plan {plan?.label || org.plan}</div>
+                <div style={{fontSize:11,color:"#9B9590"}}>{org.tipo} · Plan {plan?.label || org.hadrion_plan || org.plan}</div>
                 {org.contacto && <div style={{fontSize:11,color:"#9B9590"}}>{org.contacto}</div>}
               </div>
               <div style={{display:"flex",gap:6,alignItems:"center"}}>
@@ -4029,7 +4029,7 @@ function Organizaciones({ users, setUsers, precios={}, currentUser }) {
               <div style={{flex:1,height:6,background:"#F0EBF8",borderRadius:4,overflow:"hidden"}}>
                 <div style={{height:"100%",borderRadius:4,background:plan?.color||"#9B7EBD",width:`${Math.min(pct,100)}%`,transition:"width .3s"}}/>
               </div>
-              <span style={{fontSize:12,fontWeight:700,color:plan?.color||"#9B7EBD"}}>{miembros.length}/{org.max_users||10}</span>
+              <span style={{fontSize:12,fontWeight:700,color:plan?.color||"#9B7EBD"}}>{miembros.length}/{org.limite_usuarios||10}</span>
               <span style={{fontSize:11,color:"#9B9590"}}>usuarios</span>
             </div>
             <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
@@ -4139,7 +4139,7 @@ function Organizaciones({ users, setUsers, precios={}, currentUser }) {
             try {
               await sbFetch(`organizaciones?id=eq.${selOrg.id}`, {
                 method:"PATCH",
-                body:JSON.stringify({ nombre:selOrg.nombre, plan:selOrg.plan, max_users:selOrg.max_users, activa:selOrg.activa }),
+                body:JSON.stringify({ nombre:selOrg.nombre, hadrion_plan:selOrg.hadrion_plan||selOrg.plan, limite_usuarios:selOrg.limite_usuarios||selOrg.max_users, activa:selOrg.activa }),
               });
               await loadOrgs();
               setSelOrg(null);
