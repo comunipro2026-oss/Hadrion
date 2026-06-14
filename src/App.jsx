@@ -3876,6 +3876,14 @@ function Organizaciones({ users, setUsers, precios={}, currentUser }) {
     setLoading(false);
   };
 
+  const LINK_APP = "https://hadrion.pages.dev";
+
+  const enviarWhatsApp = (telefono, mensaje) => {
+    const num = telefono.replace(/\D/g,"");
+    if (!num) return;
+    window.open(`https://wa.me/${num}?text=${encodeURIComponent(mensaje)}`, "_blank");
+  };
+
   const addOrg = async () => {
     if (!f.nombre) { setErr("El nombre es obligatorio."); return; }
     if (!f.admin_email) { setErr("El email del administrador es obligatorio."); return; }
@@ -3898,21 +3906,38 @@ function Organizaciones({ users, setUsers, precios={}, currentUser }) {
         }),
       });
       const org = Array.isArray(newOrg) ? newOrg[0] : newOrg;
-      // Crear el usuario admin de la org en hadrion_users
-      await sbFetch("hadrion_users", {
-        method: "POST",
-        body: JSON.stringify({
-          email: f.admin_email,
-          password: f.admin_password,
-          org_id: org.id,
-          role: "admin_org",
-          nombre: f.nombre,
-          status: "active",
-        }),
-      });
-      setOrgs(prev => [org, ...prev]);
-      setF({ nombre:"", tipo:"Clinica", plan:"clinica", contacto:"", telefono:"", admin_email:"", admin_password:"" });
+      if (!org?.id) throw new Error("No se obtuvo ID de la organización");
+      // Verificar si ya existe el usuario antes de crear
+      const existentes = await sbFetch(`hadrion_users?email=eq.${encodeURIComponent(f.admin_email)}&select=id`);
+      if (!existentes || existentes.length === 0) {
+        await sbFetch("hadrion_users", {
+          method: "POST",
+          body: JSON.stringify({
+            email: f.admin_email,
+            password: f.admin_password,
+            org_id: org.id,
+            role: "admin_org",
+            nombre: f.nombre,
+            status: "active",
+          }),
+        });
+      }
+      // Armar mensajes de acceso
+      const msgWsp = `Hola! Te damos acceso a Hadrion 🎉\nOrganización: ${f.nombre}\nEmail: ${f.admin_email}\nContraseña: ${f.admin_password}\nAccedé acá: ${LINK_APP}`;
+      const msgMail = `mailto:${f.admin_email}?subject=Acceso a Hadrion - ${f.nombre}&body=${encodeURIComponent(`Hola!\n\nTe damos acceso a Hadrion.\n\nOrganización: ${f.nombre}\nEmail: ${f.admin_email}\nContraseña: ${f.admin_password}\nLink: ${LINK_APP}\n\nSaludos,\nAdriana Soba - Hadrion`)}`;
       setShowNew(false);
+      setF({ nombre:"", tipo:"Clinica", plan:"clinica", contacto:"", telefono:"", admin_email:"", admin_password:"" });
+      // Ofrecer envío
+      if (f.telefono) {
+        if (window.confirm(`¿Enviar acceso por WhatsApp a ${f.telefono}?`)) {
+          enviarWhatsApp(f.telefono, msgWsp);
+        }
+      }
+      if (f.contacto && f.contacto.includes("@")) {
+        if (window.confirm(`¿Enviar acceso por email a ${f.contacto}?`)) {
+          window.open(msgMail, "_blank");
+        }
+      }
       await loadOrgs();
     } catch(e) {
       setErr("Error al crear: " + e.message);
@@ -3920,25 +3945,38 @@ function Organizaciones({ users, setUsers, precios={}, currentUser }) {
     setSaving(false);
   };
 
-  const addUserToOrg = async (org) => {
-    const email = prompt("Email del terapeuta a agregar:");
-    if (!email) return;
-    const password = prompt("Contraseña para ese terapeuta:");
-    if (!password) return;
-    const nombre = prompt("Nombre completo del terapeuta:");
-    if (!nombre) return;
+  const [showAddUser, setShowAddUser] = useState(null); // org activa
+  const [nu, setNu] = useState({ nombre:"", email:"", password:"", telefono:"" });
+
+  const addUserToOrg = async () => {
+    const org = showAddUser;
+    if (!nu.email || !nu.password || !nu.nombre) { alert("Completá nombre, email y contraseña."); return; }
     try {
-      // Verificar que no exista ya
-      const existing = sbUsers.find(u => u.email === email);
-      if (existing) { alert("Ya existe un usuario con ese email."); return; }
+      const existing = await sbFetch(`hadrion_users?email=eq.${encodeURIComponent(nu.email)}&select=id`);
+      if (existing && existing.length > 0) { alert("Ya existe un usuario con ese email."); return; }
       await sbFetch("hadrion_users", {
         method: "POST",
         body: JSON.stringify({
-          email, password, org_id: org.id,
-          role: "terapeuta", nombre, status: "active",
+          email: nu.email,
+          password: nu.password,
+          org_id: org.id,
+          role: "terapeuta",
+          nombre: nu.nombre,
+          status: "active",
         }),
       });
-      alert(`Terapeuta ${nombre} creado correctamente.`);
+      const msgWsp = `Hola ${nu.nombre}! Te damos acceso a Hadrion 🎉\nEmail: ${nu.email}\nContraseña: ${nu.password}\nAccedé acá: ${LINK_APP}`;
+      const msgMail = `mailto:${nu.email}?subject=Acceso a Hadrion&body=${encodeURIComponent(`Hola ${nu.nombre}!\n\nTe damos acceso a Hadrion.\n\nEmail: ${nu.email}\nContraseña: ${nu.password}\nLink: ${LINK_APP}\n\nSaludos,\nAdriana Soba - Hadrion`)}`;
+      setShowAddUser(null);
+      setNu({ nombre:"", email:"", password:"", telefono:"" });
+      if (nu.telefono) {
+        if (window.confirm(`¿Enviar acceso por WhatsApp a ${nu.telefono}?`)) {
+          enviarWhatsApp(nu.telefono, msgWsp);
+        }
+      }
+      if (window.confirm(`¿Enviar acceso por email a ${nu.email}?`)) {
+        window.open(msgMail, "_blank");
+      }
       await loadOrgs();
     } catch(e) {
       alert("Error: " + e.message);
@@ -4005,7 +4043,7 @@ function Organizaciones({ users, setUsers, precios={}, currentUser }) {
               ))}
               {canAddUser(org) && (
                 <button style={{background:"#EDE0F5",border:"none",borderRadius:20,padding:"4px 10px",fontSize:11,cursor:"pointer",color:"#9B7EBD",fontFamily:"sans-serif"}}
-                  onClick={()=>addUserToOrg(org)}>
+                  onClick={()=>{ setShowAddUser(org); setNu({nombre:"",email:"",password:"",telefono:""}); }}>
                   + Agregar terapeuta
                 </button>
               )}
@@ -4053,6 +4091,27 @@ function Organizaciones({ users, setUsers, precios={}, currentUser }) {
           <button className="btn btnp btnfull" onClick={addOrg} disabled={saving}>
             {saving ? "Guardando..." : "Crear organización"}
           </button>
+        </Modal>
+      )}
+
+      {showAddUser && (
+        <Modal title={`👤 Agregar terapeuta — ${showAddUser.nombre}`} onClose={()=>setShowAddUser(null)}>
+          <div className="fg"><label className="lbl">Nombre completo</label>
+            <input className="inp" placeholder="Ej: María González" value={nu.nombre} onChange={e=>setNu({...nu,nombre:e.target.value})}/>
+          </div>
+          <div className="fg"><label className="lbl">Email</label>
+            <input className="inp" type="email" value={nu.email} onChange={e=>setNu({...nu,email:e.target.value})}/>
+          </div>
+          <div className="fg"><label className="lbl">Contraseña</label>
+            <input className="inp" type="text" value={nu.password} onChange={e=>setNu({...nu,password:e.target.value})}/>
+          </div>
+          <div className="fg"><label className="lbl">Teléfono WhatsApp (opcional)</label>
+            <input className="inp" type="tel" placeholder="(+598) 9..." value={nu.telefono} onChange={e=>setNu({...nu,telefono:e.target.value})}/>
+          </div>
+          <div style={{background:"#F0F8FF",borderRadius:10,padding:10,marginBottom:8,fontSize:12,color:"#555"}}>
+            📨 Al crear, podés enviarle el acceso por <b>WhatsApp</b> y/o <b>email</b> automáticamente.
+          </div>
+          <button className="btn btnp btnfull" onClick={addUserToOrg}>Crear terapeuta y enviar acceso</button>
         </Modal>
       )}
 
@@ -5527,8 +5586,23 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
       sbFetch(`hadrion_pacientes?org_id=eq.${orgId}&status=eq.active&select=*`),
       sbFetch(`hadrion_asistencias?org_id=eq.${orgId}&mes=eq.${mes}&select=*`),
     ]).then(([us, pats, asis]) => {
-      setSbUsers(us || []);
-      setSbPats(pats || []);
+      // Normalizar campos: Supabase usa "nombre", el render usa "name"
+      const normalized = (us||[]).map(u => ({
+        ...u,
+        name: u.name || u.nombre || u.email || "Sin nombre",
+        avatar: u.avatar || (u.name||u.nombre||u.email||"?")[0].toUpperCase(),
+        specialty: u.specialty || u.especialidad || "Terapeuta",
+        color: u.color || "#9B7EBD",
+      }));
+      setSbUsers(normalized);
+      // Normalizar pacientes de Supabase
+      const patsNorm = (pats||[]).map(p => ({
+        ...p,
+        name: p.name || p.nombre || "Paciente",
+        avatar: p.avatar || (p.name||p.nombre||"P")[0].toUpperCase(),
+        color: p.color || "#9B7EBD",
+      }));
+      setSbPats(patsNorm);
       // Mapa: { patientId: { dia: estado } }
       const m = {};
       (asis||[]).forEach(a => {
@@ -5668,7 +5742,17 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
       try {
         await sbFetch("hadrion_users", {
           method:"POST",
-          body: JSON.stringify({ ...newUser, org_id:orgId, role:"profesional", plan:"Pro", status:"active", color:C.terra }),
+          body: JSON.stringify({
+            nombre: newUser.name,
+            name: newUser.name,
+            email: newUser.email,
+            password: newUser.password,
+            specialty: newUser.specialty,
+            org_id: orgId,
+            role: "terapeuta",
+            status: "active",
+            color: C.terra,
+          }),
         });
         const us = await sbGetUsers(orgId);
         setSbUsers(us||[]);
@@ -6370,12 +6454,16 @@ export default function HadrionApp() {
 
   const setUserAndPersist = (u) => {
     const token = makeId();
-    const userWithToken = { ...u, sessionToken: token, lastLogin: new Date().toLocaleString("es-UY") };
-    // Actualizar token en lista de usuarios
-    const updatedUsers = users.map(x => x.id === u.id ? userWithToken : x);
+    // Preservar org_id si viene de Supabase y no está en el array local
+    const localUser = users.find(x => x.id === u.id || x.email === u.email);
+    const merged = { ...(localUser||{}), ...u, sessionToken: token, lastLogin: new Date().toLocaleString("es-UY") };
+    // Actualizar lista local solo si el usuario existe en ella
+    const updatedUsers = localUser
+      ? users.map(x => (x.id === u.id || x.email === u.email) ? merged : x)
+      : users;
     setUsersRaw(updatedUsers);
-    setUser(userWithToken);
-    saveToStorage({ users:updatedUsers, user:userWithToken, patients, sessions, payments, agendaItems, plan,
+    setUser(merged);
+    saveToStorage({ users:updatedUsers, user:merged, patients, sessions, payments, agendaItems, plan,
       registerRequests, precios, documentos, plantillas, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory });
   };
 
