@@ -3890,28 +3890,50 @@ function Organizaciones({ users, setUsers, precios={}, currentUser }) {
     if (!f.admin_password) { setErr("La contraseña del administrador es obligatoria."); return; }
     setSaving(true); setErr("");
     try {
-      const plan = PLANES_ORG.find(p => p.id === f.plan);
-      const newOrg = await sbFetch("organizaciones", {
+      const planObj = PLANES_ORG.find(p => p.id === f.plan);
+      // 1. Crear org en Supabase
+      const res = await fetch(`${SB_URL}/rest/v1/organizaciones`, {
         method: "POST",
+        headers: {
+          "apikey": SB_KEY,
+          "Authorization": `Bearer ${SB_KEY}`,
+          "Content-Type": "application/json",
+          "Prefer": "return=representation",
+        },
         body: JSON.stringify({
           nombre: f.nombre,
           tipo: f.tipo,
           app: "hadrion",
           hadrion_plan: f.plan,
-          limite_usuarios: plan?.maxUsers || 10,
-          admin_telefono: f.telefono,
+          limite_usuarios: planObj?.maxUsers || 10,
+          admin_telefono: f.telefono || null,
           admin_email: f.admin_email,
           admin_password: f.admin_password,
           activa: true,
         }),
       });
-      const org = Array.isArray(newOrg) ? newOrg[0] : newOrg;
-      if (!org?.id) throw new Error("No se obtuvo ID de la organización");
-      // Verificar si ya existe el usuario antes de crear
-      const existentes = await sbFetch(`hadrion_users?email=eq.${encodeURIComponent(f.admin_email)}&select=id`);
-      if (!existentes || existentes.length === 0) {
-        await sbFetch("hadrion_users", {
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt);
+      }
+      const data = await res.json();
+      const org = Array.isArray(data) ? data[0] : data;
+      if (!org?.id) throw new Error("Supabase no devolvió el ID de la organización");
+
+      // 2. Crear usuario admin_org en hadrion_users (si no existe)
+      const checkRes = await fetch(`${SB_URL}/rest/v1/hadrion_users?email=eq.${encodeURIComponent(f.admin_email)}&select=id`, {
+        headers: { "apikey": SB_KEY, "Authorization": `Bearer ${SB_KEY}` }
+      });
+      const existing = await checkRes.json();
+      if (!existing || existing.length === 0) {
+        await fetch(`${SB_URL}/rest/v1/hadrion_users`, {
           method: "POST",
+          headers: {
+            "apikey": SB_KEY,
+            "Authorization": `Bearer ${SB_KEY}`,
+            "Content-Type": "application/json",
+            "Prefer": "return=minimal",
+          },
           body: JSON.stringify({
             email: f.admin_email,
             password: f.admin_password,
@@ -3922,23 +3944,49 @@ function Organizaciones({ users, setUsers, precios={}, currentUser }) {
           }),
         });
       }
-      // Armar mensajes de acceso
-      const msgWsp = `Hola! Te damos acceso a Hadrion 🎉\nOrganización: ${f.nombre}\nEmail: ${f.admin_email}\nContraseña: ${f.admin_password}\nAccedé acá: ${LINK_APP}`;
-      const msgMail = `mailto:${f.admin_email}?subject=Acceso a Hadrion - ${f.nombre}&body=${encodeURIComponent(`Hola!\n\nTe damos acceso a Hadrion.\n\nOrganización: ${f.nombre}\nEmail: ${f.admin_email}\nContraseña: ${f.admin_password}\nLink: ${LINK_APP}\n\nSaludos,\nAdriana Soba - Hadrion`)}`;
+
+      // 3. Guardar datos para envío ANTES de limpiar el form
+      const nombre = f.nombre;
+      const email = f.admin_email;
+      const pass = f.admin_password;
+      const tel = f.telefono;
+
+      // 4. Limpiar y cerrar modal
       setShowNew(false);
-      setF({ nombre:"", tipo:"Clinica", plan:"clinica", contacto:"", telefono:"", admin_email:"", admin_password:"" });
-      // Ofrecer envío
-      if (f.telefono) {
-        if (window.confirm(`¿Enviar acceso por WhatsApp a ${f.telefono}?`)) {
-          enviarWhatsApp(f.telefono, msgWsp);
-        }
-      }
-      if (f.contacto && f.contacto.includes("@")) {
-        if (window.confirm(`¿Enviar acceso por email a ${f.contacto}?`)) {
-          window.open(msgMail, "_blank");
-        }
-      }
+      setF({ nombre:"", tipo:"Clinica", plan:"clinica", telefono:"", admin_email:"", admin_password:"" });
+
+      // 5. Recargar orgs
       await loadOrgs();
+
+      // 6. Ofrecer envío
+      const msgWsp = `Hola! Te damos acceso a Hadrion 🎉
+Organización: ${nombre}
+Email: ${email}
+Contraseña: ${pass}
+Accedé acá: ${LINK_APP}`;
+      if (tel) {
+        if (window.confirm(`✅ Organización creada!
+
+¿Enviar acceso por WhatsApp a ${tel}?`)) {
+          enviarWhatsApp(tel, msgWsp);
+        }
+      } else {
+        alert(`✅ Organización "${nombre}" creada correctamente.`);
+      }
+      if (window.confirm(`¿Enviar acceso por email a ${email}?`)) {
+        window.open(`mailto:${email}?subject=Acceso a Hadrion - ${nombre}&body=${encodeURIComponent(`Hola!
+
+Te damos acceso a Hadrion.
+
+Organización: ${nombre}
+Email: ${email}
+Contraseña: ${pass}
+Link: ${LINK_APP}
+
+Saludos,
+Adriana Soba - Hadrion`)}`, "_blank");
+      }
+
     } catch(e) {
       setErr("Error al crear: " + e.message);
     }
