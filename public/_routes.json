@@ -1,5 +1,19 @@
 {
   "version": 1,
   "include": ["/*"],
-  "exclude": []
+  "exclude": [
+    "/favicon.svg",
+    "/manifest.json",
+    "/assets/*"
+  ],
+  "routes": [
+    {
+      "pattern": "^/assets/.*",
+      "route": "/assets/:path*"
+    },
+    {
+      "pattern": ".*",
+      "route": "/index.html"
+    }
+  ]
 }
