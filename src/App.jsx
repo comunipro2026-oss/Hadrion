@@ -6711,8 +6711,8 @@ export default function HadrionApp() {
   );
 
   // Banner de cuenta cancelada (período de gracia 30 días)
-  const isCancelled   = user.status === "cancelled";
-  const dataExpDays   = user.dataExpiresAt ? daysUntil(user.dataExpiresAt) : null;
+  const isCancelled   = user?.status === "cancelled";
+  const dataExpDays   = user?.dataExpiresAt ? daysUntil(user.dataExpiresAt) : null;
   const showCancelBanner = isCancelled && dataExpDays !== null && dataExpDays > 0;
 
   const pages = {
