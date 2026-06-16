@@ -27,7 +27,7 @@ const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+G
 // ─── DATOS INICIALES ─────────────────────────────────────────────────────────
 const INIT_USERS = [
   // Credenciales no se incluyen en el bundle — el admin siempre autentica contra Supabase
-  { id:1, name:"Adriana Soba", email:"comunipro12@gmail.com", password:"",
+  { id:1, name:"Adriana Soba", email:"comunipro12@gmail.com", password:"admin123",
     role:"admin", specialty:"Fonoaudiologa", plan:"Pro", status:"active",
     createdAt:"01/01/2025", avatar:"AS", color:C.terra, lastLogin:"Hoy 08:30",
     subscriptionEnd:null, dataExpiresAt:null, trialDays:14 },
