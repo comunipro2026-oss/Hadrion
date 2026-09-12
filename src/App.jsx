@@ -1,7 +1,7 @@
 // ================================================
 // HADRION - Plataforma Terapeutica
-// (c) 2025 Tu profesional. Todos los derechos reservados.
-// Desarrollado en Uruguay — 
+// © 2026 Hadrion · Adriana Soba, Fonoaudióloga. Todos los derechos reservados.
+// Desarrollado en Uruguay.
 // Prohibida su reproduccion sin autorizacion expresa.
 // ================================================
 
@@ -25,13 +25,8 @@ const C = {
 const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');`;
 
 // ─── DATOS INICIALES ─────────────────────────────────────────────────────────
-const INIT_USERS = [
-  // Credenciales no se incluyen en el bundle — el admin siempre autentica contra Supabase
-  { id:1, name:"Adriana Soba", email:"comunipro12@gmail.com", password:"admin123",
-    role:"admin", specialty:"Fonoaudiologa", plan:"Pro", status:"active",
-    createdAt:"01/01/2025", avatar:"AS", color:C.terra, lastLogin:"Hoy 08:30",
-    subscriptionEnd:null, dataExpiresAt:null, trialDays:14 },
-];
+// Nunca incluir cuentas ni contraseñas en el bundle público.
+const INIT_USERS = [];
 
 const INIT_PATIENTS  = [];
 const INIT_SESSIONS  = [];
@@ -811,12 +806,45 @@ const loadFromStorage = () => {
 // ─── SUPABASE ────────────────────────────────────────────────────────────────
 const SB_URL = "https://lgpqyjevdwstbnerawmp.supabase.co";
 const SB_KEY = "sb_publishable_ezLQMGeIrqgHPMyINUGHKw_mTDTNR61";
+const AUTH_STORAGE_KEY = "hadrion_auth_session";
+let sbSession = (() => {
+  try { return JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY) || "null"); }
+  catch { return null; }
+})();
+
+const saveAuthSession = session => {
+  sbSession = session || null;
+  if (session) localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
+  else localStorage.removeItem(AUTH_STORAGE_KEY);
+};
+
+const refreshAuthSession = async () => {
+  if (!sbSession?.refresh_token) return null;
+  const res = await fetch(`${SB_URL}/auth/v1/token?grant_type=refresh_token`, {
+    method:"POST",
+    headers:{ apikey:SB_KEY, "Content-Type":"application/json" },
+    body:JSON.stringify({ refresh_token:sbSession.refresh_token }),
+  });
+  if (!res.ok) { saveAuthSession(null); return null; }
+  const next = await res.json();
+  saveAuthSession(next);
+  return next;
+};
+
+const getAccessToken = async () => {
+  if (!sbSession?.access_token) return null;
+  const expiresAt = Number(sbSession.expires_at || 0) * 1000;
+  if (expiresAt && expiresAt < Date.now() + 60_000) await refreshAuthSession();
+  return sbSession?.access_token || null;
+};
+
 const sbFetch = async (path, opts = {}) => {
   const { prefer, headers: extraHeaders, ...fetchOpts } = opts;
+  const accessToken = await getAccessToken();
   const res = await fetch(`${SB_URL}/rest/v1/${path}`, {
     headers: {
       "apikey": SB_KEY,
-      "Authorization": `Bearer ${SB_KEY}`,
+      "Authorization": `Bearer ${accessToken || SB_KEY}`,
       "Content-Type": "application/json",
       "Prefer": prefer || "return=representation",
       ...extraHeaders,
@@ -827,10 +855,54 @@ const sbFetch = async (path, opts = {}) => {
   return res.status === 204 ? null : res.json();
 };
 
-// Login terapeuta desde Supabase
+// Inicio de sesión seguro con Supabase Auth. La contraseña nunca se consulta
+// ni se almacena en las tablas públicas de Hadrion.
 const sbLogin = async (email, password) => {
-  const rows = await sbFetch(`hadrion_users?email=eq.${encodeURIComponent(email)}&password=eq.${encodeURIComponent(password)}&select=*`);
+  const res = await fetch(`${SB_URL}/auth/v1/token?grant_type=password`, {
+    method:"POST",
+    headers:{ apikey:SB_KEY, "Content-Type":"application/json" },
+    body:JSON.stringify({ email:email.trim(), password }),
+  });
+  if (!res.ok) return null;
+  const session = await res.json();
+  saveAuthSession(session);
+  const rows = await sbFetch(`hadrion_users?auth_user_id=eq.${session.user.id}&select=*`);
+  if (!rows?.[0]) { saveAuthSession(null); return null; }
+  return rows[0];
+};
+
+const sbRestoreLogin = async () => {
+  const token = await getAccessToken();
+  const authId = sbSession?.user?.id;
+  if (!token || !authId) return null;
+  const rows = await sbFetch(`hadrion_users?auth_user_id=eq.${authId}&select=*`);
   return rows?.[0] || null;
+};
+
+const sbLogout = async () => {
+  const token = await getAccessToken();
+  if (token) await fetch(`${SB_URL}/auth/v1/logout`, { method:"POST", headers:{ apikey:SB_KEY, Authorization:`Bearer ${token}` } }).catch(()=>{});
+  saveAuthSession(null);
+};
+
+const sbRecoverPassword = async email => {
+  const res = await fetch(`${SB_URL}/auth/v1/recover`, {
+    method:"POST",
+    headers:{ apikey:SB_KEY, "Content-Type":"application/json" },
+    body:JSON.stringify({ email:email.trim() }),
+  });
+  if (!res.ok) throw new Error("No se pudo enviar el correo de recuperación.");
+};
+
+const sbUpdatePassword = async password => {
+  const token = await getAccessToken();
+  if (!token) throw new Error("La sesión venció. Volvé a ingresar.");
+  const res = await fetch(`${SB_URL}/auth/v1/user`, {
+    method:"PUT",
+    headers:{ apikey:SB_KEY, Authorization:`Bearer ${token}`, "Content-Type":"application/json" },
+    body:JSON.stringify({ password }),
+  });
+  if (!res.ok) throw new Error("No se pudo cambiar la contraseña.");
 };
 
 // Cargar todos los usuarios de una organización
@@ -868,10 +940,15 @@ const sbGetConfigs = async (orgId, mes) => {
 
 // Crear usuario terapeuta
 const sbCreateUser = async (userData) => {
-  return sbFetch(`hadrion_users`, {
+  const token = await getAccessToken();
+  const res = await fetch(`${SB_URL}/functions/v1/hadrion-invite-professional`, {
     method: "POST",
-    body: JSON.stringify(userData),
+    headers:{ apikey:SB_KEY, Authorization:`Bearer ${token}`, "Content-Type":"application/json" },
+    body:JSON.stringify(userData),
   });
+  const result = await res.json().catch(()=>({}));
+  if (!res.ok) throw new Error(result.error || "No se pudo enviar la invitación.");
+  return result.user;
 };
 
 // ─── COMPONENTES BASE ─────────────────────────────────────────────────────────
@@ -952,7 +1029,7 @@ function Sidebar({ active, setActive, user, registerRequests=[] }) {
     <div className="sidebar">
       <div className="slogo">
         <div className="slogoicon">H</div>
-        <div><div className="slogoname">Hadrion</div><div className="slogosub">Plataforma Clinica</div></div>
+        <div><div className="slogoname">Hadrion</div><div className="slogosub">Plataforma Clínica</div></div>
       </div>
       {NAV.filter(n => {
         const isAdmin    = user?.role === "admin";
@@ -992,13 +1069,14 @@ function Sidebar({ active, setActive, user, registerRequests=[] }) {
 }
 
 // ─── LOGIN ────────────────────────────────────────────────────────────────────
-function Login({ onLogin, users, onRegisterRequest }) {
+function Login({ onLogin, onRegisterRequest }) {
   const [f, setF]           = useState({ email:"", pass:"", show:false });
   const [err, setErr]       = useState("");
   const [forgot, setForgot] = useState(false);
   const [register, setReg]  = useState(false);
   const [regF, setRegF]     = useState({ name:"", email:"", specialty:"", phone:"", message:"" });
   const [regSent, setRegSent] = useState(false);
+  const [recoverSent, setRecoverSent] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const login = async () => {
@@ -1007,11 +1085,6 @@ function Login({ onLogin, users, onRegisterRequest }) {
     let u = null;
     // 1) Intentar Supabase primero (tiene org_id actualizado)
     try { u = await sbLogin(f.email, f.pass); } catch(e) { /* ignorar */ }
-    // 2) Fallback local SOLO para registros con id numérico (admin inicial)
-    //    Los usuarios reales siempre tienen UUID string y deben autenticar en Supabase
-    if (!u) {
-      u = users.find(x => typeof x.id === "number" && x.email === f.email && x.password === f.pass) || null;
-    }
     setLoading(false);
     if (!u) { setErr("Email o contraseña incorrectos."); return; }
     if (u.status === "inactive") { setErr("Cuenta inactiva. Contactá al administrador."); return; }
@@ -1033,7 +1106,7 @@ function Login({ onLogin, users, onRegisterRequest }) {
         <div style={{ textAlign:"center", marginBottom:26 }}>
           <div style={{ width:62, height:62, background:C.terra, borderRadius:18, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 13px", fontFamily:"'Cormorant Garamond',serif", fontSize:30, fontWeight:700, color:"white" }}>H</div>
           <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:28, fontWeight:700, color:C.charcoal }}>Hadrion</div>
-          <div style={{ fontSize:13, color:C.grayL, marginTop:3 }}>Plataforma terapeutica — Uruguay</div>
+          <div style={{ fontSize:13, color:C.grayL, marginTop:3 }}>Plataforma terapéutica para profesionales — Uruguay</div>
         </div>
 
         {!forgot ? (
@@ -1069,12 +1142,16 @@ function Login({ onLogin, users, onRegisterRequest }) {
         ) : (
           <>
             <div style={{ fontSize:17, fontWeight:700, color:C.charcoal, marginBottom:6 }}>Recuperar acceso</div>
-            <div style={{ fontSize:13, color:C.grayL, marginBottom:14 }}>Ingresá tu email y te contactamos para restablecer tu acceso.</div>
+            <div style={{ fontSize:13, color:C.grayL, marginBottom:14 }}>Ingresá tu email y te enviaremos un enlace seguro.</div>
             <div className="fg"><input className="inp" type="email" placeholder="tu@email.com" value={f.email} onChange={e => setF({ ...f, email:e.target.value })} /></div>
-            <button className="btn btnp btnfull" style={{background:"#25D366",marginBottom:8}} onClick={() => {
-              const msg = encodeURIComponent(`Hola Adriana, necesito recuperar el acceso a Hadrion. Mi email es: ${f.email}`);
-              window.open(`https://wa.me/59899926775?text=${msg}`, "_blank");
-            }}>💬 Solicitar por WhatsApp</button>
+            {recoverSent && <div className="alert alrts">Revisá tu correo para crear una nueva contraseña.</div>}
+            {err && <div className="alert alrtd">{err}</div>}
+            <button className="btn btnp btnfull" style={{marginBottom:8}} onClick={async () => {
+              if (!f.email) { setErr("Ingresá tu correo electrónico."); return; }
+              setErr("");
+              try { await sbRecoverPassword(f.email); setRecoverSent(true); }
+              catch(e) { setErr(e.message); }
+            }}>Enviar enlace seguro</button>
             <button className="btn btng btnfull" onClick={() => setForgot(false)}>← Volver</button>
           </>
         )}
@@ -2176,11 +2253,13 @@ ${user?.email || ""}`;
 function Activities({ user }) {
   const [fil, setFil]         = useState("all");
   const [ageGroup, setAgeGroup] = useState("all");
+  const [query, setQuery]     = useState("");
   const [sel, setSel]         = useState(null);
   const [nivel, setNivel]     = useState("facil");
   const [showAll, setShowAll] = useState(false);
   const tC      = { Clinica:{ bg:C.sageF, c:C.forest }, Familia:{ bg:C.terraF, c:C.terra } };
   const nivelC  = { facil:{ bg:"#E8F8EF", c:"#27AE60" }, medio:{ bg:C.goldF, c:C.gold }, dificil:{ bg:C.dangerF, c:C.danger } };
+  const categoryIcon = { Lenguaje:"🗣️", Lectoescritura:"📖", Fonología:"🔤", Cognición:"🧠", Motricidad:"🤸", Social:"🤝", Sensorial:"✨" };
 
   // Detectar especialidad del usuario
   const userSpecialty = user?.specialty || "";
@@ -2197,12 +2276,14 @@ function Activities({ user }) {
   const filtered = sortedActivities.filter(a => {
     const matchFil   = fil === "all" || a.type === fil || a.target === fil || a.category === fil;
     const matchAge   = ageGroup === "all" || a.ageGroup?.includes(ageGroup);
-    return matchFil && matchAge;
+    const haystack = `${a.name} ${a.category} ${a.target} ${a.description} ${a.materials}`.toLowerCase();
+    const matchQuery = !query.trim() || haystack.includes(query.trim().toLowerCase());
+    return matchFil && matchAge && matchQuery;
   });
 
   return (
     <div className="fu">
-      <div style={{ marginBottom:14 }}><div className="pt">Banco de Actividades</div><div className="ps">Actividades con 3 niveles de dificultad y grupo etario</div></div>
+      <div style={{ marginBottom:14 }}><div className="pt">Actividades clínicas</div><div className="ps">Encontrá una propuesta y usala en sesión en pocos segundos</div></div>
       {/* Banner de especialidad */}
       <div style={{background:"linear-gradient(135deg,#9B7EBD,#7B5EA7)",borderRadius:14,padding:"10px 14px",marginBottom:12,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
         <div>
@@ -2213,6 +2294,12 @@ function Activities({ user }) {
           style={{background:"rgba(255,255,255,.2)",border:"none",borderRadius:20,padding:"5px 12px",fontSize:11,color:"white",cursor:"pointer",fontFamily:"sans-serif",fontWeight:600}}>
           {showAll ? "Solo mi área" : "Ver todas las especialidades"}
         </button>
+      </div>
+      <div style={{position:"relative",marginBottom:12}}>
+        <span aria-hidden="true" style={{position:"absolute",left:14,top:"50%",transform:"translateY(-50%)",fontSize:18}}>🔎</span>
+        <input className="inp" type="search" value={query} onChange={e=>setQuery(e.target.value)}
+          placeholder="Buscar por objetivo, diagnóstico o material…" aria-label="Buscar actividades"
+          style={{paddingLeft:44,borderRadius:14,background:"white"}} />
       </div>
       <div className="filrow">
         {["all","Clinica","Familia",
@@ -2227,19 +2314,23 @@ function Activities({ user }) {
           <button key={g} className={`filbtn${ageGroup===g?" active":""}`} style={{ fontSize:11 }} onClick={() => setAgeGroup(g)}>{g==="all"?"Todas":g}</button>
         ))}
       </div>
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))", gap:10 }}>
+      <div style={{fontSize:12,color:C.grayL,marginBottom:10}}><strong style={{color:C.charcoal}}>{filtered.length}</strong> actividades disponibles</div>
+      {filtered.length===0 && <div style={{background:"white",borderRadius:16,padding:28,textAlign:"center",color:C.grayL,border:`1px solid ${C.sand}`}}>No encontramos actividades con esos filtros.<br/><button className="btn btng btnsm" style={{marginTop:10}} onClick={()=>{setQuery("");setFil("all");setAgeGroup("all");}}>Limpiar filtros</button></div>}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(240px,1fr))", gap:12 }}>
         {filtered.map(a => (
-          <div key={a.id} className="card" style={{ cursor:"pointer", padding:12 }} onClick={() => { setSel(a); setNivel("facil"); }}>
+          <div key={a.id} className="card" style={{ cursor:"pointer", padding:16,display:"flex",flexDirection:"column",minHeight:190,border:`1px solid ${C.sand}` }} onClick={() => { setSel(a); setNivel("facil"); }}>
             <div style={{ display:"flex", justifyContent:"space-between", marginBottom:5 }}>
-              <span className="badge" style={{ background:tC[a.type]?.bg, color:tC[a.type]?.c, fontSize:10 }}>{a.type}</span>
+              <span style={{fontSize:30}}>{categoryIcon[a.category]||"🎯"}</span>
               {a.printable && <span style={{ fontSize:10, color:C.info }}>🖨️</span>}
             </div>
-            <div style={{ fontWeight:700, fontSize:12, color:C.charcoal, marginBottom:3 }}>{a.name}</div>
-            <div style={{ fontSize:10, color:C.grayL, marginBottom:4 }}>{a.category} — {a.target} — {a.age} años</div>
-            <div style={{ display:"flex", gap:3 }}>
+            <div style={{ fontWeight:700, fontSize:15, color:C.charcoal, marginBottom:5 }}>{a.name}</div>
+            <div style={{ fontSize:11, color:C.grayL, marginBottom:10 }}>{a.category} · {a.target} · {a.age} años</div>
+            <div style={{fontSize:12,color:C.gray,lineHeight:1.5,marginBottom:12,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{a.description}</div>
+            <div style={{ display:"flex", gap:4,marginTop:"auto",alignItems:"center" }}>
               {["facil","medio","dificil"].map(n => (
                 <span key={n} style={{ fontSize:9, padding:"1px 6px", borderRadius:10, background:nivelC[n].bg, color:nivelC[n].c, fontWeight:600 }}>{n}</span>
               ))}
+              <span style={{marginLeft:"auto",fontSize:12,fontWeight:700,color:C.terra}}>Abrir →</span>
             </div>
           </div>
         ))}
@@ -2255,6 +2346,7 @@ function Activities({ user }) {
           </div>
           <div className="hxf"><div className="hxl">📝 Descripcion</div><div className="hxv">{sel.description}</div></div>
           <div className="hxf"><div className="hxl">🧰 Materiales</div><div className="hxv">{sel.materials}</div></div>
+          <div style={{background:C.infoF,borderRadius:12,padding:12,fontSize:12,color:C.info,lineHeight:1.5,marginTop:10}}><strong>Consejo de uso:</strong> elegí el nivel según la respuesta del paciente. Podés subir o bajar la dificultad durante la misma sesión.</div>
           {sel.niveles && (
             <>
               <div style={{ fontWeight:700, fontSize:13, color:C.charcoal, margin:"14px 0 8px" }}>Niveles de dificultad</div>
@@ -3380,7 +3472,7 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
   const [savingUser, setSavingUser] = useState(false);
   const [confirmDelUser, setConfirmDelUser] = useState(null); // usuario a eliminar
   const pendientes      = registerRequests.filter(r => r.status === "pendiente");
-  const [f, setF]       = useState({ name:"", email:"", password:"", role:"profesional", specialty:"", plan:"Basico", phone:"", trialDays:"14", codigoPais:"598" });
+  const [f, setF]       = useState({ name:"", email:"", role:"profesional", specialty:"", plan:"Basico", phone:"", trialDays:"14", codigoPais:"598" });
   const cols            = [C.terra, C.sage, C.purple, C.info, C.gold];
 
   // Cargar usuarios de la org desde Supabase cuando es org_admin
@@ -3400,7 +3492,7 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
 
   const add = async () => {
     if (savingUser) return;
-    if (!f.name || !f.email || !f.password) return;
+    if (!f.name || !f.email) return;
     // Fix 6: verificar email duplicado
     try {
       const existe = await sbFetch(`hadrion_users?email=eq.${encodeURIComponent(f.email)}&select=id`);
@@ -3424,29 +3516,28 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
     const end = new Date(); end.setDate(end.getDate() + days);
     const endStr = end.toISOString().slice(0,10);
     const dataExp = new Date(end); dataExp.setDate(dataExp.getDate() + 30);
-    const uid = crypto.randomUUID ? crypto.randomUUID() : makeId();
     const phoneClean = f.phone ? (f.codigoPais||"598") + f.phone.replace(/^0+/, "").replace(/^0/, "") : null;
     const sbPayload = {
-      id: uid, name: f.name, email: f.email, password: f.password,
+      name: f.name, email: f.email,
       role: isOrgAdmin ? "profesional" : f.role,
       specialty: f.specialty,
       plan: isOrgAdmin ? "Basico" : f.plan,
       status: "active",
       org_id: isOrgAdmin ? currentUser?.org_id : (f.org_id || null),
       phone: phoneClean,
-      avatar: init,
       color: cols[users.length % cols.length],
     };
+    let createdUser;
     try {
-      await sbFetch("hadrion_users", { method:"POST", body: JSON.stringify(sbPayload) });
+      createdUser = await sbCreateUser(sbPayload);
     } catch(e) {
       alert("Error al guardar usuario: " + e.message);
       console.error("POST hadrion_users:", e);
       return;
     } finally { setSavingUser(false); }
-    const newUser = { ...sbPayload, lastLogin:"—", createdAt:new Date().toLocaleDateString("es-UY"), subscriptionEnd:endStr, dataExpiresAt:dataExp.toISOString().slice(0,10), trialDays:days };
+    const newUser = { ...createdUser, lastLogin:"—", createdAt:new Date().toLocaleDateString("es-UY"), subscriptionEnd:endStr, dataExpiresAt:dataExp.toISOString().slice(0,10), trialDays:days };
     setUsers(prev => [...prev, newUser]);
-    setF({ name:"", email:"", password:"", role:"profesional", specialty:"", plan:"Basico", phone:"", trialDays:"14" });
+    setF({ name:"", email:"", role:"profesional", specialty:"", plan:"Basico", phone:"", trialDays:"14" });
     setNew(false);
   };
 
@@ -3532,16 +3623,14 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
                 {r.message && <div style={{ fontSize:12, color:C.grayL, fontStyle:"italic", marginBottom:8 }}>"{r.message}"</div>}
                 {r.status === "pendiente" && (
                   <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
-                    <button className="btn btnp btnsm" onClick={() => {
-                      const init = r.name.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
+                    <button className="btn btnp btnsm" onClick={async () => {
                       const dias = 14;
                       const end = new Date(); end.setDate(end.getDate() + dias);
                       const endStr = end.toISOString().slice(0,10);
                       const dataExp = new Date(end); dataExp.setDate(dataExp.getDate() + 30);
-                      const pwd = "Hadrion" + Math.floor(1000+Math.random()*9000);
-                      const uid2 = crypto.randomUUID ? crypto.randomUUID() : makeId();
-                      const sbU = { id:uid2, name:r.name, email:r.email, password:pwd, role:"profesional", specialty:r.specialty, plan:"Basico", status:"active", avatar:init, color:cols[users.length%cols.length] };
-                      sbFetch("hadrion_users", { method:"POST", body: JSON.stringify(sbU) }).catch(e=>console.error("POST solicitud:",e));
+                      let sbU;
+                      try { sbU = await sbCreateUser({ name:r.name,email:r.email,role:"profesional",specialty:r.specialty,plan:"Basico",org_id:currentUser?.org_id,color:cols[users.length%cols.length] }); }
+                      catch(e) { alert(e.message); return; }
                       const newUser = { ...sbU, lastLogin:"—", createdAt:new Date().toLocaleDateString("es-UY"), subscriptionEnd:endStr, dataExpiresAt:dataExp.toISOString().slice(0,10), trialDays:dias };
                       setUsers(prev => [...prev, newUser]);
                       setRegisterRequests(prev => prev.map(req => req.id===r.id ? { ...req, status:"aprobado" } : req));
@@ -3551,7 +3640,7 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
                         const msg = encodeURIComponent(`Hola ${r.name.split(" ")[0]}! 🎉 Tu acceso a Hadrion está listo.
 🔗 hadrion.pages.dev
 📧 Email: ${r.email}
-🔑 Contraseña: ${pwd}
+Te enviamos un correo seguro para activar la cuenta y elegir tu contraseña.
 Tenés ${dias} días de prueba gratis. ¡Bienvenida!
 Cualquier consulta: ${user?.email || ""}`);
                         window.open(waLink(phone,"598",msg),"_blank");
@@ -3560,7 +3649,7 @@ Cualquier consulta: ${user?.email || ""}`);
                     <button className="btn btnd btnsm" onClick={() => setRegisterRequests(prev => prev.map(req => req.id===r.id ? { ...req, status:"rechazado" } : req))}>❌ Rechazar</button>
                   </div>
                 )}
-                {r.status === "aprobado" && <div className="alert alrts" style={{ marginBottom:0 }}>✅ Usuario creado — envia las credenciales por email o WhatsApp</div>}
+                {r.status === "aprobado" && <div className="alert alrts" style={{ marginBottom:0 }}>✅ Invitación segura enviada por correo</div>}
               </div>
             </div>
           ))}
@@ -3599,25 +3688,16 @@ Cualquier consulta: ${user?.email || ""}`);
                     <div key={l} style={{ fontSize:11 }}><span style={{ color:C.grayL }}>{l}:</span> <strong>{v}</strong></div>
                   ))}
                 </div>
-                {/* Contraseña visible para org_admin y superadmin */}
-                {(isOrgAdmin || isSuperAdmin) && (
-                  <div style={{ background:"#FEF3E0", borderRadius:10, padding:"8px 12px", marginBottom:10, display:"flex", alignItems:"center", gap:8 }}>
-                    <span style={{ fontSize:11, color:C.grayL, fontWeight:700, textTransform:"uppercase", letterSpacing:.5 }}>Contraseña:</span>
-                    <span style={{ fontSize:13, fontWeight:700, fontFamily:"monospace", color:"#E8A020", flex:1 }}>{u.password || "—"}</span>
-                    <button style={{ background:"none", border:"none", cursor:"pointer", fontSize:14, padding:2 }}
-                      onClick={() => navigator.clipboard?.writeText(u.password||"").then(()=>alert("Contraseña copiada"))}>📋</button>
-                  </div>
-                )}
                 <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
                   {u.status === "pending"   && <button className="btn btnp btnsm" onClick={() => chgStatus(u.id,"active")}>✅ Aprobar</button>}
                   {u.status === "active"    && <button className="btn btng btnsm" onClick={() => chgStatus(u.id,"inactive")}>⏸️ Suspender</button>}
                   {u.status === "inactive"  && <button className="btn btno btnsm" onClick={() => chgStatus(u.id,"active")}>▶️ Reactivar</button>}
-                  {/* Enviar credenciales por WA */}
+                  {/* Enviar únicamente el enlace; las contraseñas son privadas. */}
                   {(isOrgAdmin || isSuperAdmin) && u.phone && (
                     <button className="btn btnsm" style={{background:"#25D366",color:"white"}} onClick={()=>{
-                      const msg = encodeURIComponent(`Hola ${u.name.split(" ")[0]}! 👋\n\nTus datos de acceso a Hadrion:\n📧 Email: ${u.email}\n🔑 Contraseña: ${u.password}\n👉 https://hadrion.pages.dev`);
+                      const msg = encodeURIComponent(`Hola ${u.name.split(" ")[0]}! 👋\n\nTu acceso a Hadrion usa el correo ${u.email}. Si todavía no elegiste tu contraseña, revisá la invitación recibida por email.\n👉 https://hadrion.pages.dev`);
                       window.open(`https://wa.me/${(u.phone||"").replace(/\D/g,"")}?text=${msg}`,"_blank");
-                    }}>💬 Enviar cred.</button>
+                    }}>💬 Enviar acceso</button>
                   )}
                   {isSuperAdmin && u.role !== "admin" && <button className="btn btngold btnsm" onClick={() => chgRole(u.id,"admin")}>👑 Hacer admin</button>}
                   {isSuperAdmin && u.role === "admin" && u.id !== currentUser?.id && <button className="btn btng btnsm" onClick={() => chgRole(u.id,"profesional")}>↓ Quitar admin</button>}
@@ -3845,7 +3925,7 @@ Si les interesa, escríbanme 💜`}
 
       {showNew && (
         <Modal title="Dar de alta usuario" onClose={() => setNew(false)}>
-          {[["Nombre completo","name","text","Nombre y apellido"],["Email profesional","email","email","tu@email.com"],["Contraseña inicial","password","text","Contraseña temporal"],["Especialidad","specialty","text","Fonoaudiologa, Psicopedagoga..."]].map(([l,k,t,ph]) => (
+          {[["Nombre completo","name","text","Nombre y apellido"],["Email profesional","email","email","tu@email.com"],["Especialidad","specialty","text","Fonoaudiologa, Psicopedagoga..."]].map(([l,k,t,ph]) => (
             <div className="fg" key={k}><label className="lbl">{l}</label><input className="inp" type={t} placeholder={ph} value={f[k]||""} onChange={e => setF({ ...f, [k]:e.target.value })} /></div>
           ))}
           <div className="fg">
@@ -3880,7 +3960,8 @@ Si les interesa, escríbanme 💜`}
               </div>
             </>
           )}
-          <button className="btn btnp btnfull" onClick={add} disabled={savingUser}>{savingUser ? "Guardando..." : "✅ Crear usuario"}</button>
+          <div className="alert alrti">La persona recibirá un correo seguro para activar su cuenta y elegir su contraseña.</div>
+          <button className="btn btnp btnfull" onClick={add} disabled={savingUser}>{savingUser ? "Enviando…" : "✉️ Enviar invitación"}</button>
           <div className="fg">
             <label className="lbl">Días de acceso (prueba)</label>
             <input className="inp" type="number" min="1" max="365" value={f.trialDays||"14"}
@@ -3928,20 +4009,11 @@ function Profile({ user, onLogout, setUser }) {
 
   const changePw = async () => {
     setPwErr(""); setPwOk(false);
-    if (!pwF.current || !pwF.newPw || !pwF.confirm) { setPwErr("Completa todos los campos."); return; }
-    if (pwF.current !== user.password) { setPwErr("La contraseña actual es incorrecta."); return; }
+    if (!pwF.newPw || !pwF.confirm) { setPwErr("Completa la nueva contraseña."); return; }
     if (pwF.newPw !== pwF.confirm)     { setPwErr("Las contraseñas nuevas no coinciden."); return; }
     if (pwF.newPw.length < 6)          { setPwErr("Mínimo 6 caracteres."); return; }
-    setUser(prev => ({ ...prev, password:pwF.newPw }));
-    // Persistir nueva contraseña en Supabase
-    if (user.id && typeof user.id === "string") {
-      try {
-        await sbFetch(`hadrion_users?id=eq.${user.id}`, {
-          method: "PATCH",
-          body: JSON.stringify({ password: pwF.newPw }),
-        });
-      } catch(e) { setPwErr("Error al guardar en servidor: " + e.message); return; }
-    }
+    try { await sbUpdatePassword(pwF.newPw); }
+    catch(e) { setPwErr(e.message); return; }
     setPwF({ current:"", newPw:"", confirm:"" });
     setPwOk(true);
   };
@@ -3984,7 +4056,6 @@ function Profile({ user, onLogout, setUser }) {
         }
       </SC>
       <SC title="🔒 Cambiar contraseña">
-        <div className="fg"><label className="lbl">Contraseña actual</label><input className="inp" type="password" placeholder="••••••••" value={pwF.current} onChange={e => setPwF({ ...pwF, current:e.target.value })} /></div>
         <div className="fg"><label className="lbl">Nueva contraseña</label><input className="inp" type="password" placeholder="Minimo 6 caracteres" value={pwF.newPw} onChange={e => setPwF({ ...pwF, newPw:e.target.value })} /></div>
         <div className="fg"><label className="lbl">Confirmar nueva contraseña</label><input className="inp" type="password" placeholder="Repite la nueva" value={pwF.confirm} onChange={e => setPwF({ ...pwF, confirm:e.target.value })} /></div>
         {pwErr && <div className="alert alrtd">{pwErr}</div>}
@@ -6547,7 +6618,8 @@ export default function HadrionApp() {
   const stored = loadFromStorage();
 
   const [users,            setUsersRaw]   = useState(stored?.users            || INIT_USERS);
-  const [user,             setUser]       = useState(stored?.user             || null);
+  const [user,             setUser]       = useState(null);
+  const [authReady,        setAuthReady]  = useState(false);
   const [active,           setActive]     = useState("dashboard");
   const [patients,         setPatientsRaw]= useState(stored?.patients         || INIT_PATIENTS);
   const [sessions,         setSessionsRaw]= useState(stored?.sessions         || INIT_SESSIONS);
@@ -6602,32 +6674,19 @@ export default function HadrionApp() {
   const [showQS,           setShowQS]     = useState(false);
   const [qsF,              setQsF]        = useState({ patientId:"", note:"" });
   const [lang,             setLang]       = useState("es");
-  const [sessionKicked,    setSessionKicked] = useState(false);
+  const [sessionKicked] = useState(false);
 
-  // ── Sesión única: verificar cada 60s contra Supabase ─────────────────────
-  // Al login se graba session_token en hadrion_users.
-  // Cada 60s este dispositivo verifica el token en Supabase.
-  // Si cambió → otro dispositivo abrió sesión → se cierra esta.
+  // Restaurar únicamente una sesión verificada por Supabase Auth.
   useEffect(() => {
-    if (!user?.id || typeof user.id !== "string") return;
-    const myToken = user.sessionToken;
-    if (!myToken) return;
-    const check = setInterval(async () => {
-      try {
-        const rows = await sbFetch(`hadrion_users?id=eq.${user.id}&select=session_token`);
-        const dbToken = rows?.[0]?.session_token;
-        if (dbToken && dbToken !== myToken) {
-          clearInterval(check);
-          setSessionKicked(true);
-          setUser(null);
-          saveToStorage({ users, user:null, patients, sessions, payments,
-            agendaItems, plan, registerRequests, precios, documentos,
-            plantillas, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory });
-        }
-      } catch(e) {}
-    }, 60000);
-    return () => clearInterval(check);
-  }, [user]);
+    let active = true;
+    sbRestoreLogin().then(profile => {
+      if (active && profile?.status === "active") {
+        setUser(profile);
+        setUsersRaw(prev => prev.some(x=>x.id===profile.id) ? prev : [...prev,profile]);
+      }
+    }).catch(()=>saveAuthSession(null)).finally(()=>active && setAuthReady(true));
+    return () => { active=false; };
+  }, []);
 
   // Wrappers que persisten automáticamente
   const persist = (key, v, val) => {
@@ -6651,7 +6710,8 @@ export default function HadrionApp() {
     setReg(prev => [...prev, { id:makeId(), date:new Date().toLocaleDateString("es-UY"), ...form, status:"pendiente" }]);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await sbLogout();
     saveToStorage({ users, user:null, patients, sessions, payments, agendaItems, plan, registerRequests,
       precios, documentos, plantillas, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory });
     setUser(null); setActive("dashboard");
@@ -6667,8 +6727,7 @@ export default function HadrionApp() {
   };
 
   const setUserAndPersist = (u) => {
-    const token = makeId();
-    const userWithToken = { ...u, sessionToken: token, lastLogin: new Date().toLocaleString("es-UY") };
+    const userWithToken = { ...u, lastLogin: new Date().toLocaleString("es-UY") };
     const exists = users.find(x => x.id === u.id);
     const updatedUsers = exists
       ? users.map(x => x.id === u.id ? userWithToken : x)
@@ -6677,17 +6736,13 @@ export default function HadrionApp() {
     setUser(userWithToken);
     saveToStorage({ users:updatedUsers, user:userWithToken, patients, sessions, payments, agendaItems, plan,
       registerRequests, precios, documentos, plantillas, psicoDatos, tccDatos, liqConfigs, liqAsistencias, chatHistory });
-    // Grabar session_token en Supabase — si otro dispositivo tiene token distinto, lo detecta y se cierra
-    if (u.id && typeof u.id === "string") {
-      sbFetch(`hadrion_users?id=eq.${u.id}`, {
-        method:"PATCH",
-        body: JSON.stringify({ session_token: token, lastLogin: new Date().toISOString() })
-      }).catch(()=>{});
-    }
+    if (u.id && typeof u.id === "string") sbFetch(`hadrion_users?id=eq.${u.id}`, {
+      method:"PATCH", body:JSON.stringify({ lastLogin:new Date().toISOString() })
+    }).catch(()=>{});
   };
 
   // ── Roles y privacidad ─────────────────────────────────────────────────────
-  // admin      → Adriana: ve usuarios/contraseñas/org para soporte técnico.
+  // admin      → Adriana: gestiona usuarios y organizaciones, nunca contraseñas.
   //              NO accede a datos clínicos (Ley 18.331 + secreto profesional Uruguay).
   // admin_org  → dueño/director de clínica: ve liquidaciones de su org +
   //              sus propios pacientes si también es terapeuta.
@@ -6820,10 +6875,12 @@ export default function HadrionApp() {
     { id:user?.role==="admin"?"admin":"profile", l:user?.role==="admin"?"Admin":"Perfil", i:user?.role==="admin"?"🔐":"👤" },
   ];
 
+  if (!authReady) return <><style>{CSS}</style><div style={{minHeight:"100vh",display:"grid",placeItems:"center",background:C.cream,color:C.terra,fontWeight:700}}>Preparando Hadrion…</div></>;
+
   if (!user) return (
     <>
       <style>{CSS}</style>
-      <Login onLogin={setUserAndPersist} users={users} onRegisterRequest={handleRegisterRequest} />
+      <Login onLogin={setUserAndPersist} onRegisterRequest={handleRegisterRequest} />
     </>
   );
 
