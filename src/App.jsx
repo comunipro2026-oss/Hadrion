@@ -2257,9 +2257,46 @@ function Activities({ user }) {
   const [sel, setSel]         = useState(null);
   const [nivel, setNivel]     = useState("facil");
   const [showAll, setShowAll] = useState(false);
+  const [sessionMode, setSessionMode] = useState(false);
+  const [seconds, setSeconds] = useState(0);
+  const [timerOn, setTimerOn] = useState(false);
+  const [result, setResult] = useState("");
+  const [sessionNote, setSessionNote] = useState("");
+  const [savedMessage, setSavedMessage] = useState("");
+  const [favorites, setFavorites] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("hadrion_activity_favorites") || "[]"); }
+    catch { return []; }
+  });
   const tC      = { Clinica:{ bg:C.sageF, c:C.forest }, Familia:{ bg:C.terraF, c:C.terra } };
   const nivelC  = { facil:{ bg:"#E8F8EF", c:"#27AE60" }, medio:{ bg:C.goldF, c:C.gold }, dificil:{ bg:C.dangerF, c:C.danger } };
   const categoryIcon = { Lenguaje:"🗣️", Lectoescritura:"📖", Fonología:"🔤", Cognición:"🧠", Motricidad:"🤸", Social:"🤝", Sensorial:"✨" };
+
+  useEffect(() => {
+    if (!timerOn) return;
+    const id = setInterval(() => setSeconds(s=>s+1),1000);
+    return () => clearInterval(id);
+  }, [timerOn]);
+
+  const openActivity = activity => {
+    setSel(activity); setNivel("facil"); setSessionMode(false); setSeconds(0);
+    setTimerOn(false); setResult(""); setSessionNote(""); setSavedMessage("");
+  };
+  const toggleFavorite = (id, event) => {
+    event?.stopPropagation();
+    const next = favorites.includes(id) ? favorites.filter(x=>x!==id) : [...favorites,id];
+    setFavorites(next);
+    localStorage.setItem("hadrion_activity_favorites",JSON.stringify(next));
+  };
+  const formatTime = value => `${String(Math.floor(value/60)).padStart(2,"0")}:${String(value%60).padStart(2,"0")}`;
+  const saveActivityResult = () => {
+    if (!sel || !result) { setSavedMessage("Elegí cómo respondió el paciente."); return; }
+    const entry = { id:makeId(), activityId:sel.id, activity:sel.name, level:nivel, result, note:sessionNote.trim(), duration:seconds, date:new Date().toISOString() };
+    try {
+      const history = JSON.parse(localStorage.getItem("hadrion_activity_history") || "[]");
+      localStorage.setItem("hadrion_activity_history",JSON.stringify([entry,...history].slice(0,100)));
+      setSavedMessage("Resultado guardado en este dispositivo.");
+    } catch { setSavedMessage("No se pudo guardar el resultado."); }
+  };
 
   // Detectar especialidad del usuario
   const userSpecialty = user?.specialty || "";
@@ -2274,7 +2311,7 @@ function Activities({ user }) {
   ];
 
   const filtered = sortedActivities.filter(a => {
-    const matchFil   = fil === "all" || a.type === fil || a.target === fil || a.category === fil;
+    const matchFil   = fil === "all" || (fil === "favorites" && favorites.includes(a.id)) || a.type === fil || a.target === fil || a.category === fil;
     const matchAge   = ageGroup === "all" || a.ageGroup?.includes(ageGroup);
     const haystack = `${a.name} ${a.category} ${a.target} ${a.description} ${a.materials}`.toLowerCase();
     const matchQuery = !query.trim() || haystack.includes(query.trim().toLowerCase());
@@ -2301,6 +2338,10 @@ function Activities({ user }) {
           placeholder="Buscar por objetivo, diagnóstico o material…" aria-label="Buscar actividades"
           style={{paddingLeft:44,borderRadius:14,background:"white"}} />
       </div>
+      <div style={{display:"flex",gap:8,marginBottom:12,overflowX:"auto",paddingBottom:2}}>
+        <button className="btn btnp btnsm" onClick={()=>filtered.length&&openActivity(filtered[Math.floor(Math.random()*filtered.length)])}>🎲 Sugerirme una</button>
+        <button className={`btn btnsm ${fil==="favorites"?"btnp":"btng"}`} onClick={()=>setFil(fil==="favorites"?"all":"favorites")}>⭐ Favoritas ({favorites.length})</button>
+      </div>
       <div className="filrow">
         {["all","Clinica","Familia",
           ...new Set(sortedActivities.map(a=>a.category).filter(Boolean))
@@ -2318,10 +2359,10 @@ function Activities({ user }) {
       {filtered.length===0 && <div style={{background:"white",borderRadius:16,padding:28,textAlign:"center",color:C.grayL,border:`1px solid ${C.sand}`}}>No encontramos actividades con esos filtros.<br/><button className="btn btng btnsm" style={{marginTop:10}} onClick={()=>{setQuery("");setFil("all");setAgeGroup("all");}}>Limpiar filtros</button></div>}
       <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(240px,1fr))", gap:12 }}>
         {filtered.map(a => (
-          <div key={a.id} className="card" style={{ cursor:"pointer", padding:16,display:"flex",flexDirection:"column",minHeight:190,border:`1px solid ${C.sand}` }} onClick={() => { setSel(a); setNivel("facil"); }}>
+          <div key={a.id} className="card" style={{ cursor:"pointer", padding:16,display:"flex",flexDirection:"column",minHeight:190,border:`1px solid ${C.sand}` }} onClick={() => openActivity(a)}>
             <div style={{ display:"flex", justifyContent:"space-between", marginBottom:5 }}>
               <span style={{fontSize:30}}>{categoryIcon[a.category]||"🎯"}</span>
-              {a.printable && <span style={{ fontSize:10, color:C.info }}>🖨️</span>}
+              <div style={{display:"flex",gap:8,alignItems:"center"}}>{a.printable && <span style={{ fontSize:14, color:C.info }}>🖨️</span>}<button aria-label={favorites.includes(a.id)?"Quitar de favoritas":"Agregar a favoritas"} onClick={e=>toggleFavorite(a.id,e)} style={{border:"none",background:"transparent",fontSize:20,cursor:"pointer",padding:2}}>{favorites.includes(a.id)?"⭐":"☆"}</button></div>
             </div>
             <div style={{ fontWeight:700, fontSize:15, color:C.charcoal, marginBottom:5 }}>{a.name}</div>
             <div style={{ fontSize:11, color:C.grayL, marginBottom:10 }}>{a.category} · {a.target} · {a.age} años</div>
@@ -2338,6 +2379,29 @@ function Activities({ user }) {
 
       {sel && (
         <Modal title={sel.name} onClose={() => setSel(null)}>
+          {sessionMode ? (
+            <div>
+              <div style={{background:"linear-gradient(135deg,#9B7EBD,#7B5EA7)",color:"white",borderRadius:16,padding:18,textAlign:"center",marginBottom:14}}>
+                <div style={{fontSize:11,textTransform:"uppercase",letterSpacing:1,opacity:.8}}>Actividad en curso · nivel {nivel}</div>
+                <div style={{fontSize:38,fontWeight:800,fontVariantNumeric:"tabular-nums",margin:"5px 0"}}>{formatTime(seconds)}</div>
+                <button className="btn btnsm" style={{background:"white",color:C.terra,marginRight:6}} onClick={()=>setTimerOn(v=>!v)}>{timerOn?"⏸ Pausar":"▶ Iniciar"}</button>
+                <button className="btn btnsm" style={{background:"rgba(255,255,255,.2)",color:"white"}} onClick={()=>{setTimerOn(false);setSeconds(0);}}>↺ Reiniciar</button>
+              </div>
+              <div style={{background:C.terraF,borderRadius:14,padding:15,marginBottom:12}}>
+                <div style={{fontSize:11,fontWeight:800,color:C.terra,textTransform:"uppercase",marginBottom:6}}>Consigna para decir en voz alta</div>
+                <div style={{fontSize:16,fontWeight:650,color:C.charcoal,lineHeight:1.55}}>{sel.niveles?.[nivel]?.instrucciones || sel.description}</div>
+              </div>
+              <div style={{fontWeight:700,fontSize:13,marginBottom:8}}>Ejemplos rápidos</div>
+              {(sel.niveles?.[nivel]?.ejemplos||[]).map((example,index)=><div key={index} style={{background:"white",border:`1px solid ${C.sand}`,borderRadius:12,padding:12,marginBottom:7,fontSize:13,lineHeight:1.45}}><strong style={{color:C.terra}}>{index+1}.</strong> {example}</div>)}
+              <div style={{background:C.goldF,borderRadius:12,padding:12,fontSize:12,color:C.charcoal,margin:"10px 0"}}><strong>Si necesita ayuda:</strong> {sel.niveles?.[nivel]?.apoyo || "Modelá una respuesta y reducí la cantidad de opciones."}</div>
+              <div style={{fontWeight:700,fontSize:13,margin:"14px 0 8px"}}>¿Cómo respondió?</div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:7}}>{[["logrado","✅","Logrado"],["ayuda","🟡","Con ayuda"],["dificil","🔴","Difícil"]].map(([key,icon,label])=><button key={key} className="btn btnsm" onClick={()=>setResult(key)} style={{justifyContent:"center",background:result===key?C.terraF:"white",border:`2px solid ${result===key?C.terra:C.sand}`,color:C.charcoal,padding:"10px 4px"}}><span>{icon}</span> {label}</button>)}</div>
+              <textarea className="inp" value={sessionNote} onChange={e=>setSessionNote(e.target.value)} placeholder="Observación breve (opcional)" style={{marginTop:10,minHeight:68}} />
+              {savedMessage&&<div className={savedMessage.startsWith("Resultado")?"alert alrts":"alert alrtd"}>{savedMessage}</div>}
+              <button className="btn btnp btnfull" onClick={saveActivityResult}>Guardar resultado</button>
+              <button className="btn btng btnfull" style={{marginTop:7}} onClick={()=>{setTimerOn(false);setSessionMode(false);}}>← Volver a la ficha</button>
+            </div>
+          ) : <>
           <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:12 }}>
             <span className="badge" style={{ background:tC[sel.type]?.bg, color:tC[sel.type]?.c }}>{sel.type}</span>
             <span className="badge" style={{ background:C.terraF, color:C.terra }}>{sel.target}</span>
@@ -2372,6 +2436,8 @@ function Activities({ user }) {
             </>
           )}
           {sel.printable && <button className="btn btno btnfull noprint" style={{ marginTop:12 }} onClick={() => window.print()}>🖨️ Imprimir actividad</button>}
+          <button className="btn btnp btnfull" style={{marginTop:10}} onClick={()=>{setSessionMode(true);setSeconds(0);setTimerOn(true);}}>▶ Usar ahora en sesión</button>
+          </>}
         </Modal>
       )}
     </div>
