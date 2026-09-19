@@ -806,6 +806,7 @@ const loadFromStorage = () => {
 // ─── SUPABASE ────────────────────────────────────────────────────────────────
 const SB_URL = "https://lgpqyjevdwstbnerawmp.supabase.co";
 const SB_KEY = "sb_publishable_ezLQMGeIrqgHPMyINUGHKw_mTDTNR61";
+const HADRION_APP_URL = "https://hadrion.pages.dev/";
 const AUTH_STORAGE_KEY = "hadrion_auth_session";
 let sbSession = (() => {
   try { return JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY) || "null"); }
@@ -886,12 +887,28 @@ const sbLogout = async () => {
 };
 
 const sbRecoverPassword = async email => {
-  const res = await fetch(`${SB_URL}/auth/v1/recover`, {
+  const res = await fetch(`${SB_URL}/auth/v1/recover?redirect_to=${encodeURIComponent(HADRION_APP_URL)}`, {
     method:"POST",
     headers:{ apikey:SB_KEY, "Content-Type":"application/json" },
     body:JSON.stringify({ email:email.trim() }),
   });
   if (!res.ok) throw new Error("No se pudo enviar el correo de recuperación.");
+};
+
+// Los enlaces de recuperación de Supabase regresan con una sesión temporal
+// en el fragmento de la URL. La app debe consumirla antes de mostrar el login.
+const consumeRecoverySession = () => {
+  const params = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  if (params.get("type") !== "recovery" || !params.get("access_token")) return false;
+  saveAuthSession({
+    access_token: params.get("access_token"),
+    refresh_token: params.get("refresh_token") || "",
+    token_type: params.get("token_type") || "bearer",
+    expires_in: Number(params.get("expires_in") || 3600),
+    expires_at: Math.floor(Date.now() / 1000) + Number(params.get("expires_in") || 3600),
+  });
+  window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+  return true;
 };
 
 const sbUpdatePassword = async password => {
@@ -1069,6 +1086,48 @@ function Sidebar({ active, setActive, user, registerRequests=[] }) {
 }
 
 // ─── LOGIN ────────────────────────────────────────────────────────────────────
+function RecoveryPassword({ onFinished }) {
+  const [password, setPassword] = useState("");
+  const [repeat, setRepeat] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
+
+  const updatePassword = async () => {
+    if (password.length < 8) { setError("La contraseña debe tener al menos 8 caracteres."); return; }
+    if (password !== repeat) { setError("Las contraseñas no coinciden."); return; }
+    setLoading(true); setError("");
+    try {
+      await sbUpdatePassword(password);
+      saveAuthSession(null);
+      setDone(true);
+    } catch (e) {
+      setError(e.message || "No se pudo guardar la contraseña.");
+    } finally { setLoading(false); }
+  };
+
+  return (
+    <div style={{ minHeight:"100vh", background:"linear-gradient(135deg,#FDF0E8 0%,#FAF8F5 55%,#EBF5EE 100%)", display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}>
+      <div style={{ background:"white", borderRadius:24, padding:"36px 26px", width:"100%", maxWidth:400, boxShadow:"0 8px 40px rgba(0,0,0,.12)" }}>
+        <div style={{ width:62, height:62, background:C.terra, borderRadius:18, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 13px", fontFamily:"'Cormorant Garamond',serif", fontSize:30, fontWeight:700, color:"white" }}>H</div>
+        {!done ? <>
+          <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:27,fontWeight:700,color:C.charcoal,textAlign:"center",marginBottom:6}}>Crear nueva contraseña</div>
+          <div style={{fontSize:13,color:C.grayL,textAlign:"center",lineHeight:1.55,marginBottom:20}}>Elegí una contraseña nueva para volver a entrar a Hadrion.</div>
+          <div className="fg"><label className="lbl">Nueva contraseña</label><input className="inp" type="password" autoComplete="new-password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Mínimo 8 caracteres" /></div>
+          <div className="fg"><label className="lbl">Repetir contraseña</label><input className="inp" type="password" autoComplete="new-password" value={repeat} onChange={e=>setRepeat(e.target.value)} onKeyDown={e=>e.key==="Enter"&&!loading&&updatePassword()} placeholder="Escribila nuevamente" /></div>
+          {error && <div className="alert alrtd">{error}</div>}
+          <button className="btn btnp btnfull" onClick={updatePassword} disabled={loading}>{loading?"Guardando…":"Guardar nueva contraseña"}</button>
+        </> : <>
+          <div style={{fontSize:48,textAlign:"center",marginBottom:10}}>✅</div>
+          <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,fontWeight:700,color:C.charcoal,textAlign:"center",marginBottom:8}}>Contraseña actualizada</div>
+          <div className="alert alrts">Ya podés ingresar con tu correo y la contraseña nueva.</div>
+          <button className="btn btnp btnfull" onClick={onFinished}>Ir a iniciar sesión</button>
+        </>}
+      </div>
+    </div>
+  );
+}
+
 function Login({ onLogin, onRegisterRequest }) {
   const [f, setF]           = useState({ email:"", pass:"", show:false });
   const [err, setErr]       = useState("");
@@ -6686,6 +6745,7 @@ export default function HadrionApp() {
   const [users,            setUsersRaw]   = useState(stored?.users            || INIT_USERS);
   const [user,             setUser]       = useState(null);
   const [authReady,        setAuthReady]  = useState(false);
+  const [passwordRecovery, setPasswordRecovery] = useState(() => consumeRecoverySession());
   const [active,           setActive]     = useState("dashboard");
   const [patients,         setPatientsRaw]= useState(stored?.patients         || INIT_PATIENTS);
   const [sessions,         setSessionsRaw]= useState(stored?.sessions         || INIT_SESSIONS);
@@ -6744,6 +6804,7 @@ export default function HadrionApp() {
 
   // Restaurar únicamente una sesión verificada por Supabase Auth.
   useEffect(() => {
+    if (passwordRecovery) { setAuthReady(true); return; }
     let active = true;
     sbRestoreLogin().then(profile => {
       if (active && profile?.status === "active") {
@@ -6752,7 +6813,7 @@ export default function HadrionApp() {
       }
     }).catch(()=>saveAuthSession(null)).finally(()=>active && setAuthReady(true));
     return () => { active=false; };
-  }, []);
+  }, [passwordRecovery]);
 
   // Wrappers que persisten automáticamente
   const persist = (key, v, val) => {
@@ -6942,6 +7003,8 @@ export default function HadrionApp() {
   ];
 
   if (!authReady) return <><style>{CSS}</style><div style={{minHeight:"100vh",display:"grid",placeItems:"center",background:C.cream,color:C.terra,fontWeight:700}}>Preparando Hadrion…</div></>;
+
+  if (passwordRecovery) return <><style>{CSS}</style><RecoveryPassword onFinished={()=>setPasswordRecovery(false)} /></>;
 
   if (!user) return (
     <>
