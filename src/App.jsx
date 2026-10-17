@@ -929,22 +929,6 @@ const consumeRecoverySession = () => {
   return true;
 };
 
-// Los enlaces de recuperación de Supabase regresan con una sesión temporal
-// en el fragmento de la URL. La app debe consumirla antes de mostrar el login.
-const consumeRecoverySession = () => {
-  const params = new URLSearchParams(window.location.hash.replace(/^#/, ""));
-  if (params.get("type") !== "recovery" || !params.get("access_token")) return false;
-  saveAuthSession({
-    access_token: params.get("access_token"),
-    refresh_token: params.get("refresh_token") || "",
-    token_type: params.get("token_type") || "bearer",
-    expires_in: Number(params.get("expires_in") || 3600),
-    expires_at: Math.floor(Date.now() / 1000) + Number(params.get("expires_in") || 3600),
-  });
-  window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
-  return true;
-};
-
 const sbUpdatePassword = async password => {
   const token = await getAccessToken();
   if (!token) throw new Error("La sesión venció. Volvé a ingresar.");
