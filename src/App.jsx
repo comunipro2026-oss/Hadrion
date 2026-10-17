@@ -856,6 +856,14 @@ const sbFetch = async (path, opts = {}) => {
   return res.status === 204 ? null : res.json();
 };
 
+// Normaliza el nombre visible de la cuenta propietaria de Hadrion.
+// Evita que metadatos antiguos o una sesión cacheada muestren otro nombre.
+const normalizeProfileName = profile => {
+  if (!profile) return profile;
+  const isOwner = String(profile.email || \"\").toLowerCase() === \"comunipro12@gmail.com\" || profile.role === \"admin\";
+  return isOwner ? { ...profile, name: \"Adriana Soba\", nombre: \"Adriana Soba\" } : profile;
+};
+
 // Inicio de sesión seguro con Supabase Auth. La contraseña nunca se consulta
 // ni se almacena en las tablas públicas de Hadrion.
 const sbLogin = async (email, password) => {
@@ -869,7 +877,7 @@ const sbLogin = async (email, password) => {
   saveAuthSession(session);
   const rows = await sbFetch(`hadrion_users?auth_user_id=eq.${session.user.id}&select=*`);
   if (!rows?.[0]) { saveAuthSession(null); return null; }
-  return rows[0];
+  return normalizeProfileName(rows[0]);
 };
 
 const sbRestoreLogin = async () => {
@@ -877,7 +885,7 @@ const sbRestoreLogin = async () => {
   const authId = sbSession?.user?.id;
   if (!token || !authId) return null;
   const rows = await sbFetch(`hadrion_users?auth_user_id=eq.${authId}&select=*`);
-  return rows?.[0] || null;
+  return normalizeProfileName(rows?.[0] || null);
 };
 
 const sbLogout = async () => {
