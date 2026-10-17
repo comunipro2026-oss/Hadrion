@@ -860,8 +860,8 @@ const sbFetch = async (path, opts = {}) => {
 // Evita que metadatos antiguos o una sesión cacheada muestren otro nombre.
 const normalizeProfileName = profile => {
   if (!profile) return profile;
-  const isOwner = String(profile.email || \"\").toLowerCase() === \"comunipro12@gmail.com\" || profile.role === \"admin\";
-  return isOwner ? { ...profile, name: \"Adriana Soba\", nombre: \"Adriana Soba\" } : profile;
+  const isOwner = String(profile.email || "").toLowerCase() === "comunipro12@gmail.com" || profile.role === "admin";
+  return isOwner ? { ...profile, name: "Adriana Soba", nombre: "Adriana Soba" } : profile;
 };
 
 // Inicio de sesión seguro con Supabase Auth. La contraseña nunca se consulta
