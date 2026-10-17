@@ -929,6 +929,22 @@ const consumeRecoverySession = () => {
   return true;
 };
 
+// Los enlaces de recuperación de Supabase regresan con una sesión temporal
+// en el fragmento de la URL. La app debe consumirla antes de mostrar el login.
+const consumeRecoverySession = () => {
+  const params = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  if (params.get("type") !== "recovery" || !params.get("access_token")) return false;
+  saveAuthSession({
+    access_token: params.get("access_token"),
+    refresh_token: params.get("refresh_token") || "",
+    token_type: params.get("token_type") || "bearer",
+    expires_in: Number(params.get("expires_in") || 3600),
+    expires_at: Math.floor(Date.now() / 1000) + Number(params.get("expires_in") || 3600),
+  });
+  window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+  return true;
+};
+
 const sbUpdatePassword = async password => {
   const token = await getAccessToken();
   if (!token) throw new Error("La sesión venció. Volvé a ingresar.");
@@ -3724,17 +3740,6 @@ function Admin({ users, setUsers, registerRequests, setRegisterRequests, current
   const sIcon  = { active:"🟢", pending:"🟡", inactive:"⚪" };
   const sLabel = { active:"Activo", pending:"Pendiente", inactive:"Inactivo" };
 
-  const sendWA = () => {
-    const msg = `Hola ${f.name.split(" ")[0]}! Te doy acceso a Hadrion.\n🔗 hadrion.pages.dev\n📧 Email: ${f.email}\n🔑 Contraseña: ${f.password}\nPlan: ${f.plan} — 14 dias de prueba. Cualquier consulta escribime!`;
-    window.open(waLink(f.phone, f.codigoPais||"598", msg), "_blank");
-  };
-
-  const sendEmail = () => {
-    const subject = encodeURIComponent("Acceso a Hadrion — Plataforma Clinica");
-    const body    = encodeURIComponent(`Hola ${f.name}!\n\nTe doy acceso a Hadrion, tu plataforma clinica.\n\nURL: https://hadrion.pages.dev\nEmail: ${f.email}\nContraseña: ${f.password}\nPlan: ${f.plan}\n\n14 dias de prueba gratuitos. Consultas: ${currentUser?.email || ""}`);
-    window.open(`mailto:${f.email}?subject=${subject}&body=${body}`);
-  };
-
   return (
     <div className="fu">
       <div style={{ marginBottom:14 }}>
@@ -4118,21 +4123,7 @@ Si les interesa, escríbanme 💜`}
               El acceso vence en {f.trialDays||14} días. Los datos se conservan 30 días adicionales.
             </div>
           </div>
-          {f.name && f.email && f.password && (
-            <div style={{ marginTop:12 }}>
-              <div style={{ display:"flex", gap:8 }}>
-                <button className="btn btnsm" style={{ background:"#25D366", color:"white", flex:1, justifyContent:"center" }} onClick={sendWA}>
-                  📱 WhatsApp
-                </button>
-                <button className="btn btnsm" style={{ background:C.info, color:"white", flex:1, justifyContent:"center" }} onClick={sendEmail}>
-                  ✉️ Email
-                </button>
-              </div>
-              <div className="alert alrti" style={{ marginTop:8, fontSize:11 }}>
-                Primero creá el usuario, luego enviá las credenciales por WhatsApp o Email.
-              </div>
-            </div>
-          )}
+
         </Modal>
       )}
       {confirmDelUser && (
@@ -4235,7 +4226,7 @@ function Organizaciones({ users, setUsers, currentUser, precios={} }) {
   const [sbUsers, setSbUsers] = useState([]); // usuarios de Supabase (reales)
   const [sbLoading, setSbLoading] = useState(false);
   const [showNew, setShowNew] = useState(false);
-  const [f, setF]             = useState({ nombre:"", tipo:"Clinica", plan:"clinica", contacto:"", telefono:"", maxUsers:"10", adminEmail:"", adminPassword:"", adminName:"" });
+  const [f, setF]             = useState({ nombre:"", tipo:"Clinica", plan:"clinica", contacto:"", telefono:"", maxUsers:"10", adminEmail:"", adminName:"" });
   const [selOrg, setSelOrg]   = useState(null);
   const [showSendModal, setShowSendModal] = useState(false);
   const [lastCreated, setLastCreated] = useState(null); // { org, adminUser }
@@ -4276,7 +4267,6 @@ function Organizaciones({ users, setUsers, currentUser, precios={} }) {
     if (!f.nombre.trim()) { setErrForm("Completá el nombre de la organización."); return; }
     if (!f.adminName.trim()) { setErrForm("Completá el nombre completo del administrador."); return; }
     if (!f.adminEmail.trim()) { setErrForm("Completá el email del administrador."); return; }
-    if (!f.adminPassword.trim()) { setErrForm("Completá la contraseña del administrador."); return; }
     setSavingOrg(true);
     try {
       // Verificar que el email del admin no exista ya
@@ -4294,25 +4284,30 @@ function Organizaciones({ users, setUsers, currentUser, precios={} }) {
         activa: true, created_at: new Date().toISOString(),
       };
       const adminName = f.adminName.trim();
-      const init = adminName.split(" ").map(w=>w[0]).join("").toUpperCase().slice(0,2) || "AD";
       const cols = [C.terra,C.sage,C.info,C.purple,C.gold];
-      const adminUser = {
-        name: adminName,                        // ← campo name limpio y no-null
-        email: f.adminEmail.trim(),
-        password: f.adminPassword.trim(),
-        role: "admin_org",                      // ← rol correcto
-        org_id: orgId, plan: f.plan, status: "active",
-        specialty: "Administrador", phone: f.telefono.trim(),
-        avatar: init, color: cols[orgs.length % cols.length],
-      };
+      let adminUser;
       await saveOrgSb(newOrg);
-      await sbFetch("hadrion_users", { method:"POST", prefer:"return=representation", body: JSON.stringify(adminUser) });
+      try {
+        adminUser = await sbCreateUser({
+          name: adminName,
+          email: f.adminEmail.trim(),
+          role: "admin_org",
+          org_id: orgId,
+          plan: f.plan,
+          specialty: "Administrador",
+          phone: f.telefono.trim() || null,
+          color: cols[orgs.length % cols.length],
+        });
+      } catch (inviteError) {
+        await sbFetch(`hadrion_organizaciones?id=eq.${orgId}`, { method:"DELETE" }).catch(() => {});
+        throw inviteError;
+      }
       const fresh = await sbFetch("hadrion_organizaciones?select=*&order=created_at.desc");
       setOrgs(fresh || []);
       setLastCreated({ org: newOrg, adminUser });
       setShowNew(false);
       setShowSendModal(true);
-      setF({ nombre:"", tipo:"Clinica", plan:"clinica", contacto:"", telefono:"", maxUsers:"10", adminEmail:"", adminPassword:"", adminName:"" });
+      setF({ nombre:"", tipo:"Clinica", plan:"clinica", contacto:"", telefono:"", maxUsers:"10", adminEmail:"", adminName:"" });
       setErrForm("");
     } catch(e) { setErrForm("Error al guardar: " + e.message); }
     finally { setSavingOrg(false); }
@@ -4414,12 +4409,13 @@ function Organizaciones({ users, setUsers, currentUser, precios={} }) {
                       <span style={{fontSize:9,background:"#EDE0F5",color:"#9B7EBD",borderRadius:8,padding:"2px 6px",fontWeight:700}}>
                         {u.role==="admin_org"?"Admin":"Terapeuta"}
                       </span>
-                      {/* Reenviar credenciales */}
+                      {/* Recordatorio: nunca mostramos contraseñas */}
                       <button onClick={()=>{
                         const phone = (u.phone||"").replace(/\D/g,"");
-                        const msg = `Hola ${u.name?.split(" ")[0]} 👋\n\nTus datos de acceso a Hadrion:\n📧 Email: ${u.email}\n🔑 Contraseña: ${u.password||"(ver panel)"}\n\n👉 https://hadrion.pages.dev`;
+                        if (!phone) { alert("No hay teléfono guardado."); return; }
+                        const msg = encodeURIComponent(`Hola ${u.name?.split(" ")[0]} 👋\n\nSi todavía no activaste Hadrion, revisá el correo de invitación enviado a ${u.email}.\n👉 https://hadrion.pages.dev`);
                         window.open(waLink(phone,"598",msg),"_blank");
-                      }} title="Reenviar credenciales por WhatsApp"
+                      }} title="Recordar activación por WhatsApp"
                         style={{background:"#E8F8EF",border:"none",borderRadius:7,padding:"3px 7px",cursor:"pointer",fontSize:12,lineHeight:1}}>
                         💬
                       </button>
@@ -4478,40 +4474,32 @@ function Organizaciones({ users, setUsers, currentUser, precios={} }) {
           <div className="fg"><label className="lbl">Email *</label>
             <input className="inp" type="email" placeholder="admin@clinica.com" value={f.adminEmail} onChange={e=>setF({...f,adminEmail:e.target.value})}/>
           </div>
-          <div className="fg"><label className="lbl">Contraseña *</label>
-            <input className="inp" placeholder="Contraseña inicial" value={f.adminPassword} onChange={e=>setF({...f,adminPassword:e.target.value})}/>
+          <div style={{background:"#F5F0FA",borderRadius:10,padding:"10px 12px",marginBottom:12,fontSize:12,color:"#5A4A68",lineHeight:1.6}}>
+            🔐 No se escribe ni se guarda una contraseña. El administrador recibirá un enlace seguro por email para crear la suya.
           </div>
           {errForm && <div className="alert alrtd" style={{marginBottom:12}}>⚠️ {errForm}</div>}
           <button className="btn btnp btnfull" onClick={addOrg} disabled={savingOrg}>{savingOrg ? "⏳ Creando..." : "Crear organización →"}</button>
         </Modal>
       )}
 
-      {/* Modal enviar credenciales */}
+      {/* Modal de invitación segura */}
       {showSendModal && lastCreated && (
         <Modal title="✅ Organización creada" onClose={()=>setShowSendModal(false)}>
           <div style={{background:"#E8F8EF",borderRadius:10,padding:"10px 12px",marginBottom:14,fontSize:13,color:"#1a7a3c",fontWeight:600}}>
             {lastCreated.org.nombre} creada correctamente
           </div>
-          <div style={{fontSize:13,color:"#2C2C2C",marginBottom:4,fontWeight:700}}>Enviá las credenciales al administrador:</div>
-          <div style={{background:"#F5F0FA",borderRadius:10,padding:"10px 12px",marginBottom:14,fontSize:12,color:"#2C2C2C",lineHeight:1.7}}>
-            📧 <b>Email:</b> {lastCreated.adminUser.email}<br/>
-            🔑 <b>Contraseña:</b> {lastCreated.adminUser.password}<br/>
-            🌐 <b>Link:</b> https://hadrion.pages.dev
+          <div style={{background:"#F5F0FA",borderRadius:10,padding:"12px",marginBottom:14,fontSize:13,color:"#5A4A68",lineHeight:1.6}}>
+            ✉️ Invitación enviada a <b>{lastCreated.adminUser.email}</b>.<br/>
+            El administrador debe abrir el correo y crear su propia contraseña desde Hadrion.
           </div>
           <button className="btn btnp btnfull" style={{background:"#25D366",marginBottom:8}} onClick={()=>{
             const phone = (lastCreated.adminUser.phone||"").replace(/\D/g,"");
+            if (!phone) { alert("No hay teléfono cargado para este administrador."); return; }
             const msg = encodeURIComponent(
-              `Hola ${lastCreated.adminUser.name} 👋\n\nTe creé el acceso de administrador en Hadrion para *${lastCreated.org.nombre}*.\n\n📧 Email: ${lastCreated.adminUser.email}\n🔑 Contraseña: ${lastCreated.adminUser.password}\n\n👉 Ingresá desde: https://hadrion.pages.dev\n\nDesde tu cuenta podés crear y gestionar los usuarios de tu organización. ¡Cualquier duda me avisás! 🎉`
+              `Hola ${lastCreated.adminUser.name} 👋\n\nTe enviamos una invitación para administrar *${lastCreated.org.nombre}* en Hadrion.\n\n📧 Revisá tu correo: ${lastCreated.adminUser.email}\n🔗 Ingresá desde: https://hadrion.pages.dev\n\nAbrí el enlace del correo para crear tu propia contraseña. 🎉`
             );
             window.open(waLink(phone,"598",msg),"_blank");
-          }}>💬 Enviar por WhatsApp</button>
-          <button className="btn btni btnfull" style={{marginBottom:8}} onClick={()=>{
-            const subject = encodeURIComponent(`Acceso a Hadrion — ${lastCreated.org.nombre}`);
-            const body = encodeURIComponent(
-              `Hola ${lastCreated.adminUser.name},\n\nTe creé el acceso de administrador en Hadrion para ${lastCreated.org.nombre}.\n\nEmail: ${lastCreated.adminUser.email}\nContraseña: ${lastCreated.adminUser.password}\nLink: https://hadrion.pages.dev\n\nDesde tu cuenta podés crear y gestionar los usuarios de tu organización.\n\nCualquier duda me avisás.\n\nTu profesional`
-            );
-            window.open(`mailto:${lastCreated.adminUser.email}?subject=${subject}&body=${body}`, "_blank");
-          }}>✉️ Enviar por Email</button>
+          }}>💬 Avisar por WhatsApp</button>
           <button className="btn btng btnfull" onClick={()=>setShowSendModal(false)}>Listo</button>
         </Modal>
       )}
@@ -5985,7 +5973,7 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
   const [editPat,   setEditPat]   = useState(null); // paciente para editar tarifa
   const [tarifaF,   setTarifaF]   = useState({});
   const [showAddUser, setShowAddUser] = useState(false);
-  const [newUser, setNewUser] = useState({ name:"", email:"", password:"", specialty:"Fonoaudiologa", phone:"" });
+  const [newUser, setNewUser] = useState({ name:"", email:"", specialty:"Fonoaudiologa", phone:"" });
 
   const orgId    = currentUser?.org_id || null;
   const usandoSb = !!orgId;
@@ -6140,29 +6128,31 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
 
   // ── Agregar terapeuta ────────────────────────────────────────────────────────
   const addUser = async () => {
-    if (!newUser.name||!newUser.email||!newUser.password) return alert("Completá todos los campos");
-    if (usandoSb) {
-      // Fix 6: verificar email duplicado
-      try {
-        const existe = await sbFetch(`hadrion_users?email=eq.${encodeURIComponent(newUser.email)}&select=id`);
-        if (existe && existe.length > 0) { alert("Ya existe un usuario con ese email."); return; }
-      } catch(e) { /* continuar */ }
-      try {
-        const uid = crypto.randomUUID ? crypto.randomUUID() : makeId();
-        const init = newUser.name.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
-        await sbFetch("hadrion_users", {
-          method:"POST",
-          body: JSON.stringify({ id:uid, ...newUser, avatar:init, org_id:orgId, role:"profesional", plan:"Pro", status:"active", color:C.terra }),
-        });
-        const us = await sbGetUsers(orgId);
-        setSbUsers(us||[]);
-        setShowAddUser(false);
-        const phone = (newUser.phone||"").replace(/\D/g,"");
-        const plainMsg = `Hola ${newUser.name} 👋\n\nTe creé un usuario en Hadrion para que puedas ingresar:\n\n📧 Email: ${newUser.email}\n🔑 Contraseña: ${newUser.password}\n\n👉 Ingresá desde: https://hadrion.pages.dev\n\nCualquier duda me avisás. ¡Bienvenid@ al equipo! 🎉`;
-        window.open(waLink(phone,"598",plainMsg),"_blank");
-        setNewUser({ name:"", email:"", password:"", specialty:"Fonoaudiologa", phone:"" });
-      } catch(e) { alert("Error: "+e.message); }
-    }
+    if (!newUser.name || !newUser.email) return alert("Completá nombre y email");
+    if (!usandoSb) return;
+    try {
+      const existe = await sbFetch(`hadrion_users?email=eq.${encodeURIComponent(newUser.email)}&select=id`);
+      if (existe && existe.length > 0) { alert("Ya existe un usuario con ese email."); return; }
+      await sbCreateUser({
+        name: newUser.name,
+        email: newUser.email,
+        specialty: newUser.specialty,
+        phone: newUser.phone || null,
+        org_id: orgId,
+        role: "profesional",
+        plan: "Pro",
+        color: C.terra,
+      });
+      const us = await sbGetUsers(orgId);
+      setSbUsers(us || []);
+      setShowAddUser(false);
+      const phone = (newUser.phone || "").replace(/\D/g, "");
+      if (phone) {
+        const msg = encodeURIComponent(`Hola ${newUser.name} 👋\n\nTe enviamos una invitación segura para Hadrion.\n📧 Email: ${newUser.email}\n\nRevisá tu correo para crear tu propia contraseña.\n👉 https://hadrion.pages.dev`);
+        window.open(waLink(phone, "598", msg), "_blank");
+      }
+      setNewUser({ name:"", email:"", specialty:"Fonoaudiologa", phone:"" });
+    } catch(e) { alert("Error al enviar la invitación: " + e.message); }
   };
 
   // ── RENDER ──────────────────────────────────────────────────────────────────
@@ -6445,9 +6435,9 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
       {/* ── Modal agregar terapeuta ── */}
       {showAddUser && (
         <Modal title="➕ Nuevo terapeuta" onClose={()=>setShowAddUser(false)}>
-          {["name","email","password"].map(k=>(
+          {["name","email"].map(k=>(
             <div key={k} className="fg">
-              <label className="lbl">{{name:"Nombre",email:"Email",password:"Contraseña"}[k]}</label>
+              <label className="lbl">{{name:"Nombre",email:"Email"}[k]}</label>
               <input className="inp" type={k==="password"?"password":k==="email"?"email":"text"}
                 value={newUser[k]} onChange={e=>setNewUser({...newUser,[k]:e.target.value})}/>
             </div>
@@ -6463,7 +6453,7 @@ function Liquidacion({ users, currentUser, configs:configsProp={}, setConfigs:se
             </select>
           </div>
           <div style={{fontSize:11,color:"#9B7EBD",background:"#F5F0FA",borderRadius:8,padding:"8px 10px",marginBottom:8}}>
-            💬 Al crear, se abrirá WhatsApp con las credenciales listas para enviar.
+            ✉️ Se enviará una invitación segura. La persona creará su propia contraseña desde Hadrion.
           </div>
           <button className="btn btnp btnfull" onClick={addUser}>Crear terapeuta</button>
           <button className="btn btng btnfull" onClick={()=>setShowAddUser(false)}>Cancelar</button>
