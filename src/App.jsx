@@ -900,7 +900,17 @@ const sbRecoverPassword = async email => {
     headers:{ apikey:SB_KEY, "Content-Type":"application/json" },
     body:JSON.stringify({ email:email.trim() }),
   });
-  if (!res.ok) throw new Error("No se pudo enviar el correo de recuperación.");
+  if (!res.ok) {
+    const detail = await res.json().catch(() => ({}));
+    const raw = detail.msg || detail.message || detail.error_description || "";
+    const wait = raw.match(/after (\\d+) seconds?/i)?.[1];
+    if (res.status === 429 || wait) {
+      throw new Error(wait
+        ? `Esperá ${wait} segundos antes de pedir otro correo. El primer enlace ya fue enviado.`
+        : "Supabase limitó temporalmente los envíos. Esperá un minuto y probá una sola vez.");
+    }
+    throw new Error(raw || "No se pudo enviar el correo de recuperación.");
+  }
 };
 
 // Los enlaces de recuperación de Supabase regresan con una sesión temporal
@@ -1215,9 +1225,13 @@ function Login({ onLogin, onRegisterRequest }) {
             {err && <div className="alert alrtd">{err}</div>}
             <button className="btn btnp btnfull" style={{marginBottom:8}} onClick={async () => {
               if (!f.email) { setErr("Ingresá tu correo electrónico."); return; }
+              if (recoverSent) {
+                setErr("El enlace ya fue enviado. Revisá tu correo y la carpeta de spam.");
+                return;
+              }
               setErr("");
               try { await sbRecoverPassword(f.email); setRecoverSent(true); }
-              catch(e) { setErr(e.message); }
+              catch(e) { setRecoverSent(false); setErr(e.message); }
             }}>Enviar enlace seguro</button>
             <button className="btn btng btnfull" onClick={() => setForgot(false)}>← Volver</button>
           </>
