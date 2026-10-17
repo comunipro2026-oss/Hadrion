@@ -4380,7 +4380,7 @@ function Organizaciones({ users, setUsers, currentUser, precios={} }) {
                       }} title="Recordar activación por WhatsApp"
                         style={{background:"#E8F8EF",border:"none",borderRadius:7,padding:"3px 7px",cursor:"pointer",fontSize:12,lineHeight:1}}>
                         💬
-                      </button>             </button>
+                      </button>
                     </div>
                   </div>
                 ))}
